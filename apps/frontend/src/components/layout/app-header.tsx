@@ -2,6 +2,7 @@
 
 import { useTheme } from "next-themes";
 import { motion, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";
 import {
   Bell,
   Search,
@@ -20,6 +21,7 @@ import { api, setAccessToken } from "@/lib/api";
 import { toast } from "sonner";
 
 export function AppHeader() {
+  const router = useRouter();
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -223,7 +225,7 @@ export function AppHeader() {
                   <button
                     onClick={() => {
                       setMenuOpen(false);
-                      toast.info("Perfil do usuário em desenvolvimento.");
+                      router.push("/perfil");
                     }}
                     className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium hover:bg-violet-500/10 hover:text-violet-400 transition-colors text-left"
                     style={{ color: "hsl(var(--foreground))" }}

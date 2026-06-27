@@ -8,11 +8,11 @@ import { toast } from "sonner";
 
 interface SalaAssignmentModalProps {
   assignment: any | null; // If editing, otherwise null for new
-  profissionais: string[];
+  profissionais: { id: string; nome: string }[];
   onClose: () => void;
   onSave: (data: {
     id?: string;
-    profissional: string;
+    profissionalId: string;
     diasSemana: string[];
     horarioInicio: string;
     horarioFim: string;
@@ -33,7 +33,7 @@ export function SalaAssignmentModal({
   onClose,
   onSave,
 }: SalaAssignmentModalProps) {
-  const [profissional, setProfissional] = useState(profissionais[0] || "");
+  const [profissionalId, setProfissionalId] = useState(profissionais[0]?.id || "");
   const [diasSemana, setDiasSemana] = useState<string[]>([]);
   const [horarioInicio, setHorarioInicio] = useState("08:00");
   const [horarioFim, setHorarioFim] = useState("12:00");
@@ -41,12 +41,12 @@ export function SalaAssignmentModal({
   // Load existing assignment details if editing
   useEffect(() => {
     if (assignment) {
-      setProfissional(assignment.profissional);
-      setDiasSemana(assignment.diasSemana);
-      setHorarioInicio(assignment.horarioInicio);
-      setHorarioFim(assignment.horarioFim);
+      setProfissionalId(assignment.profissionalId || assignment.profissional || "");
+      setDiasSemana(assignment.diasSemana || []);
+      setHorarioInicio(assignment.horarioInicio || "08:00");
+      setHorarioFim(assignment.horarioFim || "12:00");
     } else {
-      setProfissional(profissionais[0] || "");
+      setProfissionalId(profissionais[0]?.id || "");
       setDiasSemana([]);
       setHorarioInicio("08:00");
       setHorarioFim("12:00");
@@ -63,7 +63,7 @@ export function SalaAssignmentModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!profissional) {
+    if (!profissionalId) {
       toast.error("Por favor, selecione um profissional.");
       return;
     }
@@ -78,7 +78,7 @@ export function SalaAssignmentModal({
 
     onSave({
       id: assignment?.id, // Keep ID if editing
-      profissional,
+      profissionalId,
       diasSemana,
       horarioInicio,
       horarioFim,
@@ -122,13 +122,14 @@ export function SalaAssignmentModal({
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-muted-foreground">Profissional de Saúde *</label>
             <select
-              value={profissional}
-              onChange={(e) => setProfissional(e.target.value)}
+              value={profissionalId}
+              onChange={(e) => setProfissionalId(e.target.value)}
               className="w-full p-2.5 rounded-xl border text-xs bg-background text-foreground border-border outline-none focus:ring-1 focus:ring-purple-500"
             >
+              <option value="">Selecione um profissional...</option>
               {profissionais.map((p) => (
-                <option key={p} value={p}>
-                  {p}
+                <option key={p.id} value={p.id}>
+                  {p.nome}
                 </option>
               ))}
             </select>

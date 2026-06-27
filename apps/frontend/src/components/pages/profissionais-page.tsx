@@ -11,145 +11,6 @@ import { ProfissionalCard } from "./profissionais/profissional-card";
 import { ProfissionalModal } from "./profissionais/profissional-modal";
 import { Profissional } from "@/types";
 
-// ─── DADOS MOCKADOS COMPLETOS ───────────────────────────────────────────────
-const initialProfissionais: Profissional[] = [
-  {
-    id: "prof-1",
-    nome: "Dra. Ana Lima de Oliveira",
-    email: "ana.lima@conectar.com",
-    tipo: "PSICOPEDAGOGO",
-    especialidade: "Dificuldades de Aprendizagem, TDAH, Dislexia",
-    especialidades: ["Dificuldades de Aprendizagem", "TDAH", "Dislexia"],
-    registro: "1234/SP",
-    orgaoRegistro: "ABPp",
-    formacao: "Graduação em Psicopedagogia (USP), Mestrado em Distúrbios do Desenvolvimento (Mackenzie)",
-    bio: "Especialista em psicopedagogia clínica com 8 anos de experiência em intervenções de TDAH e Dislexia.",
-    cor: "#8E7BBE", // Roxo institucional
-    ativo: true,
-    telefone: "11977776666",
-    salas: ["Sala 01 - Psicopedagogia", "Sala 03 - Lúdica"],
-    horarios: {
-      segunda: "08:00 - 18:00",
-      terca: "08:00 - 18:00",
-      quarta: "08:00 - 18:00",
-      quinta: "08:00 - 18:00",
-      sexta: "08:00 - 17:00",
-    },
-    cpfCnpj: "123.456.789-00",
-    tipoContrato: "CLT",
-    cargaHoraria: "40h",
-    salarioBase: 5500,
-    comissaoPorcentagem: 10,
-    chavePix: "ana.lima@conectar.com",
-    cep: "01310-200",
-    logradouro: "Avenida Paulista",
-    numero: "1000",
-    complemento: "Apto 102",
-    bairro: "Bela Vista",
-    cidade: "São Paulo",
-    uf: "SP",
-  },
-  {
-    id: "prof-2",
-    nome: "Dra. Carla Souza Reis",
-    email: "carla.souza@conectar.com",
-    tipo: "FONOAUDIOLOGO",
-    especialidade: "Desenvolvimento de Fala & Linguagem, TEA",
-    especialidades: ["Desenvolvimento de Fala & Linguagem", "TEA", "Apraxia de Fala"],
-    registro: "5678-CRFa",
-    orgaoRegistro: "CREFONO",
-    formacao: "Graduação em Fonoaudiologia (UNICAMP), Especialista em ABA e Comunicação Alternativa",
-    bio: "Fonoaudióloga infantil dedicada à estimulação precoce da comunicação verbal e não-verbal em crianças com TEA.",
-    cor: "#E98BAE", // Rosa pastel
-    ativo: true,
-    telefone: "11988885555",
-    salas: ["Sala 02 - Linguagem & Fono"],
-    horarios: {
-      segunda: "09:00 - 19:00",
-      quarta: "09:00 - 19:00",
-      quinta: "09:00 - 19:00",
-    },
-    cpfCnpj: "98.765.432/0001-99",
-    tipoContrato: "PJ",
-    cargaHoraria: "30h",
-    salarioBase: 4200,
-    comissaoPorcentagem: 40,
-    chavePix: "98765432000199",
-    cep: "04094-000",
-    logradouro: "Avenida Jabaquara",
-    numero: "1500",
-    bairro: "Mirandópolis",
-    cidade: "São Paulo",
-    uf: "SP",
-  },
-  {
-    id: "prof-3",
-    nome: "Dr. Marcos Santos Rocha",
-    email: "marcos.santos@conectar.com",
-    tipo: "NEUROPSICÓLOGO",
-    especialidade: "Avaliação Neuropsicológica Infantil, TEA, TDAH",
-    especialidades: ["Avaliação Neuropsicológica Infantil", "TEA", "TDAH"],
-    registro: "45612-CRP",
-    orgaoRegistro: "CRP",
-    formacao: "Graduação em Psicologia (PUC-SP), Mestre em Neurociências e Comportamento (USP)",
-    bio: "Mestre em Neurociências, realiza mapeamento de funções cognitivas para diagnósticos de TEA, TDAH e atrasos de desenvolvimento.",
-    cor: "#69C4B5", // Verde-água
-    ativo: true,
-    telefone: "11966664444",
-    salas: ["Sala 04 - Avaliações cognitivas"],
-    horarios: {
-      terca: "08:00 - 18:00",
-      quinta: "08:00 - 18:00",
-      sexta: "08:00 - 18:00",
-    },
-    cpfCnpj: "111.222.333-44",
-    tipoContrato: "COMISSAO",
-    cargaHoraria: "20h",
-    salarioBase: 0,
-    comissaoPorcentagem: 60,
-    chavePix: "marcos.santos@conectar.com",
-    cep: "05407-000",
-    logradouro: "Rua Cardoso de Almeida",
-    numero: "450",
-    bairro: "Perdizes",
-    cidade: "São Paulo",
-    uf: "SP",
-  },
-  {
-    id: "prof-4",
-    nome: "Dra. Paula Ramos Diniz",
-    email: "paula.ramos@conectar.com",
-    tipo: "TERAPEUTA_OCUPACIONAL",
-    especialidade: "Integração Sensorial, TEA, Coordenação Motora",
-    especialidades: ["Integração Sensorial", "TEA", "Coordenação Motora"],
-    registro: "9874-TO",
-    orgaoRegistro: "CREFITO",
-    formacao: "Graduação em Terapia Ocupacional (UFSCar), Certificação Internacional em Integração Sensorial",
-    bio: "Especialista em processamento sensorial, auxiliando crianças com TEA na regulação tátil, proprioceptiva e vestibular.",
-    cor: "#F3B357", // Amarelo
-    ativo: true,
-    telefone: "11955553333",
-    salas: ["Sala Sensorial - T.O."],
-    horarios: {
-      segunda: "13:00 - 19:00",
-      terca: "08:00 - 13:00",
-      quarta: "13:00 - 19:00",
-      quinta: "08:00 - 13:00",
-    },
-    cpfCnpj: "555.666.777-88",
-    tipoContrato: "SOCIO",
-    cargaHoraria: "24h",
-    salarioBase: 3000,
-    comissaoPorcentagem: 50,
-    chavePix: "11955553333",
-    cep: "03102-000",
-    logradouro: "Rua Juventus",
-    numero: "80",
-    bairro: "Mooca",
-    cidade: "São Paulo",
-    uf: "SP",
-  },
-];
 
 const renderContractBadge = (tipo?: string) => {
   if (!tipo) return null;
@@ -173,54 +34,58 @@ const renderContractBadge = (tipo?: string) => {
 };
 
 export function ProfissionaisPage() {
-  const [profissionais, setProfissionais] = useState(initialProfissionais);
+  const [profissionais, setProfissionais] = useState<Profissional[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeSpecialty, setActiveSpecialty] = useState("TODOS");
   const [selectedProf, setSelectedProf] = useState<Profissional | null>(null);
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
 
   const loadProfissionais = async () => {
+    setLoading(true);
     try {
       const res = await api.get("/profissionais");
-      if (res.data && res.data.length > 0) {
-        const mapped = res.data.map((p: any) => {
-          const nome = p.usuario?.nome || p.nome || "Profissional";
-          const email = p.usuario?.email || p.email || "";
-          return {
-            id: p.id,
-            nome,
-            email,
-            tipo: p.tipo || "OUTRO",
-            especialidade: p.especialidade || "Terapeuta",
-            registro: p.registro || "",
-            orgaoRegistro: p.orgaoRegistro || "",
-            bio: p.bio || "",
-            cor: p.cor || "#8E7BBE",
-            ativo: p.ativo !== undefined ? p.ativo : true,
-            telefone: p.telefone || "",
-            salas: p.salas || ["Sala Comum"],
-            horarios: p.horariosTrabalho || { segunda: "08:00 - 18:00" },
-            cpfCnpj: p.cpfCnpj || "",
-            tipoContrato: p.tipoContrato || "PJ",
-            cargaHoraria: p.cargaHoraria || "30h",
-            salarioBase: p.salarioBase || undefined,
-            comissaoPorcentagem: p.comissaoPorcentagem || undefined,
-            chavePix: p.chavePix || "",
-            especialidades: p.especialidades || (p.especialidade ? p.especialidade.split(", ") : []),
-            formacao: p.formacao || "",
-            cep: p.cep || "",
-            logradouro: p.logradouro || "",
-            numero: p.numero || "",
-            complemento: p.complemento || "",
-            bairro: p.bairro || "",
-            cidade: p.cidade || "",
-            uf: p.uf || "",
-          };
-        });
-        setProfissionais(mapped);
-      }
+      const data = res.data || [];
+      const mapped = data.map((p: any) => {
+        const nome = p.usuario?.nome || p.nome || "Profissional";
+        const email = p.usuario?.email || p.email || "";
+        return {
+          id: p.id,
+          nome,
+          email,
+          tipo: p.tipo || "OUTRO",
+          especialidade: p.especialidade || "Terapeuta",
+          registro: p.registro || "",
+          orgaoRegistro: p.orgaoRegistro || "",
+          bio: p.bio || "",
+          cor: p.cor || "#8E7BBE",
+          ativo: p.ativo !== undefined ? p.ativo : true,
+          telefone: p.telefone || "",
+          salas: p.salas || ["Sala Comum"],
+          horarios: p.horariosTrabalho || { segunda: "08:00 - 18:00" },
+          cpfCnpj: p.cpfCnpj || "",
+          tipoContrato: p.tipoContrato || "PJ",
+          cargaHoraria: p.cargaHoraria || "30h",
+          salarioBase: p.salarioBase || undefined,
+          comissaoPorcentagem: p.comissaoPorcentagem || undefined,
+          chavePix: p.chavePix || "",
+          especialidades: p.especialidades || (p.especialidade ? p.especialidade.split(", ") : []),
+          formacao: p.formacao || "",
+          cep: p.cep || "",
+          logradouro: p.logradouro || "",
+          numero: p.numero || "",
+          complemento: p.complemento || "",
+          bairro: p.bairro || "",
+          cidade: p.cidade || "",
+          uf: p.uf || "",
+        };
+      });
+      setProfissionais(mapped);
     } catch (err) {
-      console.warn("Could not load real professionals, using mocks", err);
+      console.error(err);
+      toast.error("Erro ao carregar profissionais do servidor.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -287,42 +152,8 @@ export function ProfissionaisPage() {
       loadProfissionais();
       setIsNewModalOpen(false);
     } catch (err) {
-      console.warn("Could not save professional to backend, using local fallback", err);
-      // Fallback
-      const newProf: Profissional = {
-        id: `prof-${Date.now()}`,
-        nome: data.nome,
-        email: data.email,
-        tipo: data.tipo,
-        especialidade: data.especialidade,
-        registro: data.registro,
-        orgaoRegistro: data.orgaoRegistro,
-        bio: data.bio,
-        cor: data.cor,
-        ativo: true,
-        telefone: data.telefone.replace(/\D/g, ""),
-        salas: ["Sala Comum"],
-        horarios: { segunda: "08:00 - 18:00" },
-        cpfCnpj: data.cpfCnpj,
-        tipoContrato: data.tipoContrato,
-        cargaHoraria: data.cargaHoraria,
-        salarioBase: data.salarioBase,
-        comissaoPorcentagem: data.comissaoPorcentagem,
-        chavePix: data.chavePix,
-        especialidades: data.especialidades,
-        formacao: data.formacao,
-        cep: data.cep,
-        logradouro: data.logradouro,
-        numero: data.numero,
-        complemento: data.complemento,
-        bairro: data.bairro,
-        cidade: data.cidade,
-        uf: data.uf,
-      };
-
-      setProfissionais([...profissionais, newProf]);
-      setIsNewModalOpen(false);
-      toast.success("Profissional adicionado (Modo de Demonstração)");
+      console.error(err);
+      toast.error("Erro ao cadastrar profissional no servidor.");
     }
   };
 
@@ -396,12 +227,27 @@ export function ProfissionaisPage() {
         </div>
       </div>
 
-      {/* Grid de Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredProfissionais.map((prof) => (
-          <ProfissionalCard key={prof.id} prof={prof} onSelectProf={(p) => setSelectedProf(p)} />
-        ))}
-      </div>
+      {loading ? (
+        <div className="flex flex-col items-center justify-center py-20 space-y-4">
+          <div className="w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-xs text-muted-foreground">Carregando profissionais...</p>
+        </div>
+      ) : (
+        <>
+          {/* Grid de Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredProfissionais.map((prof) => (
+              <ProfissionalCard key={prof.id} prof={prof} onSelectProf={(p) => setSelectedProf(p)} />
+            ))}
+          </div>
+
+          {filteredProfissionais.length === 0 && (
+            <div className="p-12 text-center text-xs text-muted-foreground border rounded-2xl border-dashed border-border bg-card">
+              Nenhum profissional encontrado.
+            </div>
+          )}
+        </>
+      )}
 
       {/* DETALHES DO PROFISSIONAL (MODAL / GAVETA DETALHADA) */}
       <AnimatePresence>

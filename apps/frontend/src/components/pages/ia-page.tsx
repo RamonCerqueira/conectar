@@ -45,15 +45,10 @@ const aiFeatures = [
   },
 ];
 
-const initialPacientes = [
-  { id: "pac-1", nome: "Lucas Mendes da Silva" },
-  { id: "pac-2", nome: "Sofia Andrade Rezende" },
-];
-
 export function IaPage() {
   const [selectedFeature, setSelectedFeature] = useState(aiFeatures[0]);
-  const [pacientes, setPacientes] = useState<{ id: string; nome: string }[]>(initialPacientes);
-  const [pacienteId, setPacienteId] = useState("pac-1");
+  const [pacientes, setPacientes] = useState<{ id: string; nome: string }[]>([]);
+  const [pacienteId, setPacienteId] = useState("");
   const [prompt, setPrompt] = useState("");
   const [response, setResponse] = useState("");
   const [loading, setLoading] = useState(false);
@@ -61,13 +56,14 @@ export function IaPage() {
   useEffect(() => {
     api.get("/pacientes")
       .then((res) => {
-        if (res.data && res.data.length > 0) {
-          setPacientes(res.data);
-          setPacienteId(res.data[0].id);
+        const data = res.data || [];
+        if (data.length > 0) {
+          setPacientes(data);
+          setPacienteId(data[0].id);
         }
       })
       .catch((err) => {
-        console.warn("Could not load real patients, using mocks.", err);
+        console.error("Could not load patients", err);
       });
   }, []);
 
@@ -83,29 +79,21 @@ export function IaPage() {
         const res = await api.post("/ia/resumir-notas", { notas: prompt });
         setResponse(res.data.resumo);
       } else if (selectedFeature.id === "plano") {
-        try {
-          if (pacienteId.startsWith("pac-")) throw new Error("Mock patient");
-          const res = await api.post(`/ia/plano-terapeutico/${pacienteId}`);
-          setResponse(res.data.sugestao);
-        } catch {
-          // Fallback using chat context with empty/dummy patient ID
-          const res = await api.post(`/ia/chat/dummy-id`, {
-            pergunta: `Sugira um plano terapêutico com base no seguinte objetivo e queixa: ${prompt}`,
-          });
-          setResponse(res.data.resposta);
+        if (!pacienteId) {
+          toast.error("Selecione um paciente para sugestão do plano terapêutico.");
+          setLoading(false);
+          return;
         }
+        const res = await api.post(`/ia/plano-terapeutico/${pacienteId}`);
+        setResponse(res.data.sugestao);
       } else if (selectedFeature.id === "laudo") {
-        try {
-          if (pacienteId.startsWith("pac-")) throw new Error("Mock patient");
-          const res = await api.post(`/ia/gerar-laudo/${pacienteId}`, { tipoLaudo: prompt });
-          setResponse(res.data.laudo);
-        } catch {
-          // Fallback using chat context
-          const res = await api.post(`/ia/chat/dummy-id`, {
-            pergunta: `Gere uma minuta de laudo técnico do tipo: ${prompt}`,
-          });
-          setResponse(res.data.resposta);
+        if (!pacienteId) {
+          toast.error("Selecione um paciente para gerar o laudo.");
+          setLoading(false);
+          return;
         }
+        const res = await api.post(`/ia/gerar-laudo/${pacienteId}`, { tipoLaudo: prompt });
+        setResponse(res.data.laudo);
       }
     } catch (error: any) {
       console.error("Error generating AI content:", error);

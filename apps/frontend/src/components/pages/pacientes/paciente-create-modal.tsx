@@ -39,6 +39,8 @@ interface PacienteCreateModalProps {
     bairro?: string;
     cidade?: string;
     estado?: string;
+    modeloCobranca?: string;
+    valorConsulta?: number;
   }) => void;
 }
 
@@ -61,6 +63,8 @@ export function PacienteCreateModal({ isOpen, onClose, onSubmit }: PacienteCreat
   const [bairro, setBairro] = useState("");
   const [cidade, setCidade] = useState("");
   const [estado, setEstado] = useState("");
+  const [modeloCobranca, setModeloCobranca] = useState("POR_CONSULTA");
+  const [valorConsulta, setValorConsulta] = useState("150.00");
 
   // Form State - Responsável
   const [responsavelNome, setResponsavelNome] = useState("");
@@ -131,6 +135,8 @@ export function PacienteCreateModal({ isOpen, onClose, onSubmit }: PacienteCreat
       bairro,
       cidade,
       estado,
+      modeloCobranca,
+      valorConsulta: Number(valorConsulta) || 150,
     });
 
     // Reset fields
@@ -138,6 +144,8 @@ export function PacienteCreateModal({ isOpen, onClose, onSubmit }: PacienteCreat
     setDataNascimento("");
     setSexo("MASCULINO");
     setCpf("");
+    setModeloCobranca("POR_CONSULTA");
+    setValorConsulta("150.00");
     setStatus("ATIVO");
     setCep("");
     setLogradouro("");
@@ -307,6 +315,38 @@ export function PacienteCreateModal({ isOpen, onClose, onSubmit }: PacienteCreat
                           <option value="LISTA_ESPERA">Lista de Espera</option>
                           <option value="ALTA">Alta</option>
                         </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Faturamento e Cobrança */}
+                  <div className="pt-4 border-t">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-purple-500 mb-4">
+                      Faturamento & Financeiro (Particular)
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-semibold text-muted-foreground">Modelo de Cobrança</label>
+                        <select
+                          value={modeloCobranca}
+                          onChange={(e) => setModeloCobranca(e.target.value)}
+                          className="w-full p-2.5 rounded-xl border text-sm outline-none focus:ring-1 bg-background text-foreground"
+                        >
+                          <option value="POR_CONSULTA">Por Consulta / Avulso</option>
+                          <option value="MENSALIDADE">Mensalidade (Contrato)</option>
+                        </select>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-semibold text-muted-foreground">Valor por Consulta (R$)</label>
+                        <input
+                          type="number"
+                          step="0.01"
+                          placeholder="150.00"
+                          value={valorConsulta}
+                          onChange={(e) => setValorConsulta(e.target.value)}
+                          className="w-full p-2.5 rounded-xl border text-sm outline-none focus:ring-1 bg-background text-foreground"
+                        />
                       </div>
                     </div>
                   </div>

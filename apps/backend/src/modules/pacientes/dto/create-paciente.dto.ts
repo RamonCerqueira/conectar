@@ -158,8 +158,16 @@ export class CreatePacienteDto {
 
   @ApiPropertyOptional()
   @IsOptional()
-  @IsString()
   observacoes?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  valorConsulta?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  modeloCobranca?: string;
 
   // Responsáveis
   @ApiPropertyOptional({ type: [CreateResponsavelDto] })

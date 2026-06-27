@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, X, Building2 } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import { toast } from "sonner";
+import { api } from "@/lib/api";
 
 // Import refactored components
 import { SalaCard } from "./salas/sala-card";
@@ -11,83 +12,10 @@ import { SalaDetailsModal } from "./salas/sala-details-modal";
 import { SalaAssignmentModal } from "./salas/sala-assignment-modal";
 import { SalaReplaceDoctorModal } from "./salas/sala-replace-doctor-modal";
 
-const listProfissionais = [
-  "Dra. Ana Lima",
-  "Dra. Carla Souza",
-  "Dra. Paula Ramos",
-  "Dr. Marcos Santos",
-  "Dra. Julia Santos"
-];
-
-// ─── DADOS MOCKADOS COMPLETOS COM ALOCAÇÕES ────────────────────────────────────
-const initialSalas = [
-  {
-    id: "sala-1",
-    nome: "Sala 01 — Psicopedagogia",
-    descricao: "Equipada com recursos pedagógicos, jogos e livros para intervenções de aprendizagem.",
-    capacidade: 2,
-    status: "DISPONIVEL" as const,
-    cor: "#8E7BBE", // Roxo
-    ativa: true,
-    profissionais: ["Dra. Ana Lima"],
-    agendaHoje: [
-      { id: "a1", horario: "09:00 - 10:00", paciente: "Lucas Mendes", profissional: "Dra. Ana Lima" },
-      { id: "a2", horario: "10:30 - 11:30", paciente: "Isabela Costa", profissional: "Dra. Ana Lima" },
-    ],
-    alocacoes: [
-      { id: "as-1", profissional: "Dra. Ana Lima", diasSemana: ["SEGUNDA", "QUARTA"], horarioInicio: "08:00", horarioFim: "12:00" }
-    ],
-  },
-  {
-    id: "sala-2",
-    nome: "Sala 02 — Linguagem & Fono",
-    descricao: "Sala com isolamento acústico parcial, espelhos e brinquedos para estimulação fonológica.",
-    capacidade: 2,
-    status: "OCUPADA" as const,
-    cor: "#E98BAE", // Rosa
-    ativa: true,
-    profissionais: ["Dra. Carla Souza"],
-    agendaHoje: [
-      { id: "a3", horario: "09:30 - 10:30", paciente: "Sofia Andrade", profissional: "Dra. Carla Souza" },
-    ],
-    alocacoes: [
-      { id: "as-2", profissional: "Dra. Carla Souza", diasSemana: ["TERCA", "QUINTA"], horarioInicio: "14:00", horarioFim: "18:00" }
-    ],
-  },
-  {
-    id: "sala-3",
-    nome: "Sala Sensorial — T.O.",
-    descricao: "Espaço amplo com balanços, piscina de bolinhas, texturas e equipamentos de Integração Sensorial.",
-    capacidade: 3,
-    status: "DISPONIVEL" as const,
-    cor: "#F3B357", // Amarelo
-    ativa: true,
-    profissionais: ["Dra. Paula Ramos"],
-    agendaHoje: [
-      { id: "a4", horario: "11:00 - 12:00", paciente: "Gabriel Ferreira", profissional: "Dra. Paula Ramos" },
-    ],
-    alocacoes: [
-      { id: "as-3", profissional: "Dra. Paula Ramos", diasSemana: ["QUARTA", "SEXTA"], horarioInicio: "09:00", horarioFim: "17:00" }
-    ],
-  },
-  {
-    id: "sala-4",
-    nome: "Sala 04 — Avaliações",
-    descricao: "Ambiente neutro e silencioso ideal para testes de inteligência e avaliações neuropsicológicas.",
-    capacidade: 1,
-    status: "MANUTENCAO" as const,
-    cor: "#69C4B5", // Verde-água
-    ativa: true,
-    profissionais: ["Dr. Marcos Santos"],
-    agendaHoje: [],
-    alocacoes: [
-      { id: "as-4", profissional: "Dr. Marcos Santos", diasSemana: ["SEGUNDA", "SEXTA"], horarioInicio: "13:00", horarioFim: "19:00" }
-    ],
-  },
-];
-
 export function SalasPage() {
-  const [salas, setSalas] = useState(initialSalas);
+  const [salas, setSalas] = useState<any[]>([]);
+  const [profissionais, setProfissionais] = useState<{ id: string; nome: string }[]>([]);
+  const [loading, setLoading] = useState(true);
   
   // Modal visibility and details tracking
   const [selectedSala, setSelectedSala] = useState<any | null>(null);
@@ -104,130 +32,157 @@ export function SalasPage() {
   const [newCor, setNewCor] = useState("#69C4B5");
   const [newStatus, setNewStatus] = useState("DISPONIVEL");
 
-  const handleCreateSala = (e: React.FormEvent) => {
+  const loadSalasAndProfs = async () => {
+    try {
+      const [salasRes, profsRes] = await Promise.all([
+        api.get("/salas"),
+        api.get("/profissionais")
+      ]);
+      setSalas(salasRes.data || []);
+      setProfissionais((profsRes.data || []).map((p: any) => ({ id: p.id, nome: p.nome })));
+    } catch (e) {
+      console.error(e);
+      toast.error("Erro ao conectar ao servidor de dados.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadSalasAndProfs();
+  }, []);
+
+  const handleCreateSala = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newNome) return;
 
-    const newSala = {
-      id: `sala-${Date.now()}`,
-      nome: newNome,
-      descricao: newDesc,
-      capacidade: newCapac,
-      status: newStatus as any,
-      cor: newCor,
-      ativa: true,
-      profissionais: [],
-      agendaHoje: [],
-      alocacoes: [],
-    };
+    try {
+      await api.post("/salas", {
+        nome: newNome,
+        descricao: newDesc,
+        capacidade: newCapac,
+        status: newStatus,
+        cor: newCor,
+      });
+      toast.success("Sala clínica cadastrada com sucesso!");
+      loadSalasAndProfs();
+      setIsNewModalOpen(false);
 
-    setSalas([...salas, newSala]);
-    setIsNewModalOpen(false);
-
-    // Reset Form
-    setNewNome("");
-    setNewDesc("");
-    setNewCapac(1);
-    setNewStatus("DISPONIVEL");
-    toast.success("Sala clínica cadastrada com sucesso!");
+      // Reset Form
+      setNewNome("");
+      setNewDesc("");
+      setNewCapac(1);
+      setNewStatus("DISPONIVEL");
+    } catch (e) {
+      toast.error("Erro ao criar nova sala clínica.");
+    }
   };
 
-  const handleDeleteSala = (id: string) => {
-    setSalas(salas.filter((s) => s.id !== id));
-    toast.success("Sala excluída com sucesso!");
+  const handleDeleteSala = async (id: string) => {
+    try {
+      await api.delete(`/salas/${id}`);
+      toast.success("Sala excluída com sucesso!");
+      loadSalasAndProfs();
+      if (selectedSala?.id === id) {
+        setSelectedSala(null);
+      }
+    } catch (e) {
+      toast.error("Erro ao excluir sala clínica.");
+    }
   };
 
   // ─── WEEKLY ALLOCATIONS HANDLERS ──────────────────────────────────────────
 
   // Add or edit a room assignment
-  const handleSaveAssignment = (data: {
+  const handleSaveAssignment = async (data: {
     id?: string;
-    profissional: string;
+    profissionalId: string;
     diasSemana: string[];
     horarioInicio: string;
     horarioFim: string;
   }) => {
     if (!selectedSala) return;
 
-    let updatedAlocacoes = [];
-    
-    if (data.id) {
-      // Editing existing assignment
-      updatedAlocacoes = selectedSala.alocacoes.map((a: any) =>
-        a.id === data.id ? { ...a, ...data } : a
-      );
-      toast.success("Alocação de sala atualizada!");
-    } else {
-      // Adding new assignment
-      const newAloc = {
-        id: `as-${Date.now()}`,
-        ...data,
-      };
-      updatedAlocacoes = [...(selectedSala.alocacoes || []), newAloc];
-      toast.success("Profissional vinculado à sala com sucesso!");
+    try {
+      if (data.id) {
+        // Editing existing assignment
+        await api.put(`/salas/${selectedSala.id}/alocacoes/${data.id}`, {
+          profissionalId: data.profissionalId,
+          diasSemana: data.diasSemana,
+          horarioInicio: data.horarioInicio,
+          horarioFim: data.horarioFim,
+        });
+        toast.success("Alocação de sala atualizada!");
+      } else {
+        // Adding new assignment
+        await api.post(`/salas/${selectedSala.id}/alocacoes`, {
+          profissionalId: data.profissionalId,
+          diasSemana: data.diasSemana,
+          horarioInicio: data.horarioInicio,
+          horarioFim: data.horarioFim,
+        });
+        toast.success("Profissional vinculado à sala com sucesso!");
+      }
+
+      setIsAssignModalOpen(false);
+      setEditingAssignment(null);
+      
+      // Refresh rooms and update detailed view room info
+      const res = await api.get("/salas");
+      const freshRooms = res.data || [];
+      setSalas(freshRooms);
+      const freshSelected = freshRooms.find((s: any) => s.id === selectedSala.id);
+      if (freshSelected) {
+        setSelectedSala(freshSelected);
+      }
+    } catch (e) {
+      toast.error("Erro ao salvar alocação de profissional.");
     }
-
-    // Determine unique therapists list from all allocations
-    const uniqueProfs = Array.from(
-      new Set(updatedAlocacoes.map((a: any) => a.profissional))
-    ) as string[];
-
-    const updatedSala = {
-      ...selectedSala,
-      alocacoes: updatedAlocacoes,
-      profissionais: uniqueProfs,
-    };
-
-    setSalas(salas.map((s) => (s.id === selectedSala.id ? updatedSala : s)));
-    setSelectedSala(updatedSala);
-    setIsAssignModalOpen(false);
-    setEditingAssignment(null);
   };
 
   // Delete / cancel occupied slot
-  const handleDeleteAssignment = (assignmentId: string) => {
+  const handleDeleteAssignment = async (assignmentId: string) => {
     if (!selectedSala) return;
 
-    const updatedAlocacoes = selectedSala.alocacoes.filter((a: any) => a.id !== assignmentId);
-    
-    // Update professionals list accordingly
-    const uniqueProfs = Array.from(
-      new Set(updatedAlocacoes.map((a: any) => a.profissional))
-    ) as string[];
+    try {
+      await api.delete(`/salas/${selectedSala.id}/alocacoes/${assignmentId}`);
+      toast.success("Ocupação / Dia de sala cancelado!");
 
-    const updatedSala = {
-      ...selectedSala,
-      alocacoes: updatedAlocacoes,
-      profissionais: uniqueProfs,
-    };
-
-    setSalas(salas.map((s) => (s.id === selectedSala.id ? updatedSala : s)));
-    setSelectedSala(updatedSala);
-    toast.success("Ocupação / Dia de sala cancelado!");
+      // Refresh rooms and update detailed view room info
+      const res = await api.get("/salas");
+      const freshRooms = res.data || [];
+      setSalas(freshRooms);
+      const freshSelected = freshRooms.find((s: any) => s.id === selectedSala.id);
+      if (freshSelected) {
+        setSelectedSala(freshSelected);
+      }
+    } catch (e) {
+      toast.error("Erro ao remover alocação.");
+    }
   };
 
   // Replace Doctor logic
-  const handleReplaceDoctor = (newDoctor: string) => {
+  const handleReplaceDoctor = async (newDoctorId: string) => {
     if (!selectedSala || !replacingAssignment) return;
 
-    const updatedAlocacoes = selectedSala.alocacoes.map((a: any) =>
-      a.id === replacingAssignment.id ? { ...a, profissional: newDoctor } : a
-    );
+    try {
+      await api.put(`/salas/${selectedSala.id}/alocacoes/${replacingAssignment.id}`, {
+        profissionalId: newDoctorId,
+      });
+      toast.success("Profissional substituído com sucesso!");
+      setReplacingAssignment(null);
 
-    const uniqueProfs = Array.from(
-      new Set(updatedAlocacoes.map((a: any) => a.profissional))
-    ) as string[];
-
-    const updatedSala = {
-      ...selectedSala,
-      alocacoes: updatedAlocacoes,
-      profissionais: uniqueProfs,
-    };
-
-    setSalas(salas.map((s) => (s.id === selectedSala.id ? updatedSala : s)));
-    setSelectedSala(updatedSala);
-    setReplacingAssignment(null);
-    toast.success("Profissional substituído com sucesso!");
+      // Refresh rooms and update detailed view room info
+      const res = await api.get("/salas");
+      const freshRooms = res.data || [];
+      setSalas(freshRooms);
+      const freshSelected = freshRooms.find((s: any) => s.id === selectedSala.id);
+      if (freshSelected) {
+        setSelectedSala(freshSelected);
+      }
+    } catch (e) {
+      toast.error("Erro ao substituir profissional.");
+    }
   };
 
   return (
@@ -255,17 +210,32 @@ export function SalasPage() {
         </motion.button>
       </div>
 
-      {/* Grid de Salas */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {salas.map((sala) => (
-          <SalaCard
-            key={sala.id}
-            sala={sala}
-            onViewDetails={(s) => setSelectedSala(s)}
-            onDelete={handleDeleteSala}
-          />
-        ))}
-      </div>
+      {loading ? (
+        <div className="flex flex-col items-center justify-center py-20 space-y-4">
+          <div className="w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-xs text-muted-foreground">Carregando salas clínicas...</p>
+        </div>
+      ) : (
+        <>
+          {/* Grid de Salas */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {salas.map((sala) => (
+              <SalaCard
+                key={sala.id}
+                sala={sala}
+                onViewDetails={(s) => setSelectedSala(s)}
+                onDelete={handleDeleteSala}
+              />
+            ))}
+          </div>
+
+          {salas.length === 0 && (
+            <div className="p-12 text-center text-xs text-muted-foreground border rounded-2xl border-dashed border-border bg-card">
+              Nenhuma sala clínica cadastrada no sistema. Clique em "Nova Sala" para começar.
+            </div>
+          )}
+        </>
+      )}
 
       {/* ─── DETALHES DA SALA (MODAL) ─── */}
       <AnimatePresence>
@@ -294,7 +264,7 @@ export function SalasPage() {
         {isAssignModalOpen && (
           <SalaAssignmentModal
             assignment={editingAssignment}
-            profissionais={listProfissionais}
+            profissionais={profissionais}
             onClose={() => {
               setIsAssignModalOpen(false);
               setEditingAssignment(null);
@@ -309,7 +279,7 @@ export function SalasPage() {
         {replacingAssignment && (
           <SalaReplaceDoctorModal
             assignment={replacingAssignment}
-            profissionais={listProfissionais}
+            profissionais={profissionais}
             onClose={() => setReplacingAssignment(null)}
             onReplace={handleReplaceDoctor}
           />

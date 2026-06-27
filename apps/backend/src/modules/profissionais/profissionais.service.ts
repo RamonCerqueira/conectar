@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class ProfissionaisService {
@@ -103,7 +104,6 @@ export class ProfissionaisService {
 
     // Create usuario + profissional in a transaction
     const result = await this.prisma.$transaction(async (tx) => {
-      const bcrypt = await import('bcryptjs');
       const hash = await bcrypt.hash(senha, 10);
 
       const usuario = await tx.usuario.create({
@@ -160,6 +160,7 @@ export class ProfissionaisService {
     // Update usuario name/email if provided
     if (nome || email || foto) {
       const prof = await this.prisma.profissional.findUnique({ where: { id } });
+      if (!prof) throw new NotFoundException('Profissional não encontrado');
       await this.prisma.usuario.update({
         where: { id: prof.usuarioId },
         data: { ...(nome ? { nome } : {}), ...(email ? { email } : {}), ...(foto ? { foto } : {}) },

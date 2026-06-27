@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --background: 240 10% 4%;
+  --foreground: 0 0% 98%;
+  --muted-foreground: 240 5% 70%;
+  --primary: 262 83% 58%;
+  --primary-glow: rgba(124, 58, 237, 0.4);
+  --success: 142 71% 45%;
+  --info: 217 91% 60%;
+}
+
+body {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+}
+
+/* Custom background blur anim */
+.orb {
+  position: absolute;
+  width: 45vw;
+  height: 45vw;
+  max-width: 600px;
+  max-height: 600px;
+  border-radius: 50%;
+  filter: blur(140px);
+  opacity: 0.12;
+  pointer-events: none;
+  z-index: 0;
+  animation: orb-float 22s infinite ease-in-out;
+}
+
+@keyframes orb-float {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(5% , 6%) scale(1.15);
+  }
+}
+
+/* Glassmorphism panel */
+.glass-card {
+  background: rgba(22, 22, 26, 0.45);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}

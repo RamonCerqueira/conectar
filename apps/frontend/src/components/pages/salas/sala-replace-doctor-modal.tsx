@@ -7,9 +7,9 @@ import { toast } from "sonner";
 
 interface SalaReplaceDoctorModalProps {
   assignment: any;
-  profissionais: string[];
+  profissionais: { id: string; nome: string }[];
   onClose: () => void;
-  onReplace: (newDoctor: string) => void;
+  onReplace: (newDoctorId: string) => void;
 }
 
 export function SalaReplaceDoctorModal({
@@ -18,16 +18,16 @@ export function SalaReplaceDoctorModal({
   onClose,
   onReplace,
 }: SalaReplaceDoctorModalProps) {
-  const otherDoctors = profissionais.filter((p) => p !== assignment?.profissional);
-  const [selectedDoctor, setSelectedDoctor] = useState(otherDoctors[0] || "");
+  const otherDoctors = profissionais.filter((p) => p.id !== assignment?.profissionalId && p.nome !== assignment?.profissional);
+  const [selectedDoctorId, setSelectedDoctorId] = useState(otherDoctors[0]?.id || "");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedDoctor) {
+    if (!selectedDoctorId) {
       toast.error("Por favor, selecione o profissional substituto.");
       return;
     }
-    onReplace(selectedDoctor);
+    onReplace(selectedDoctorId);
   };
 
   if (!assignment) return null;
@@ -68,7 +68,7 @@ export function SalaReplaceDoctorModal({
             <p className="text-[10px] text-muted-foreground uppercase font-bold">Ocupante Atual</p>
             <p className="font-extrabold text-foreground">{assignment.profissional}</p>
             <p className="text-[10px] text-muted-foreground font-medium">
-              Horário: {assignment.horarioInicio} - {assignment.horarioFim} • Dias: {assignment.diasSemana.join(", ")}
+              Horário: {assignment.horarioInicio} - {assignment.horarioFim} • Dias: {assignment.diasSemana?.join(", ")}
             </p>
           </div>
 
@@ -76,14 +76,14 @@ export function SalaReplaceDoctorModal({
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-muted-foreground">Selecionar Médico Substituto *</label>
             <select
-              value={selectedDoctor}
-              onChange={(e) => setSelectedDoctor(e.target.value)}
+              value={selectedDoctorId}
+              onChange={(e) => setSelectedDoctorId(e.target.value)}
               className="w-full p-2.5 rounded-xl border text-xs bg-background text-foreground border-border outline-none focus:ring-1 focus:ring-purple-500"
             >
               {otherDoctors.length > 0 ? (
                 otherDoctors.map((p) => (
-                  <option key={p} value={p}>
-                    {p}
+                  <option key={p.id} value={p.id}>
+                    {p.nome}
                   </option>
                 ))
               ) : (

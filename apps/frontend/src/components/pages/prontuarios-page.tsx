@@ -27,306 +27,14 @@ import { TabAtividades } from "./prontuarios/tab-atividades";
 import { TabFrequencia } from "./prontuarios/tab-frequencia";
 import { TabFichaPaciente } from "./prontuarios/tab-ficha-paciente";
 
-// ─── CLINICAL WORKSPACE MOCK DATA ─────────────────────────────────────────────
-const mockPacientes = [
-  {
-    id: "pac-1",
-    nome: "Lucas Mendes da Silva",
-    idade: 8,
-    dataNascimento: "2018-05-15",
-    sexo: "MASCULINO",
-    status: "ATIVO",
-    diagnosticos: [
-      { id: "d1", cid: "F90.0", descricao: "TDAH" },
-      { id: "d2", cid: "F81.0", descricao: "Dislexia" }
-    ],
-    medicamentos: ["Ritalina 10mg"],
-    alergias: ["Lactose", "Dipirona"],
-    sensibilidadeSensorial: "Maior desatenção e fadiga no final da tarde; hipersensibilidade ao toque leve.",
-    hiperfoco: "Minecraft, blocos de montar e dinossauros",
-    responsaveis: [
-      { id: "r1", nome: "Mariana Mendes da Silva", telefone: "11987654321", grauParent: "MAE" }
-    ],
-    escola: "Colégio Santa Maria",
-    serie: "3º ano Fundamental",
-    turnoEscolar: "Manhã",
-    cep: "01311-200",
-    logradouro: "Avenida Paulista",
-    numero: "1000",
-    complemento: "Apto 42",
-    bairro: "Bela Vista",
-    cidade: "São Paulo",
-    estado: "SP",
-    nomeProf: "Profª Sandra",
-    coordenador: "Helena Reis",
-    ultimaConsulta: "24/06/2026",
-    ultimoProfissional: "Dra. Ana Lima (Psicopedagoga)",
-    proximaConsulta: "01/07/2026",
-    statusFinanceiro: "PAGO",
-  },
-  {
-    id: "pac-2",
-    nome: "Sofia Andrade Rezende",
-    idade: 6,
-    dataNascimento: "2019-09-02",
-    sexo: "FEMININO",
-    status: "ATIVO",
-    diagnosticos: [
-      { id: "d3", cid: "F84.0", descricao: "TEA Nível 1" }
-    ],
-    medicamentos: [],
-    alergias: [],
-    sensibilidadeSensorial: "Hipersensibilidade auditiva alta a ruídos agudos, metálicos ou palmas.",
-    hiperfoco: "Dinossauros (T-Rex) e quebra-cabeças complexos",
-    responsaveis: [
-      { id: "r2", nome: "Beatriz Andrade Rezende", telefone: "11999998888", grauParent: "MAE" }
-    ],
-    escola: "Escola Maple Bear",
-    serie: "Pré-Escola 2",
-    turnoEscolar: "Tarde",
-    cep: "04012-000",
-    logradouro: "Rua Domingos de Morais",
-    numero: "500",
-    complemento: "",
-    bairro: "Vila Mariana",
-    cidade: "São Paulo",
-    estado: "SP",
-    nomeProf: "Profª Camila",
-    coordenador: "Renata Abreu",
-    ultimaConsulta: "25/06/2026",
-    ultimoProfissional: "Dra. Carla Souza (Fonoaudióloga)",
-    proximaConsulta: "02/07/2026",
-    statusFinanceiro: "PAGO",
-  }
-];
-
-const initialProntuarios: Prontuario[] = [
-  {
-    id: "pr-1",
-    pacienteId: "pac-1",
-    pacienteNome: "Lucas Mendes da Silva",
-    data: "2026-06-24T14:30:00Z",
-    profissional: "Dra. Ana Lima (Psicopedagoga)",
-    queixaPrincipal: "Dificuldade na leitura silábica e foco nas atividades escolares.",
-    objetivosSessao: "Estimulação de processamento fonológico e fluidez de leitura.",
-    atividadesRealizadas: "Leitura de cartões silábicos interativos e jogo de caça-palavras.",
-    resultados: "Conseguiu ler 90% das sílabas simples e associar às imagens corretamente.",
-    comportamento: "Criança focada, motivada pelo elemento lúdico do jogo.",
-    orientacoesPais: "Recomenda-se realizar o caça-palavras impresso levado para casa.",
-    proximaMeta: "Introduzir frases simples com encontros consonantais.",
-  },
-  {
-    id: "pr-2",
-    pacienteId: "pac-1",
-    pacienteNome: "Lucas Mendes da Silva",
-    data: "2026-06-17T14:30:00Z",
-    profissional: "Dra. Ana Lima (Psicopedagoga)",
-    queixaPrincipal: "Agitação motora inicial e resistência para sentar.",
-    objetivosSessao: "Auto-regulação e pareamento de estímulos cognitivos.",
-    atividadesRealizadas: "Atividades de respiração e pareamento lógico de cores/formas.",
-    resultados: "Após 10 minutos de regulação, engajou na tarefa por 20 minutos seguidos.",
-    comportamento: "Hiperativo no início, mas respondeu bem ao reforço positivo visual.",
-    orientacoesPais: "Evitar telas 1h antes do horário da terapia.",
-    proximaMeta: "Manter o tempo de foco por 25 minutos.",
-  },
-  {
-    id: "pr-3",
-    pacienteId: "pac-2",
-    pacienteNome: "Sofia Andrade Rezende",
-    data: "2026-06-25T15:30:00Z",
-    profissional: "Dra. Carla Souza (Fonoaudióloga)",
-    queixaPrincipal: "Atraso no desenvolvimento da fala e ecolalia tardia.",
-    objetivosSessao: "Produção de fonemas fricativos (/s/, /z/) em palavras isoladas.",
-    atividadesRealizadas: "Brincadeira livre com dinossauros associando sons e repetições orientadas.",
-    resultados: "Produziu fonema /s/ de forma isolada com suporte visual de pista articulatória.",
-    comportamento: "Demonstrou interesse, mas manifestou leve irritabilidade ao ser corrigida.",
-    orientacoesPais: "Reforçar palavras contendo o fonema trabalhado durante as refeições.",
-    proximaMeta: "Produção do fonema em frases curtas (ex: 'O sapo pulou').",
-  },
-];
-
-const initialPlanos = [
-  {
-    id: "plano-1",
-    pacienteId: "pac-1",
-    pacienteNome: "Lucas Mendes da Silva",
-    titulo: "Intervenção Psicopedagógica Integrada",
-    descricao: "Foco no desenvolvimento da leitura, foco sostenido, processamento fonológico e alfabetização.",
-    metas: [
-      {
-        id: "meta-1",
-        objetivo: "Leitura fluida de frases simples",
-        descricao: "Ler frases com até 8 palavras sem silabar.",
-        progresso: 75,
-        status: "EM_ANDAMENTO",
-        prazo: "2026-08-30",
-        historico: [
-          { data: "2026-06-24", valor: 75, nota: "Lucas leu 4 frases completas com fluidez." },
-          { data: "2026-06-10", valor: 60, nota: "Apresentou hesitação nas consoantes complexas." },
-        ],
-      },
-      {
-        id: "meta-2",
-        objetivo: "Organização escolar autônoma",
-        descricao: "Guardar cadernos e estojo após término das atividades sem auxílio.",
-        progresso: 50,
-        status: "EM_ANDAMENTO",
-        prazo: "2026-09-15",
-        historico: [
-          { data: "2026-06-17", valor: 50, nota: "Guardou os cadernos, mas esqueceu o lápis." },
-        ],
-      },
-    ],
-  },
-  {
-    id: "plano-2",
-    pacienteId: "pac-2",
-    pacienteNome: "Sofia Andrade Rezende",
-    titulo: "Estimulação Cognitiva e Sensorial",
-    descricao: "Terapia integrada de linguagem e processamento tátil/sensorial para regulação.",
-    metas: [
-      {
-        id: "meta-4",
-        objetivo: "Expressão verbal de frustração",
-        descricao: "Substituir gritos e choros por palavras simples como 'não quero' ou 'me ajuda'.",
-        progresso: 40,
-        status: "EM_ANDAMENTO",
-        prazo: "2026-09-30",
-        historico: [
-          { data: "2026-06-25", valor: 40, nota: "Disse 'me ajuda' duas vezes na tarefa de encaixe." },
-        ],
-      },
-    ],
-  },
-];
-
-const initialAvaliacoes = [
-  {
-    id: "av-1",
-    pacienteId: "pac-1",
-    pacienteNome: "Lucas Mendes da Silva",
-    tipo: "Avaliação Psicopedagógica",
-    data: "2026-05-10",
-    conclusao: "Apresenta comprometimento significativo no processamento fonológico, compatível com sinais de Dislexia do Desenvolvimento. Recomendado intervenção fonoaudiológica associada.",
-    respostas: [
-      { pergunta: "Histórico familiar de dificuldade de aprendizagem?", resposta: "Sim, pai relatou dificuldades severas na alfabetização." },
-      { pergunta: "Desempenho em leitura de palavras isoladas:", resposta: "Abaixo da média para a idade cronológica." },
-    ],
-  },
-  {
-    id: "av-2",
-    pacienteId: "pac-2",
-    pacienteNome: "Sofia Andrade Rezende",
-    tipo: "Anamnese Infantil de Desenvolvimento",
-    data: "2026-06-02",
-    conclusao: "Sinais de hipersensibilidade sensorial auditiva e padrão de interesses restritos. Conduta: Encaminhar para Terapia Ocupacional com foco em Integração Sensorial.",
-    respostas: [
-      { pergunta: "Marcos do desenvolvimento motor:", resposta: "Sentou aos 6 meses, andou com 1 ano e 2 memes." },
-      { pergunta: "Desenvolvimento da fala:", resposta: "Primeiras palavras aos 2 anos, apresenta ecolalia atual." },
-    ],
-  },
-];
-
-const initialFrequencias = [
-  {
-    id: "freq-1",
-    pacienteId: "pac-1",
-    pacienteNome: "Lucas Mendes da Silva",
-    data: "2026-06-24T14:30:00Z",
-    profissional: "Dra. Ana Lima (Psicopedagoga)",
-    status: "PRESENTE",
-    justificativa: "",
-  },
-  {
-    id: "freq-2",
-    pacienteId: "pac-2",
-    pacienteNome: "Sofia Andrade Rezende",
-    data: "2026-06-25T15:30:00Z",
-    profissional: "Dra. Carla Souza (Fonoaudióloga)",
-    status: "PRESENTE",
-    justificativa: "",
-  },
-  {
-    id: "freq-3",
-    pacienteId: "pac-1",
-    pacienteNome: "Lucas Mendes da Silva",
-    data: "2026-06-17T14:30:00Z",
-    profissional: "Dra. Ana Lima (Psicopedagoga)",
-    status: "FALTA_JUSTIFICADA",
-    justificativa: "Criança com febre e atestado médico enviado.",
-  },
-];
-
-const initialRecursos = [
-  {
-    id: "rec-1",
-    pacienteId: "pac-1",
-    titulo: "Laudo de Avaliação Neuropsicológica Inicial",
-    tipo: "PDF",
-    descricao: "Laudo completo detalhando o perfil cognitivo, atenção e funções executivas do Lucas.",
-    url: "#",
-    dataCriacao: "2026-05-12",
-    compartilhado: true,
-    tamanho: "2.4 MB"
-  },
-  {
-    id: "rec-2",
-    pacienteId: "pac-1",
-    titulo: "Treinamento de Produção do Fonema /R/",
-    tipo: "VIDEO",
-    descricao: "Vídeo instrutivo com exercícios diários de posicionamento da língua e sopro.",
-    url: "https://www.youtube.com/embed/dQw4w9WgXcQ",
-    dataCriacao: "2026-06-20",
-    compartilhado: true,
-    duracao: "03:45"
-  },
-  {
-    id: "rec-3",
-    pacienteId: "pac-1",
-    titulo: "Jogo de Pareamento de Sílabas Complexas",
-    tipo: "JOGO",
-    descricao: "Jogo interativo do Wordwall para o Lucas treinar sílabas com LH, NH e CH brincando.",
-    url: "https://wordwall.net/play/12345/678",
-    dataCriacao: "2026-06-25",
-    compartilhado: true,
-    plataforma: "Wordwall"
-  },
-  {
-    id: "rec-4",
-    pacienteId: "pac-1",
-    titulo: "Quiz Semanal de Monitoramento de Comportamento",
-    tipo: "QUIZ",
-    descricao: "Questionário rápido para os pais avaliarem o foco e regulação do Lucas em casa.",
-    respostasPai: null,
-    perguntas: [
-      { id: "q1", texto: "Como estava o foco nas tarefas escolares em casa?", opcoes: ["Muito Baixo", "Regular", "Bom", "Excelente"] },
-      { id: "q2", texto: "Houve episódios de irritabilidade ou sobrecarga sensorial?", opcoes: ["Sim, diários", "Sim, ocasionais", "Raramente", "Não"] },
-      { id: "q3", texto: "Conseguiu se auto-regular após as atividades?", opcoes: ["Com dificuldade", "Com ajuda leve", "De forma autônoma", "Não precisou"] }
-    ],
-    dataCriacao: "2026-06-26",
-    compartilhado: true
-  },
-  {
-    id: "rec-5",
-    pacienteId: "pac-2",
-    titulo: "Atividade Visual de Rotina Diária",
-    tipo: "PDF",
-    descricao: "Quadro visual para recortar e montar em casa, auxiliando na previsibilidade da rotina.",
-    url: "#",
-    dataCriacao: "2026-06-10",
-    compartilhado: true,
-    tamanho: "1.1 MB"
-  }
-];
-
 interface ProntuariosPageProps {
   defaultTab?: "evolucao" | "plano" | "avaliacoes" | "frequencia" | "cadastro";
 }
 
 export function ProntuariosPage({ defaultTab = "evolucao" }: ProntuariosPageProps) {
   // Navigation & Patients
-  const [pacientes, setPacientes] = useState<any[]>(mockPacientes);
-  const [selectedPacienteId, setSelectedPacienteId] = useState("pac-1");
+  const [pacientes, setPacientes] = useState<any[]>([]);
+  const [selectedPacienteId, setSelectedPacienteId] = useState<string>("");
   const [activeTab, setActiveTab] = useState<string>(defaultTab);
 
   // Search/Filter states
@@ -334,11 +42,11 @@ export function ProntuariosPage({ defaultTab = "evolucao" }: ProntuariosPageProp
   const [searchFocused, setSearchFocused] = useState(false);
 
   // Clinical data states
-  const [prontuarios, setProntuarios] = useState(initialProntuarios);
-  const [planos, setPlanos] = useState(initialPlanos);
-  const [avaliacoes, setAvaliacoes] = useState(initialAvaliacoes);
-  const [frequencias, setFrequencias] = useState(initialFrequencias);
-  const [recursos, setRecursos] = useState<any[]>(initialRecursos);
+  const [prontuarios, setProntuarios] = useState<any[]>([]);
+  const [planos, setPlanos] = useState<any[]>([]);
+  const [avaliacoes, setAvaliacoes] = useState<any[]>([]);
+  const [frequencias, setFrequencias] = useState<any[]>([]);
+  const [recursos, setRecursos] = useState<any[]>([]);
 
   // Modals Open State
   const [isModalOpen, setIsModalOpen] = useState(false); // Evolution
@@ -368,22 +76,18 @@ export function ProntuariosPage({ defaultTab = "evolucao" }: ProntuariosPageProp
     const init = async () => {
       try {
         const res = await api.get("/pacientes");
-        if (res.data && res.data.length > 0) {
-          const mapped = res.data.map((p: any) => ({
+        const data = res.data || [];
+        if (data.length > 0) {
+          const mapped = data.map((p: any) => ({
             ...p,
             idade: p.dataNascimento ? getAge(p.dataNascimento) : 8,
           }));
           setPacientes(mapped);
           setSelectedPacienteId(mapped[0].id);
           loadAllPatientData(mapped[0].id);
-        } else {
-          setPacientes(mockPacientes);
-          loadAllPatientData("pac-1");
         }
       } catch (err) {
-        console.warn("API not accessible, loading mock patients.");
-        setPacientes(mockPacientes);
-        loadAllPatientData("pac-1");
+        console.error("API error loading patients", err);
       }
     };
     init();
@@ -393,34 +97,41 @@ export function ProntuariosPage({ defaultTab = "evolucao" }: ProntuariosPageProp
     // 1. Evolutions
     try {
       const res = await api.get(`/prontuarios/paciente/${pacId}`);
-      if (res.data && res.data.length > 0) setProntuarios(res.data);
+      setProntuarios(res.data || []);
     } catch (e) {
-      console.warn("Using local prontuarios filter.");
-      setProntuarios(initialProntuarios);
+      setProntuarios([]);
     }
     
     // 2. Plans / Metas
     try {
-      const res = await api.get(`/planos/paciente/${pacId}`);
-      if (res.data) setPlanos(res.data);
+      const res = await api.get(`/plano-terapeutico/paciente/${pacId}`);
+      setPlanos(res.data || []);
     } catch (e) {
-      setPlanos(initialPlanos);
+      setPlanos([]);
     }
 
     // 3. Assessments
     try {
       const res = await api.get(`/avaliacoes/paciente/${pacId}`);
-      if (res.data) setAvaliacoes(res.data);
+      setAvaliacoes(res.data || []);
     } catch (e) {
-      setAvaliacoes(initialAvaliacoes);
+      setAvaliacoes([]);
     }
 
     // 4. Frequencias
     try {
-      const res = await api.get(`/frequencias/paciente/${pacId}`);
-      if (res.data) setFrequencias(res.data);
+      const res = await api.get(`/frequencia/paciente/${pacId}`);
+      setFrequencias(res.data || []);
     } catch (e) {
-      setFrequencias(initialFrequencias);
+      setFrequencias([]);
+    }
+
+    // 5. Recursos / Exercicios
+    try {
+      const res = await api.get(`/exercicios/paciente/${pacId}`);
+      setRecursos(res.data || []);
+    } catch (e) {
+      setRecursos([]);
     }
   };
 

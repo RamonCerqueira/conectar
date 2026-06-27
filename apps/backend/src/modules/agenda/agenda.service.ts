@@ -122,6 +122,41 @@ export class AgendaService {
       });
     }
 
+    // Faturamento por Consulta Integrado
+    if (status === 'PRESENTE') {
+      const paciente = await this.prisma.paciente.findUnique({
+        where: { id: agendamento.pacienteId }
+      });
+
+      if (paciente && paciente.modeloCobranca === 'POR_CONSULTA') {
+        const valor = paciente.valorConsulta ? Number(paciente.valorConsulta) : 150;
+        
+        // Verifica duplicidade usando o ID do agendamento nas observações
+        const exists = await this.prisma.lancamento.findFirst({
+          where: {
+            pacienteId: agendamento.pacienteId,
+            observacoes: { contains: `Agendamento Ref: ${id}` }
+          }
+        });
+
+        if (!exists) {
+          const dateStr = new Date(agendamento.data).toLocaleDateString('pt-BR');
+          await this.prisma.lancamento.create({
+            data: {
+              tipo: 'RECEITA',
+              descricao: `[Consulta] Atendimento - ${paciente.nome}`,
+              valor,
+              status: 'PENDENTE',
+              vencimento: new Date(),
+              pacienteId: agendamento.pacienteId,
+              observacoes: `Consulta particular realizada em ${dateStr}. Agendamento Ref: ${id}`,
+              contaCaixa: 'Caixa Geral'
+            }
+          });
+        }
+      }
+    }
+
     // Atualizar status da sala
     if (status === 'EM_ATENDIMENTO' && agendamento.salaId) {
       await this.prisma.sala.update({

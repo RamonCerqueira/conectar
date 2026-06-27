@@ -13,6 +13,8 @@ export class UsuariosService {
       select: {
         id: true, nome: true, email: true, perfil: true,
         foto: true, ultimoLogin: true, criadoEm: true,
+        telefone: true, cpfCnpj: true, tipoContrato: true,
+        salarioBase: true, cargaHoraria: true, chavePix: true,
         profissional: { select: { id: true, tipo: true, especialidade: true } },
       },
       orderBy: { nome: 'asc' },
@@ -32,6 +34,8 @@ export class UsuariosService {
   async create(data: {
     nome: string; email: string; senha: string;
     perfil: PerfilUsuario; foto?: string;
+    telefone?: string; cpfCnpj?: string; tipoContrato?: string;
+    salarioBase?: number; cargaHoraria?: string; chavePix?: string;
   }) {
     const exists = await this.prisma.usuario.findUnique({ where: { email: data.email } });
     if (exists) throw new ConflictException('E-mail já cadastrado');
@@ -43,7 +47,11 @@ export class UsuariosService {
     return result;
   }
 
-  async update(id: string, data: Partial<{ nome: string; foto: string; ativo: boolean }>) {
+  async update(id: string, data: Partial<{ 
+    nome: string; foto: string; ativo: boolean;
+    telefone: string; cpfCnpj: string; tipoContrato: string;
+    salarioBase: number; cargaHoraria: string; chavePix: string;
+  }>) {
     await this.findOne(id);
     return this.prisma.usuario.update({ where: { id }, data });
   }

@@ -30,6 +30,7 @@ import { IaModule } from './modules/ia/ia.module';
 import { DashboardModule } from './modules/dashboard/dashboard.module';
 import { MateriaisModule } from './modules/materiais/materiais.module';
 import { WebsocketModule } from './modules/websocket/websocket.module';
+import { PontoModule } from './modules/ponto/ponto.module';
 
 @Module({
   imports: [
@@ -96,6 +97,7 @@ import { WebsocketModule } from './modules/websocket/websocket.module';
     AuditModule,
     IaModule,
     MateriaisModule,
+    PontoModule,
   ],
 })
 export class AppModule {}

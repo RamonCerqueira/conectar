@@ -1,6 +1,4 @@
-"use client";
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -17,8 +15,16 @@ import {
   Calendar,
   Sparkles,
   FileText,
+  Plus,
+  Check,
+  Clock,
+  Trash2,
+  ShieldAlert,
+  Upload
 } from "lucide-react";
-import { cn, formatPhone, calculateAge, getInitials, formatDate } from "@/lib/utils";
+import { cn, formatPhone, calculateAge, getInitials, formatDate, formatCurrency } from "@/lib/utils";
+import { api } from "@/lib/api";
+import { toast } from "sonner";
 import { Paciente } from "@/types";
 
 interface PacienteDetailsDrawerProps {
@@ -29,6 +35,98 @@ interface PacienteDetailsDrawerProps {
 export function PacienteDetailsDrawer({ selectedPaciente, onClose }: PacienteDetailsDrawerProps) {
   const router = useRouter();
   const [activeProfileTab, setActiveProfileTab] = useState("dados");
+
+  const [contratos, setContratos] = useState<any[]>([]);
+  const [contratosLoading, setContratosLoading] = useState(false);
+  const [isNewContratoOpen, setIsNewContratoOpen] = useState(false);
+
+  // Form states for generating contract
+  const [cTitulo, setCTitulo] = useState("Contrato de Prestação de Serviços Clínicos");
+  const [cTipo, setCTipo] = useState("contrato");
+  const [cValor, setCValor] = useState("1200.00");
+  const [cParcelas, setCParcelas] = useState("12");
+  const [cDiaVenc, setCDiaVenc] = useState("10");
+  const [vincularPDF, setVincularPDF] = useState(false);
+  const [cUploadFile, setCUploadFile] = useState<File | null>(null);
+
+  const loadContratos = async () => {
+    if (!selectedPaciente) return;
+    setContratosLoading(true);
+    try {
+      const res = await api.get(`/contratos/paciente/${selectedPaciente.id}`);
+      setContratos(res.data || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setContratosLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeProfileTab === "contratos" && selectedPaciente) {
+      loadContratos();
+    }
+  }, [activeProfileTab, selectedPaciente]);
+
+  const handleCreateContrato = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedPaciente) return;
+    try {
+      const res = await api.post("/contratos", {
+        pacienteId: selectedPaciente.id,
+        tipo: cTipo,
+        titulo: cTitulo,
+        caminho: `/storage/contratos/${selectedPaciente.nome.toLowerCase().replace(/ /g, "_")}_${Date.now()}.pdf`,
+        valorMensal: cTipo === "contrato" ? parseFloat(cValor) || 0 : null,
+        qtdParcelas: cTipo === "contrato" ? parseInt(cParcelas) || 1 : null,
+        diaVencimento: cTipo === "contrato" ? parseInt(cDiaVenc) || 10 : null,
+        assinado: false
+      });
+
+      const createdContrato = res.data;
+
+      if (vincularPDF && cUploadFile) {
+        const formData = new FormData();
+        formData.append("file", cUploadFile);
+        await api.post(`/contratos/${createdContrato.id}/upload`, formData, {
+          headers: { "Content-Type": "multipart/form-data" }
+        });
+        toast.success("Contrato criado e PDF físico anexado com sucesso!");
+      } else {
+        toast.success("Contrato de modelo padrão gerado com sucesso!");
+      }
+
+      setIsNewContratoOpen(false);
+      setCUploadFile(null);
+      setVincularPDF(false);
+      loadContratos();
+    } catch (err) {
+      console.error(err);
+      toast.error("Erro ao gerar ou enviar contrato.");
+    }
+  };
+
+  const handleSignContrato = async (id: string) => {
+    try {
+      await api.put(`/contratos/${id}/assinar`);
+      toast.success("Contrato assinado digitalmente e faturamento lançado!");
+      loadContratos();
+    } catch (err) {
+      console.error(err);
+      toast.error("Erro ao assinar contrato.");
+    }
+  };
+
+  const handleDeleteContrato = async (id: string) => {
+    try {
+      await api.delete(`/contratos/${id}`);
+      toast.success("Contrato removido com sucesso.");
+      loadContratos();
+    } catch (err) {
+      console.error(err);
+      toast.error("Erro ao remover contrato.");
+    }
+  };
 
   return (
     <AnimatePresence>
@@ -87,6 +185,7 @@ export function PacienteDetailsDrawer({ selectedPaciente, onClose }: PacienteDet
                 { id: "prontuario", label: "Evoluções (Prontuário)", icon: ClipboardList },
                 { id: "plano", label: "Plano Terapêutico", icon: HeartHandshake },
                 { id: "financeiro", label: "Financeiro", icon: DollarSign },
+                { id: "contratos", label: "Contratos & Termos", icon: FileText },
                 { id: "docs", label: "Exercícios & Docs", icon: BookOpen },
               ].map((tab) => (
                 <button
@@ -416,6 +515,242 @@ export function PacienteDetailsDrawer({ selectedPaciente, onClose }: PacienteDet
                       )}
                     </div>
                   </div>
+                </div>
+              )}
+
+              {/* 6. CONTRATOS DO PACIENTE (GESTÃO INTEGRADA NO PERFIL) */}
+              {activeProfileTab === "contratos" && (
+                <div className="space-y-4 text-xs">
+                  <div className="flex items-center justify-between border-b pb-2">
+                    <h3 className="font-bold text-sm text-purple-500 flex items-center gap-2 uppercase tracking-wide">
+                      <FileText className="h-4 w-4" />
+                      Contratos de Prestação de Serviços & Termos LGPD
+                    </h3>
+                    
+                    <button
+                      onClick={() => setIsNewContratoOpen(true)}
+                      className="flex items-center gap-1 py-1.5 px-3 rounded-lg text-[10px] font-bold uppercase tracking-wider text-white gradient-primary shadow-xs cursor-pointer border-0"
+                    >
+                      <Plus className="h-3.5 w-3.5" />
+                      <span>Vincular Contrato</span>
+                    </button>
+                  </div>
+
+                  {contratosLoading ? (
+                    <div className="flex h-32 items-center justify-center">
+                      <div className="h-6 w-6 animate-spin rounded-full border-2 border-solid border-violet-600 border-t-transparent" />
+                    </div>
+                  ) : contratos.length === 0 ? (
+                    <div className="p-8 text-center text-zinc-500 bg-muted/10 border border-dashed rounded-xl space-y-1">
+                      <Clock className="h-8 w-8 text-zinc-500 mx-auto" />
+                      <p className="font-bold">Nenhum contrato ativo ou termo vinculado</p>
+                      <p className="text-[10px] text-muted-foreground">Adicione contratos de mensalidades ou termos LGPD/imagem para este paciente.</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {contratos.map((cont) => (
+                        <div
+                          key={cont.id}
+                          className="rounded-xl border p-4 flex flex-col justify-between bg-card hover:shadow-xs transition-shadow relative"
+                          style={{ borderColor: "hsl(var(--border))" }}
+                        >
+                          <div className="absolute top-3 right-3">
+                            {cont.assinado ? (
+                              <span className="flex items-center gap-0.5 text-[8px] font-bold bg-emerald-500/10 text-emerald-500 px-2 py-0.5 rounded-full uppercase tracking-wider border border-emerald-500/20">
+                                <Check className="h-3 w-3" /> Assinado
+                              </span>
+                            ) : (
+                              <span className="flex items-center gap-0.5 text-[8px] font-bold bg-amber-500/10 text-amber-500 px-2 py-0.5 rounded-full uppercase tracking-wider border border-amber-500/20">
+                                <Clock className="h-3 w-3" /> Pendente
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="space-y-2.5">
+                            <div className="flex items-center gap-2">
+                              <FileText className="h-4.5 w-4.5 text-purple-400 shrink-0" />
+                              <span className="font-bold text-foreground text-sm truncate pr-16">{cont.titulo}</span>
+                            </div>
+
+                            <div className="bg-muted/40 p-2.5 rounded-lg border text-[10px] space-y-1 text-muted-foreground">
+                              {cont.valorMensal && (
+                                <div className="flex justify-between">
+                                  <span>Mensalidade:</span>
+                                  <span className="font-bold text-foreground">{formatCurrency(Number(cont.valorMensal))}</span>
+                                </div>
+                              )}
+                              {cont.qtdParcelas && (
+                                <div className="flex justify-between">
+                                  <span>Parcelas/Meses:</span>
+                                  <span className="font-bold text-foreground">{cont.qtdParcelas}x</span>
+                                </div>
+                              )}
+                              <div className="flex justify-between">
+                                  <span>Gênero Financeiro:</span>
+                                  <span className="font-bold text-foreground">{cont.gerouFinanceiro ? "Sim (Efetivado)" : "Pendente de Assinatura"}</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="h-[1px] bg-border my-3" />
+
+                          <div className="flex gap-2 justify-end">
+                            <button
+                              onClick={() => handleDeleteContrato(cont.id)}
+                              className="p-2 rounded-lg border border-red-500/20 hover:bg-red-500/10 text-red-500 cursor-pointer"
+                              title="Remover Contrato"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                            
+                            {!cont.assinado && (
+                              <button
+                                onClick={() => handleSignContrato(cont.id)}
+                                className="flex-1 py-1.5 px-3 rounded-lg text-xs font-bold text-white gradient-primary hover:shadow-xs uppercase tracking-wider cursor-pointer"
+                              >
+                                Assinar Digital
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* SUB-MODAL NOVO CONTRATO DO PACIENTE */}
+                  <AnimatePresence>
+                    {isNewContratoOpen && (
+                      <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
+                        <div className="absolute inset-0" onClick={() => setIsNewContratoOpen(false)} />
+
+                        <motion.div
+                          initial={{ scale: 0.95, opacity: 0 }}
+                          animate={{ scale: 1, opacity: 1 }}
+                          exit={{ scale: 0.95, opacity: 0 }}
+                          className="relative w-full max-w-sm rounded-xl shadow-2xl border overflow-hidden bg-card"
+                          style={{ borderColor: "hsl(var(--border))" }}
+                        >
+                          <div className="p-5 border-b flex items-center justify-between">
+                            <div>
+                              <h3 className="font-bold text-sm text-foreground">Gerar Contrato para {selectedPaciente.nome}</h3>
+                              <p className="text-[9px] text-muted-foreground mt-0.5">Defina as diretrizes financeiras.</p>
+                            </div>
+                            <button onClick={() => setIsNewContratoOpen(false)} className="p-1 rounded hover:bg-muted text-muted-foreground cursor-pointer">
+                              <X className="h-4.5 w-4.5" />
+                            </button>
+                          </div>
+
+                          <form onSubmit={handleCreateContrato} className="p-5 space-y-3.5 text-xs">
+                            <div className="space-y-1">
+                              <label className="text-[10px] font-bold text-muted-foreground uppercase">Título do Contrato/Termo</label>
+                              <input
+                                type="text"
+                                required
+                                value={cTitulo}
+                                onChange={(e) => setCTitulo(e.target.value)}
+                                className="w-full p-2.5 rounded-lg border bg-background text-foreground outline-none"
+                              />
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="text-[10px] font-bold text-muted-foreground uppercase">Tipo</label>
+                              <select
+                                value={cTipo}
+                                onChange={(e) => setCTipo(e.target.value)}
+                                className="w-full p-2.5 rounded-lg border bg-background text-foreground outline-none cursor-pointer"
+                              >
+                                <option value="contrato">Contrato de Serviços</option>
+                                <option value="lgpd">Termo LGPD</option>
+                                <option value="autorizacao_imagem">Autorização de Imagem</option>
+                                <option value="outro">Outro Termo</option>
+                              </select>
+                            </div>
+
+                            {cTipo === "contrato" && (
+                              <div className="space-y-3 p-3 bg-purple-500/5 rounded-lg border border-purple-500/10">
+                                <div className="grid grid-cols-2 gap-2">
+                                  <div className="space-y-1">
+                                    <label className="text-[9px] font-bold text-muted-foreground uppercase">Mensalidade (R$)</label>
+                                    <input
+                                      type="number"
+                                      step="0.01"
+                                      value={cValor}
+                                      onChange={(e) => setCValor(e.target.value)}
+                                      className="w-full p-2 rounded-lg border bg-background text-foreground font-bold outline-none"
+                                    />
+                                  </div>
+                                  <div className="space-y-1">
+                                    <label className="text-[9px] font-bold text-muted-foreground uppercase">Nº de Parcelas</label>
+                                    <input
+                                      type="number"
+                                      value={cParcelas}
+                                      onChange={(e) => setCParcelas(e.target.value)}
+                                      className="w-full p-2 rounded-lg border bg-background text-foreground font-bold outline-none"
+                                    />
+                                  </div>
+                                </div>
+
+                                <div className="space-y-1">
+                                  <label className="text-[9px] font-bold text-muted-foreground uppercase">Dia do Vencimento</label>
+                                  <input
+                                    type="number"
+                                    min="1"
+                                    max="31"
+                                    value={cDiaVenc}
+                                    onChange={(e) => setCDiaVenc(e.target.value)}
+                                    className="w-full p-2 rounded-lg border bg-background text-foreground font-bold outline-none"
+                                  />
+                                </div>
+                              </div>
+                            )}
+
+                            <div className="p-3 bg-muted/40 rounded-lg border space-y-2">
+                              <div className="flex items-center gap-2 cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  id="vincularPdf"
+                                  checked={vincularPDF}
+                                  onChange={(e) => setVincularPDF(e.target.checked)}
+                                  className="rounded border-border text-purple-500 w-4 h-4 cursor-pointer"
+                                />
+                                <label htmlFor="vincularPdf" className="font-bold text-foreground cursor-pointer">Vincular PDF Existente</label>
+                              </div>
+                              {vincularPDF && (
+                                <div className="space-y-1 pt-1.5 border-t border-border/40">
+                                  <label className="text-[9px] font-bold text-muted-foreground uppercase flex items-center gap-1">
+                                    <Upload className="h-3.5 w-3.5" /> Selecionar Arquivo PDF
+                                  </label>
+                                  <input
+                                    type="file"
+                                    accept=".pdf"
+                                    required={vincularPDF}
+                                    onChange={(e) => setCUploadFile(e.target.files?.[0] || null)}
+                                    className="w-full text-[10px] text-muted-foreground cursor-pointer"
+                                  />
+                                </div>
+                              )}
+                            </div>
+
+                            <div className="pt-3 border-t flex justify-end gap-2">
+                              <button
+                                type="button"
+                                onClick={() => setIsNewContratoOpen(false)}
+                                className="px-3 py-2 rounded-lg border font-bold text-zinc-400 border-border hover:bg-muted cursor-pointer"
+                              >
+                                Cancelar
+                              </button>
+                              <button
+                                type="submit"
+                                className="px-4 py-2 rounded-lg font-semibold text-white gradient-primary cursor-pointer border-0 shadow-lg shadow-purple-500/10"
+                              >
+                                Gerar Contrato
+                              </button>
+                            </div>
+                          </form>
+                        </motion.div>
+                      </div>
+                    )}
+                  </AnimatePresence>
                 </div>
               )}
             </div>

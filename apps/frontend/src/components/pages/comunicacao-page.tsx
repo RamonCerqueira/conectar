@@ -16,21 +16,8 @@ import {
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/lib/utils";
 
-// ─── DADOS MOCKADOS COMPLETOS ───────────────────────────────────────────────
-const initialLogs = [
-  { id: "l-1", canal: "WHATSAPP" as const, destino: "11987654321", texto: "Olá Mariana! Confirmamos o agendamento de Lucas para o dia 26/06 às 09:00.", status: "ENVIADO" as const, data: "2026-06-25T18:00:00Z" },
-  { id: "l-2", canal: "EMAIL" as const, destino: "mariana.mendes@email.com", texto: "Relatório Clínico Mensal do Lucas Mendes disponível no Portal dos Pais.", status: "ENVIADO" as const, data: "2026-06-20T14:00:00Z" },
-  { id: "l-3", canal: "WHATSAPP" as const, destino: "11999998888", texto: "Olá Beatriz! Lembramos que a mensalidade de R$ 1400 vence em 10/06.", status: "ERRO" as const, data: "2026-06-08T09:00:00Z" },
-];
-
-const templates = [
-  { id: "t-1", titulo: "Confirmação de Consulta", canal: "WhatsApp", texto: "Olá {{nome_responsavel}}! Confirmamos o agendamento de {{nome_crianca}} para o dia {{data_hora}}." },
-  { id: "t-2", titulo: "Aviso de Faturamento", canal: "WhatsApp", texto: "Olá {{nome_responsavel}}! Sua fatura no valor de R$ {{valor}} vence no dia {{vencimento}}." },
-  { id: "t-3", titulo: "Evolução Mensal Pronta", canal: "E-mail", texto: "Olá! A evolução clínica mensal do aluno {{nome_crianca}} está pronta para leitura no portal." },
-];
-
 export function ComunicacaoPage() {
-  const [logs, setLogs] = useState(initialLogs);
+  const [logs, setLogs] = useState<any[]>([]);
   const [activeCanal, setActiveCanal] = useState("TODOS");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -39,25 +26,38 @@ export function ComunicacaoPage() {
   const [destino, setDestino] = useState("");
   const [texto, setTexto] = useState("");
 
-  const handleSendMessage = (e: React.FormEvent) => {
+  const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!destino || !texto) return;
 
-    const newLog = {
-      id: `l-${Date.now()}`,
-      canal: canal as any,
-      destino: destino,
-      texto: texto,
-      status: "ENVIADO" as const,
-      data: new Date().toISOString(),
-    };
+    try {
+      if (canal === "WHATSAPP") {
+        await api.post("/comunicacao/whatsapp", { phone: destino, text: texto });
+      } else {
+        await api.post("/comunicacao/email", { to: destino, subject: "Aviso Clínico Conectar", content: texto });
+      }
 
-    setLogs([newLog, ...logs]);
-    setIsModalOpen(false);
+      toast.success("Mensagem disparada com sucesso!");
 
-    // Reset
-    setDestino("");
-    setTexto("");
+      const newLog = {
+        id: `l-${Date.now()}`,
+        canal: canal as any,
+        destino: destino,
+        texto: texto,
+        status: "ENVIADO" as const,
+        data: new Date().toISOString(),
+      };
+
+      setLogs([newLog, ...logs]);
+      setIsModalOpen(false);
+
+      // Reset
+      setDestino("");
+      setTexto("");
+    } catch (error) {
+      console.error(error);
+      toast.error("Erro ao enviar mensagem pelo servidor.");
+    }
   };
 
   const filteredLogs = logs.filter((log) => {

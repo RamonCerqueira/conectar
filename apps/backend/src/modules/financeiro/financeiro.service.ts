@@ -45,4 +45,237 @@ export class FinanceiroService {
       orderBy: { vencimento: 'asc' },
     });
   }
+
+  async findMyContracheques(userName: string) {
+    return this.prisma.lancamento.findMany({
+      where: {
+        tipo: 'DESPESA',
+        descricao: { contains: userName },
+      },
+      orderBy: { vencimento: 'desc' },
+    });
+  }
+
+  // ─── FECHAMENTO DE CAIXA ──────────────────────────────────────────────────
+
+  async getCaixaStatus(usuarioId: string) {
+    const caixa = await this.prisma.fechamentoCaixa.findFirst({
+      where: { usuarioId, status: 'ABERTO' },
+    });
+
+    if (!caixa) return { status: 'FECHADO' };
+
+    // Calcular valores registrados no sistema desde a abertura do caixa
+    const lancamentos = await this.prisma.lancamento.findMany({
+      where: {
+        status: 'PAGO',
+        pagamento: { gte: caixa.abertoEm },
+      },
+    });
+
+    let totalDinheiro = 0;
+    let totalPix = 0;
+    let totalCartao = 0;
+
+    lancamentos.forEach((l) => {
+      const val = Number(l.valor);
+      if (l.formaPagamento === 'DINHEIRO') {
+        totalDinheiro += val;
+      } else if (l.formaPagamento === 'PIX') {
+        totalPix += val;
+      } else if (['CARTAO_CREDITO', 'CARTAO_DEBITO'].includes(l.formaPagamento || '')) {
+        totalCartao += val;
+      }
+    });
+
+    return {
+      status: 'ABERTO',
+      caixa,
+      totalDinheiro,
+      totalPix,
+      totalCartao,
+    };
+  }
+
+  async abrirCaixa(usuarioId: string, saldoInicial: number) {
+    const open = await this.prisma.fechamentoCaixa.findFirst({
+      where: { usuarioId, status: 'ABERTO' },
+    });
+    if (open) return open;
+
+    return this.prisma.fechamentoCaixa.create({
+      data: {
+        usuarioId,
+        saldoInicial,
+        status: 'ABERTO',
+      },
+    });
+  }
+
+  async fecharCaixa(usuarioId: string, conferidoDinh: number, justificativa?: string) {
+    const status = await this.getCaixaStatus(usuarioId);
+    if (status.status !== 'ABERTO' || !status.caixa) {
+      throw new Error('Não há caixa aberto para este operador.');
+    }
+
+    const expectedDinh = status.totalDinheiro;
+    const diff = conferidoDinh - expectedDinh;
+
+    return this.prisma.fechamentoCaixa.update({
+      where: { id: status.caixa.id },
+      data: {
+        totalDinheiro: expectedDinh,
+        totalPix: status.totalPix,
+        totalCartao: status.totalCartao,
+        conferidoDinh,
+        diferenca: diff,
+        justificativa,
+        status: 'FECHADO',
+        fechadoEm: new Date(),
+      },
+    });
+  }
+
+  async getHistoricoCaixas() {
+    return this.prisma.fechamentoCaixa.findMany({
+      include: {
+        usuario: { select: { id: true, nome: true, email: true } },
+      },
+      orderBy: { abertoEm: 'desc' },
+    });
+  }
+
+  async aprovarCaixa(id: string) {
+    return this.prisma.fechamentoCaixa.update({
+      where: { id },
+      data: { status: 'APROVADO' },
+    });
+  }
+
+  // ─── ADIANTAMENTOS (VALES) ────────────────────────────────────────────────
+
+  async getAdiantamentos(query: any) {
+    const { refMes } = query;
+    return this.prisma.adiantamento.findMany({
+      where: {
+        ...(refMes && { referenciaMes: refMes }),
+      },
+      include: {
+        usuario: { select: { id: true, nome: true, email: true } },
+      },
+      orderBy: { data: 'desc' },
+    });
+  }
+
+  async createAdiantamento(data: { usuarioId: string; valor: number; referenciaMes: string; observacoes?: string }) {
+    return this.prisma.adiantamento.create({
+      data: {
+        usuarioId: data.usuarioId,
+        valor: data.valor,
+        referenciaMes: data.referenciaMes,
+        observacoes: data.observacoes,
+        pago: false,
+      },
+    });
+  }
+
+  async deleteAdiantamento(id: string) {
+    return this.prisma.adiantamento.delete({
+      where: { id },
+    });
+  }
+
+  // ─── REPASSES / COMISSÕES DE TERAPEUTAS ──────────────────────────────────
+
+  async getRepassesTerapeutas(mes: string) {
+    // Pegar o início e fim do mês informado (Ex: "2026-06")
+    const [year, month] = mes.split('-').map(Number);
+    const start = new Date(year, month - 1, 1);
+    const end = new Date(year, month, 0, 23, 59, 59);
+
+    // Buscar agendamentos concluídos (PRESENTE) no mês
+    const agendamentos = await this.prisma.agendamento.findMany({
+      where: {
+        status: 'PRESENTE',
+        data: { gte: start, lte: end },
+      },
+      include: {
+        profissional: {
+          include: {
+            usuario: { select: { nome: true } },
+          },
+        },
+        paciente: {
+          select: { id: true, nome: true, valorConsulta: true },
+        },
+      },
+    });
+
+    // Agrupar e calcular repasses
+    const repasses: Record<string, {
+      profId: string;
+      nome: string;
+      sessoesAtendidas: number;
+      valorFaturado: number;
+      comissaoTotal: number;
+      chavePix?: string | null;
+      jaLancado: boolean;
+    }> = {};
+
+    for (const ag of agendamentos) {
+      if (!ag.profissional) continue;
+
+      const profId = ag.profissionalId;
+      const pct = ag.profissional.comissaoPorcentagem ? Number(ag.profissional.comissaoPorcentagem) : 0;
+      const valorSessao = ag.paciente?.valorConsulta ? Number(ag.paciente.valorConsulta) : 150;
+
+      const comissaoSessao = (valorSessao * pct) / 100;
+
+      if (!repasses[profId]) {
+        // Verificar se já existe despesa registrada para o repasse deste profissional no mês
+        const exists = await this.prisma.lancamento.findFirst({
+          where: {
+            tipo: 'DESPESA',
+            descricao: { contains: `[Repasse PJ] ${ag.profissional.usuario.nome}` },
+            referencia: mes,
+          },
+        });
+
+        repasses[profId] = {
+          profId,
+          nome: ag.profissional.usuario.nome,
+          sessoesAtendidas: 0,
+          valorFaturado: 0,
+          comissaoTotal: 0,
+          chavePix: ag.profissional.chavePix,
+          jaLancado: !!exists,
+        };
+      }
+
+      repasses[profId].sessoesAtendidas += 1;
+      repasses[profId].valorFaturado += valorSessao;
+      repasses[profId].comissaoTotal += comissaoSessao;
+    }
+
+    return Object.values(repasses);
+  }
+
+  async lancarRepasse(data: { profId: string; nome: string; comissaoTotal: number; mesReferencia: string }) {
+    const { profId, nome, comissaoTotal, mesReferencia } = data;
+
+    // Criar despesa de repasse no caixa
+    return this.prisma.lancamento.create({
+      data: {
+        tipo: 'DESPESA',
+        descricao: `[Repasse PJ] ${nome} Ref: ${mesReferencia}`,
+        valor: comissaoTotal,
+        formaPagamento: 'TRANSFERENCIA',
+        status: 'PENDENTE',
+        vencimento: new Date(),
+        referencia: mesReferencia,
+        observacoes: `Comissão mensal de repasses gerada automaticamente baseada nas consultas concluídas no mês ${mesReferencia}.`,
+        contaCaixa: 'Caixa Geral',
+      },
+    });
+  }
 }

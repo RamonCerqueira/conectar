@@ -250,9 +250,11 @@ const itemVariants = {
 export function DashboardPage() {
   const today = format(new Date(), "EEEE, dd 'de' MMMM 'de' yyyy", { locale: ptBR });
 
-  const [stats, setStats] = useState(initialStatsCards);
-  const [consultas, setConsultas] = useState<Consulta[]>(proximasConsultas);
-  const [alertas, setAlertas] = useState<Alerta[]>(alertasImportantes);
+  const [stats, setStats] = useState<StatCardType[]>(
+    initialStatsCards.map(c => ({ ...c, value: c.id.includes("receita") || c.id.includes("pagamentos") ? "R$ 0,00" : "0" }))
+  );
+  const [consultas, setConsultas] = useState<Consulta[]>([]);
+  const [alertas, setAlertas] = useState<Alerta[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -296,15 +298,10 @@ export function DashboardPage() {
           );
         }
 
-        if (hojeData && hojeData.length > 0) {
-          setConsultas(hojeData);
-        }
-
-        if (alertasData && alertasData.length > 0) {
-          setAlertas(alertasData);
-        }
+        setConsultas(hojeData || []);
+        setAlertas(alertasData || []);
       } catch (err) {
-        console.warn("Using mock data as backend fallback.", err);
+        console.error("Error loading dashboard data", err);
       } finally {
         setLoading(false);
       }

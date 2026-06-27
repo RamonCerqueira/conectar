@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Instituto Conectar — Clínica de Desenvolvimento Infantil e Multidisciplinar</title>
+  <meta name="description" content="Atendimento especializado em Psicologia, Fonoaudiologia, Terapia Ocupacional e Psicopedagogia. Cuidado integrado e acolhimento para o desenvolvimento da sua família.">
+  
+  <!-- Google Fonts: Outfit (headings) and Inter (body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- CSS Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+  
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+  <!-- Background Ambient Glows -->
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <!-- Header / Navigation -->
+  <header>
+    <div class="container nav-container">
+      <a href="#" class="logo">
+        <span class="logo-icon"><i data-lucide="sparkles"></i></span>
+        <span class="logo-text">Instituto <strong>Conectar</strong></span>
+      </a>
+      
+      <nav class="nav-links">
+        <a href="#especialidades">Especialidades</a>
+        <a href="#diferenciais">Diferenciais</a>
+        <a href="#estrutura">Estrutura</a>
+        <a href="#faq">Dúvidas</a>
+      </nav>
+      
+      <div class="nav-actions">
+        <a href="http://localhost:5000/login" class="btn btn-secondary">Área do Profissional</a>
+        <a href="http://localhost:5000/portal/login" class="btn btn-primary">Portal dos Pais</a>
+      </div>
+      
+      <button class="mobile-menu-toggle" aria-label="Abrir Menu">
+        <i data-lucide="menu"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Mobile Navigation Menu -->
+  <div class="mobile-menu">
+    <div class="mobile-menu-header">
+      <a href="#" class="logo">
+        <span class="logo-icon"><i data-lucide="sparkles"></i></span>
+        <span class="logo-text">Instituto <strong>Conectar</strong></span>
+      </a>
+      <button class="mobile-menu-close" aria-label="Fechar Menu">
+        <i data-lucide="x"></i>
+      </button>
+    </div>
+    <nav class="mobile-nav-links">
+      <a href="#especialidades">Especialidades</a>
+      <a href="#diferenciais">Diferenciais</a>
+      <a href="#estrutura">Estrutura</a>
+      <a href="#faq">Dúvidas</a>
+      <hr>
+      <a href="http://localhost:5000/login" class="btn btn-secondary w-full">Área do Profissional</a>
+      <a href="http://localhost:5000/portal/login" class="btn btn-primary w-full">Portal dos Pais</a>
+    </nav>
+  </div>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container hero-grid">
+      <div class="hero-content">
+        <div class="badge-container">
+          <span class="badge">
+            <span class="badge-dot"></span>
+            Clínica Multidisciplinar de Saúde
+          </span>
+        </div>
+        
+        <h1>Cuidado integrado para o <br><span class="gradient-text">desenvolvimento infantil</span></h1>
+        
+        <p class="hero-description">
+          Acolhimento humanizado e terapias especializadas em Psicologia, Fonoaudiologia, Terapia Ocupacional e Psicopedagogia. Apoiamos famílias na jornada do desenvolvimento e evolução de quem você ama.
+        </p>
+        
+        <div class="hero-actions">
+          <a href="https://wa.me/5500000000000" target="_blank" class="btn btn-primary btn-lg">
+            <i data-lucide="phone"></i>
+            <span>Agendar Consulta</span>
+          </a>
+          <a href="http://localhost:5000/portal/login" class="btn btn-secondary btn-lg">
+            <i data-lucide="users"></i>
+            <span>Acessar Portal da Família</span>
+          </a>
+        </div>
+      </div>
+      
+      <!-- Hero Interactive Illustration representing the Clinic Care Flow -->
+      <div class="hero-visual">
+        <div class="mockup-frame glass-card">
+          <!-- Card Header bar -->
+          <div class="mockup-header">
+            <div class="window-address">Instituto Conectar</div>
+          </div>
+          
+          <!-- App Interface -->
+          <div class="mockup-body">
+            <div class="clinic-welcome-panel">
+              <div class="clinic-welcome-title">
+                <h4>Atendimento Integrado</h4>
+                <p>Nossa rede de suporte para o paciente</p>
+              </div>
+              
+              <div class="clinic-nodes">
+                <div class="node-item text-violet">
+                  <div class="node-icon"><i data-lucide="smile"></i></div>
+                  <span>Paciente</span>
+                </div>
+                <div class="node-line"></div>
+                <div class="node-item text-emerald">
+                  <div class="node-icon"><i data-lucide="heart"></i></div>
+                  <span>Terapeutas</span>
+                </div>
+                <div class="node-line"></div>
+                <div class="node-item text-blue">
+                  <div class="node-icon"><i data-lucide="users"></i></div>
+                  <span>Família</span>
+                </div>
+              </div>
+              
+              <p class="clinic-welcome-footer">
+                <i data-lucide="shield-check"></i> Prontuário integrado & evolução transparente
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Statistics Panel -->
+  <section class="stats-panel">
+    <div class="container stats-grid">
+      <div class="stat-item">
+        <span class="stat-number">4+</span>
+        <span class="stat-label">Áreas Terapêuticas</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number">100%</span>
+        <span class="stat-label">Atendimento Humanizado</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number">Salas</span>
+        <span class="stat-label">Climatizadas e Equipadas</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number">Portal</span>
+        <span class="stat-label">Acompanhamento dos Pais</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Especialidades Section -->
+  <section id="especialidades" class="solutions">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Nossos Serviços Especializados</h2>
+        <p class="section-subtitle">Oferecemos terapias integradas focadas em potencializar as habilidades motoras, cognitivas, emocionais e de fala de cada paciente.</p>
+      </div>
+
+      <div class="tabs-control">
+        <button class="tab-btn active" data-tab="psicologia">Psicologia & Neuro</button>
+        <button class="tab-btn" data-tab="fonoaudiologia">Fonoaudiologia</button>
+        <button class="tab-btn" data-tab="terapia">Terapia Ocupacional</button>
+        <button class="tab-btn" data-tab="pedagogia">Psicopedagogia</button>
+      </div>
+
+      <div class="tabs-content">
+        <!-- Tab 1: Psicologia -->
+        <div class="tab-pane active" id="tab-psicologia">
+          <div class="tab-grid">
+            <div class="tab-text">
+              <h3>Psicoterapia Infantil e Neuropsicologia</h3>
+              <p>Apoio emocional para auxiliar crianças e adolescentes a compreenderem sentimentos, superarem desafios comportamentais e sociais. Realizamos avaliações neuropsicológicas completas para diagnóstico preciso e direcionamento de intervenção precoce.</p>
+              <ul class="tab-features">
+                <li><i data-lucide="heart"></i> Psicoterapia Comportamental Cognitiva</li>
+                <li><i data-lucide="heart"></i> Avaliação Neuropsicológica Completa</li>
+                <li><i data-lucide="heart"></i> Orientação Parental e Suporte Familiar</li>
+              </ul>
+              <a href="https://wa.me/5500000000000" target="_blank" class="btn btn-primary">Falar com Especialista</a>
+            </div>
+            <div class="tab-visual">
+              <div class="tab-preview-card glass-card">
+                <div class="preview-metrics">
+                  <div class="metric-box">
+                    <span>Foco do Tratamento</span>
+                    <strong>Cognição, Emoção & Comportamento</strong>
+                  </div>
+                  <div class="metric-box">
+                    <span>Diferencial Clínico</span>
+                    <strong>Avaliação individualizada e acolhedora</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: Fonoaudiologia -->
+        <div class="tab-pane" id="tab-fonoaudiologia">
+          <div class="tab-grid">
+            <div class="tab-text">
+              <h3>Desenvolvimento da Comunicação e Linguagem</h3>
+              <p>Tratamento especializado para distúrbios da fala, linguagem oral e escrita, processamento auditivo e motricidade orofacial. Ajudamos a desbloquear o potencial de comunicação, promovendo a autoconfiança social e escolar.</p>
+              <ul class="tab-features">
+                <li><i data-lucide="volume-2"></i> Terapia de Linguagem e Atraso de Fala</li>
+                <li><i data-lucide="volume-2"></i> Transtorno de Processamento Auditivo Central</li>
+                <li><i data-lucide="volume-2"></i> Disfagia e Dificuldades de Alimentação/Mastigação</li>
+              </ul>
+              <a href="https://wa.me/5500000000000" target="_blank" class="btn btn-primary">Agendar Triagem de Fono</a>
+            </div>
+            <div class="tab-visual">
+              <div class="tab-preview-card glass-card">
+                <div class="prescription-preview">
+                  <div class="prescription-header">
+                    <span class="badge">Área de Atuação</span>
+                  </div>
+                  <div class="prescription-body">
+                    <p class="desc">Estimulamos a expressão correta dos sons, articulação, compreensão e escrita por meio de metodologias lúdicas inovadoras.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 3: Terapia Ocupacional -->
+        <div class="tab-pane" id="tab-terapia">
+          <div class="tab-grid">
+            <div class="tab-text">
+              <h3>Autonomia e Integração Sensorial</h3>
+              <p>Desenvolvimento da coordenação motora fina e grossa, habilidades sensoriais e autonomia nas Atividades de Vida Diária (como vestir-se, alimentar-se e brincar). Focado no desenvolvimento da auto-regulação e processamento de estímulos.</p>
+              <ul class="tab-features">
+                <li><i data-lucide="toy-brick"></i> Integração Sensorial de Ayres</li>
+                <li><i data-lucide="toy-brick"></i> Habilidades de Coordenação e Motricidade</li>
+                <li><i data-lucide="toy-brick"></i> Treino de Atividades de Vida Diária (AVD)</li>
+              </ul>
+              <a href="https://wa.me/5500000000000" target="_blank" class="btn btn-primary">Saber mais sobre T.O.</a>
+            </div>
+            <div class="tab-visual">
+              <div class="tab-preview-card glass-card">
+                <div class="family-preview">
+                  <div class="prescription-header">
+                    <span class="badge">Integração Sensorial</span>
+                  </div>
+                  <div class="prescription-body">
+                    <p class="desc">Promovemos respostas adaptativas adequadas ao ambiente por meio de estímulos táteis, proprioceptivos e vestibulares controlados.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 4: Pedagogia -->
+        <div class="tab-pane" id="tab-pedagogia">
+          <div class="tab-grid">
+            <div class="tab-text">
+              <h3>Dificuldades de Aprendizagem e Reforço Cognitivo</h3>
+              <p>Apoio psicopedagógico focado no diagnóstico de bloqueios de aprendizagem, TDAH, dislexia e apoio no desenvolvimento acadêmico, estimulando o interesse escolar e a autonomia intelectual.</p>
+              <ul class="tab-features">
+                <li><i data-lucide="book-open"></i> Diagnóstico Psicopedagógico Clínico</li>
+                <li><i data-lucide="book-open"></i> Estimulação de Funções Executivas e Raciocínio</li>
+                <li><i data-lucide="book-open"></i> Orientação Escolar e Adaptação de Estudos</li>
+              </ul>
+              <a href="https://wa.me/5500000000000" target="_blank" class="btn btn-primary">Falar com Psicopedagoga</a>
+            </div>
+            <div class="tab-visual">
+              <div class="tab-preview-card glass-card">
+                <div class="prescription-preview">
+                  <div class="prescription-header">
+                    <span class="badge">Área Cognitiva</span>
+                  </div>
+                  <div class="prescription-body">
+                    <p class="desc">Intervenções direcionadas a melhorar o desempenho na leitura, escrita, cálculo lógico e organização dos estudos diários.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Diferenciais Section -->
+  <section id="diferenciais" class="features">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Por que escolher o Instituto Conectar?</h2>
+        <p class="section-subtitle">Nossos pilares de cuidado garantem um desenvolvimento seguro, acolhedor e totalmente acompanhado.</p>
+      </div>
+      
+      <div class="features-grid">
+        <!-- Feature 1 -->
+        <div class="feature-card glass-card">
+          <div class="feature-icon"><i data-lucide="users-2"></i></div>
+          <h3>Equipe Multidisciplinar Alinhada</h3>
+          <p>Terapeutas de diversas áreas conversam e alinham o plano de intervenção semanalmente. O paciente é atendido de forma global e coordenada.</p>
+        </div>
+        
+        <!-- Feature 2 -->
+        <div class="feature-card glass-card">
+          <div class="feature-icon"><i data-lucide="file-heart"></i></div>
+          <h3>Transparência Total (Portal dos Pais)</h3>
+          <p>Acesso exclusivo para pais acompanharem resumos das evoluções diárias das terapias, frequência, atividades recomendadas e relatórios clínicos.</p>
+        </div>
+        
+        <!-- Feature 3 -->
+        <div class="feature-card glass-card">
+          <div class="feature-icon"><i data-lucide="layout-grid"></i></div>
+          <h3>Salas Temáticas e Lúdicas</h3>
+          <p>Consultórios ambientados especialmente para engajamento e conforto visual/sensorial de crianças e adolescentes durante o atendimento.</p>
+        </div>
+        
+        <!-- Feature 4 -->
+        <div class="feature-card glass-card">
+          <div class="feature-icon"><i data-lucide="heart-handshake"></i></div>
+          <h3>Orientação Escolar e de Pais</h3>
+          <p>Apoiamos a integração entre a clínica, a família e a escola, auxiliando professores na adaptação pedagógica necessária para a evolução clínica.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Estrutura Section -->
+  <section id="estrutura" class="about-section">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Nossa Estrutura Acolhedora</h2>
+        <p class="section-subtitle">Espaços planejados para garantir segurança física e regulação sensorial.</p>
+      </div>
+      
+      <div class="tab-grid">
+        <div class="tab-visual">
+          <div class="tab-preview-card glass-card">
+            <div class="preview-metrics">
+              <div class="metric-box">
+                <strong>Sala Sensorial</strong>
+                <span>Com balanços, piscina de bolinhas e materiais texturizados para integração de T.O.</span>
+              </div>
+              <div class="metric-box">
+                <strong>Sala Amarela e Azul</strong>
+                <span>Salas voltadas a atendimentos lúdicos e acolhedores de fonoaudiologia e psicologia.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="tab-text">
+          <h3>Espaço Clínico Humanizado</h3>
+          <p>Acreditamos que o ambiente físico faz parte do sucesso terapêutico. Contamos com consultórios equipados com recursos pedagógicos, jogos terapêuticos e equipamentos sensoriais suspensos certificados para garantir total segurança física.</p>
+          <ul class="tab-features">
+            <li><i data-lucide="check-circle-2"></i> Equipamentos sensoriais inspecionados regularmente</li>
+            <li><i data-lucide="check-circle-2"></i> Ambientes organizados e livres de ruídos perturbadores</li>
+            <li><i data-lucide="check-circle-2"></i> Espaço de recepção confortável e acolhedor para pais</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section (Accordions) -->
+  <section id="faq" class="faq-section">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Perguntas Frequentes</h2>
+        <p class="section-subtitle">Tire suas dúvidas sobre nosso processo de atendimento e acolhimento.</p>
+      </div>
+
+      <div class="faq-accordion-container">
+        <!-- FAQ 1 -->
+        <div class="faq-item glass-card">
+          <div class="faq-question">
+            <span>Como funciona a triagem inicial?</span>
+            <i data-lucide="plus" class="faq-icon"></i>
+          </div>
+          <div class="faq-answer">
+            <p>O primeiro contato é uma entrevista inicial de acolhimento com a família. Nela, entendemos as queixas principais, histórico de desenvolvimento e definimos quais especialidades e avaliações são indicadas para iniciar o acompanhamento.</p>
+          </div>
+        </div>
+
+        <!-- FAQ 2 -->
+        <div class="faq-item glass-card">
+          <div class="faq-question">
+            <span>Como faço para acompanhar o prontuário e as evoluções clínicas?</span>
+            <i data-lucide="plus" class="faq-icon"></i>
+          </div>
+          <div class="faq-answer">
+            <p>Os pais e responsáveis recebem credenciais exclusivas para acessar o "Portal dos Pais" do Instituto Conectar. Através dele, você pode visualizar relatórios de progresso terapêutico, frequência diária e orientações de atividades para aplicar em ambiente domiciliar.</p>
+          </div>
+        </div>
+
+        <!-- FAQ 3 -->
+        <div class="faq-item glass-card">
+          <div class="faq-question">
+            <span>Quais convênios ou formas de reembolso a clínica aceita?</span>
+            <i data-lucide="plus" class="faq-icon"></i>
+          </div>
+          <div class="faq-answer">
+            <p>Trabalhamos com atendimentos particulares e fornecemos relatórios clínicos detalhados e recibos adequados para solicitação de reembolso junto ao seu plano de saúde. Para convênios específicos, consulte nosso atendimento via WhatsApp.</p>
+          </div>
+        </div>
+
+        <!-- FAQ 4 -->
+        <div class="faq-item glass-card">
+          <div class="faq-question">
+            <span>Quanto tempo dura cada sessão de terapia?</span>
+            <i data-lucide="plus" class="faq-icon"></i>
+          </div>
+          <div class="faq-answer">
+            <p>Normalmente, as sessões individuais de fonoaudiologia, psicologia e terapia ocupacional duram entre 40 e 50 minutos. A frequência semanal é definida pela equipe clínica baseada na necessidade específica de intervenção de cada paciente.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Banner -->
+  <section class="cta-banner">
+    <div class="container">
+      <div class="about-card glass-card">
+        <div class="about-content">
+          <h2>Agende uma visita ao Instituto Conectar</h2>
+          <p>Venha conhecer nosso espaço lúdico e conversar com nossos profissionais sobre o desenvolvimento e acolhimento de quem você mais ama.</p>
+          <div class="about-actions">
+            <a href="https://wa.me/5500000000000" target="_blank" class="btn btn-primary btn-lg">
+              <span>Agendar via WhatsApp</span>
+              <i data-lucide="phone"></i>
+            </a>
+            <a href="http://localhost:5000/portal/login" class="btn btn-secondary btn-lg">
+              <span>Portal da Família</span>
+              <i data-lucide="users"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container footer-container">
+      <div>
+        <p class="copyright">&copy; 2026 Instituto Conectar. Todos os direitos reservados.</p>
+        <p class="copyright" style="font-size:0.75rem; margin-top:0.3rem; opacity:0.6;">Diretor Técnico: Dr. Carlos Santos - CRM/SP 00000</p>
+      </div>
+      <div class="footer-links">
+        <a href="#">Privacidade</a>
+        <a href="#">Termos de Uso</a>
+        <a href="mailto:contato@institutoconectar.com.br">Contato</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

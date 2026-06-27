@@ -12,6 +12,7 @@
     "clean": "turbo run clean && rimraf node_modules",
     "frontend": "turbo run dev --filter=frontend",
     "backend": "turbo run dev --filter=backend",
+    "landingpage": "turbo run dev --filter=landingpage",
     "ai-service": "turbo run dev --filter=ai-service",
     "whatsapp-service": "turbo run dev --filter=whatsapp-service",
     "sync-env": "node scripts/sync-env.js",

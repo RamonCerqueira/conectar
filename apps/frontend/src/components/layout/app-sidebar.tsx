@@ -37,6 +37,7 @@ interface NavItem {
   badge?: string | number;
   badgeColor?: string;
   children?: NavItem[];
+  allowedRoles?: string[];
 }
 
 const navGroups: { title: string; items: NavItem[] }[] = [
@@ -54,6 +55,12 @@ const navGroups: { title: string; items: NavItem[] }[] = [
         icon: CalendarDays,
         badge: "Hoje",
         badgeColor: "bg-purple-100 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300",
+        allowedRoles: ["ADMINISTRADOR", "DIRETOR", "COORDENADOR", "RECEPCAO", "PSICOLOGO", "PSICOPEDAGOGO", "NEUROPSICÓLOGO", "FONOAUDIOLOGO", "TERAPEUTA_OCUPACIONAL", "PEDAGOGO", "SUPERVISOR"],
+      },
+      {
+        label: "Ponto Eletrônico",
+        href: "/ponto",
+        icon: Clock,
       },
     ],
   },
@@ -64,11 +71,13 @@ const navGroups: { title: string; items: NavItem[] }[] = [
         label: "Pacientes",
         href: "/pacientes",
         icon: Users,
+        allowedRoles: ["ADMINISTRADOR", "DIRETOR", "COORDENADOR", "RECEPCAO", "PSICOLOGO", "PSICOPEDAGOGO", "NEUROPSICÓLOGO", "FONOAUDIOLOGO", "TERAPEUTA_OCUPACIONAL", "PEDAGOGO", "SUPERVISOR"],
       },
       {
         label: "Prontuário Clínico",
         href: "/prontuarios",
         icon: ClipboardList,
+        allowedRoles: ["ADMINISTRADOR", "DIRETOR", "COORDENADOR", "PSICOLOGO", "PSICOPEDAGOGO", "NEUROPSICÓLOGO", "FONOAUDIOLOGO", "TERAPEUTA_OCUPACIONAL", "PEDAGOGO", "SUPERVISOR"],
       },
     ],
   },
@@ -79,16 +88,25 @@ const navGroups: { title: string; items: NavItem[] }[] = [
         label: "Profissionais",
         href: "/profissionais",
         icon: Stethoscope,
+        allowedRoles: ["ADMINISTRADOR", "DIRETOR", "COORDENADOR", "FINANCEIRO"],
+      },
+      {
+        label: "Colaboradores",
+        href: "/colaboradores",
+        icon: HeartHandshake,
+        allowedRoles: ["ADMINISTRADOR", "DIRETOR"],
       },
       {
         label: "Salas",
         href: "/salas",
         icon: Building2,
+        allowedRoles: ["ADMINISTRADOR", "DIRETOR", "COORDENADOR", "RECEPCAO"],
       },
       {
         label: "Controle Escolar",
         href: "/escolar",
         icon: GraduationCap,
+        allowedRoles: ["ADMINISTRADOR", "DIRETOR", "COORDENADOR"],
       },
       {
         label: "Lista de Espera",
@@ -96,6 +114,7 @@ const navGroups: { title: string; items: NavItem[] }[] = [
         icon: Clock,
         badge: 3,
         badgeColor: "bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300",
+        allowedRoles: ["ADMINISTRADOR", "DIRETOR", "COORDENADOR", "RECEPCAO"],
       },
     ],
   },
@@ -106,16 +125,19 @@ const navGroups: { title: string; items: NavItem[] }[] = [
         label: "Financeiro",
         href: "/financeiro",
         icon: DollarSign,
+        allowedRoles: ["ADMINISTRADOR", "DIRETOR", "FINANCEIRO"],
       },
       {
         label: "Contratos",
         href: "/contratos",
         icon: FileText,
+        allowedRoles: ["ADMINISTRADOR", "DIRETOR", "FINANCEIRO", "COORDENADOR"],
       },
       {
         label: "Arquivos",
         href: "/arquivos",
         icon: BookOpen,
+        allowedRoles: ["ADMINISTRADOR", "DIRETOR", "FINANCEIRO", "COORDENADOR"],
       },
     ],
   },
@@ -126,11 +148,13 @@ const navGroups: { title: string; items: NavItem[] }[] = [
         label: "Relatórios",
         href: "/relatorios",
         icon: BarChart3,
+        allowedRoles: ["ADMINISTRADOR", "DIRETOR", "COORDENADOR"],
       },
       {
         label: "Comunicação",
         href: "/comunicacao",
         icon: MessageSquare,
+        allowedRoles: ["ADMINISTRADOR", "DIRETOR", "COORDENADOR", "RECEPCAO"],
       },
       {
         label: "IA Conectar",
@@ -138,6 +162,7 @@ const navGroups: { title: string; items: NavItem[] }[] = [
         icon: Sparkles,
         badge: "Novo",
         badgeColor: "bg-teal-100 dark:bg-teal-950/40 text-teal-700 dark:text-teal-300",
+        allowedRoles: ["ADMINISTRADOR", "DIRETOR", "COORDENADOR", "PSICOLOGO", "PSICOPEDAGOGO", "NEUROPSICÓLOGO", "FONOAUDIOLOGO", "TERAPEUTA_OCUPACIONAL", "PEDAGOGO", "SUPERVISOR"],
       },
     ],
   },
@@ -148,6 +173,7 @@ const navGroups: { title: string; items: NavItem[] }[] = [
         label: "Configurações",
         href: "/configuracoes",
         icon: Settings,
+        allowedRoles: ["ADMINISTRADOR", "DIRETOR"],
       },
     ],
   },
@@ -265,12 +291,17 @@ function NavItemComponent({
 export function AppSidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [userRole, setUserRole] = useState("ADMINISTRADOR");
 
   useEffect(() => {
     setMounted(true);
     const stored = localStorage.getItem("sidebar-collapsed");
     if (stored === "true") {
       setIsCollapsed(true);
+    }
+    const storedRole = localStorage.getItem("userRole");
+    if (storedRole) {
+      setUserRole(storedRole);
     }
   }, []);
 
@@ -332,26 +363,34 @@ export function AppSidebar() {
 
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-4">
-          {navGroups.map((group, groupIdx) => (
-            <div key={group.title}>
-              {(!mounted || !isCollapsed) ? (
-                <p className="text-[10px] font-semibold uppercase tracking-widest px-3 mb-2 text-[hsl(var(--sidebar-muted))] animate-in fade-in duration-200">
-                  {group.title}
-                </p>
-              ) : (
-                groupIdx > 0 && <div className="h-px bg-border/40 my-3" />
-              )}
-              <div className="space-y-0.5">
-                {group.items.map((item) => (
-                  <NavItemComponent
-                    key={item.href || item.label}
-                    item={item}
-                    isCollapsed={mounted && isCollapsed}
-                  />
-                ))}
+          {navGroups
+            .map((group) => {
+              const allowedItems = group.items.filter(
+                (item) => !item.allowedRoles || item.allowedRoles.includes(userRole)
+              );
+              return { ...group, items: allowedItems };
+            })
+            .filter((group) => group.items.length > 0)
+            .map((group, groupIdx) => (
+              <div key={group.title}>
+                {(!mounted || !isCollapsed) ? (
+                  <p className="text-[10px] font-semibold uppercase tracking-widest px-3 mb-2 text-[hsl(var(--sidebar-muted))] animate-in fade-in duration-200">
+                    {group.title}
+                  </p>
+                ) : (
+                  groupIdx > 0 && <div className="h-px bg-border/40 my-3" />
+                )}
+                <div className="space-y-0.5">
+                  {group.items.map((item) => (
+                    <NavItemComponent
+                      key={item.href || item.label}
+                      item={item}
+                      isCollapsed={mounted && isCollapsed}
+                    />
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
         </nav>
 
         {/* Bottom Panel (User Profile) */}

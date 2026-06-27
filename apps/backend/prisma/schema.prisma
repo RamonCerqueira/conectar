@@ -152,6 +152,14 @@ model Usuario {
   foto          String?
   perfil        PerfilUsuario
   ativo         Boolean        @default(true)
+  telefone      String?
+  cpfCnpj       String?
+  tipoContrato  String?        @default("CLT") // CLT | PJ
+  salarioBase   Decimal?       @db.Decimal(10, 2)
+  cargaHoraria  String?
+  chavePix      String?
+  horariosTrabalho Json?
+  custoValeTransporte Decimal?   @db.Decimal(10, 2) @default(10.00)
   ultimoLogin   DateTime?
   criadoEm     DateTime       @default(now())
   atualizadoEm DateTime       @updatedAt
@@ -161,6 +169,9 @@ model Usuario {
   refreshTokens   RefreshToken[]
   auditLogs       AuditLog[]
   notificacoes    Notificacao[]
+  pontoRecords    RegistroPonto[]
+  fechamentos     FechamentoCaixa[]
+  adiantamentos   Adiantamento[]
 
   @@index([email])
   @@map("usuarios")
@@ -333,6 +344,8 @@ model Paciente {
   primeiraConsulta DateTime?
   ativo           Boolean        @default(true)
   observacoes     String?
+  valorConsulta   Decimal?       @db.Decimal(10, 2) @default(150.00)
+  modeloCobranca  String         @default("POR_CONSULTA") // POR_CONSULTA | MENSALIDADE
   criadoEm       DateTime       @default(now())
   atualizadoEm   DateTime       @updatedAt
 
@@ -626,6 +639,8 @@ model Lancamento {
   referencia     String?         // Mês de referência (2026-01)
   comprovante    String?         // Caminho do arquivo
   observacoes    String?
+  contaCaixa     String          @default("Caixa Geral")
+  contratoId     String?
   criadoEm      DateTime        @default(now())
   atualizadoEm  DateTime        @updatedAt
 
@@ -642,18 +657,35 @@ model Lancamento {
 // ─────────────────────────────────────────────────────────────────────────────
 
 model Contrato {
-  id          String   @id @default(uuid())
-  pacienteId  String
-  tipo        String   // contrato, lgpd, autorizacao_imagem, outro
-  titulo      String
-  caminho     String
-  assinado    Boolean  @default(false)
-  assinadoEm  DateTime?
-  criadoEm   DateTime @default(now())
+  id              String    @id @default(uuid())
+  pacienteId      String
+  tipo            String    // contrato, lgpd, autorizacao_imagem, outro
+  titulo          String
+  caminho         String
+  assinado        Boolean   @default(false)
+  assinadoEm      DateTime?
+  valorMensal     Decimal?  @db.Decimal(10, 2)
+  qtdParcelas     Int?      @default(1)
+  diaVencimento   Int?      @default(10)
+  gerouFinanceiro Boolean   @default(false)
+  criadoEm       DateTime  @default(now())
 
   paciente Paciente @relation(fields: [pacienteId], references: [id])
 
   @@map("contratos")
+}
+
+model ModeloContrato {
+  id          String   @id @default(uuid())
+  titulo      String
+  tipo        String   // contrato, lgpd, autorizacao_imagem, outro
+  descricao   String
+  conteudo    String   @db.Text
+  arquivoUrl  String?  // PDF do modelo opcional
+  criadoEm    DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  @@map("modelos_contrato")
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -863,4 +895,70 @@ model Configuracao {
   grupo String @default("geral")
 
   @@map("configuracoes")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  PONTO ELETRÔNICO E FERIADOS
+// ─────────────────────────────────────────────────────────────────────────────
+
+model RegistroPonto {
+  id             String    @id @default(uuid())
+  usuarioId      String
+  data           DateTime  // Dia do ponto (sem hora)
+  entrada        DateTime?
+  saida          DateTime?
+  status         String    @default("NORMAL") // NORMAL | SOLICITADO | APROVADO | REJEITADO
+  justificativa  String?
+  entradaSol     DateTime? // Entrada solicitada para ajuste
+  saidaSol       DateTime? // Saída solicitada para ajuste
+  criadoEm       DateTime  @default(now())
+  atualizadoEm   DateTime  @updatedAt
+
+  usuario        Usuario   @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@index([usuarioId])
+  @@index([data])
+  @@map("registros_ponto")
+}
+
+model Feriado {
+  id          String   @id @default(uuid())
+  data        DateTime @unique // Dia do feriado
+  descricao   String
+  criadoEm    DateTime @default(now())
+
+  @@map("feriados")
+}
+
+model FechamentoCaixa {
+  id             String    @id @default(uuid())
+  usuarioId      String
+  abertoEm       DateTime  @default(now())
+  fechadoEm      DateTime?
+  saldoInicial   Decimal   @db.Decimal(10, 2) @default(0.00)
+  totalDinheiro  Decimal   @db.Decimal(10, 2) @default(0.00)
+  totalPix       Decimal   @db.Decimal(10, 2) @default(0.00)
+  totalCartao    Decimal   @db.Decimal(10, 2) @default(0.00)
+  conferidoDinh  Decimal   @db.Decimal(10, 2) @default(0.00)
+  diferenca      Decimal   @db.Decimal(10, 2) @default(0.00)
+  justificativa  String?
+  status         String    @default("ABERTO") // ABERTO | FECHADO | APROVADO
+
+  usuario        Usuario   @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@map("fechamentos_caixa")
+}
+
+model Adiantamento {
+  id            String   @id @default(uuid())
+  usuarioId     String
+  valor         Decimal  @db.Decimal(10, 2)
+  data          DateTime @default(now())
+  pago          Boolean  @default(false)
+  referenciaMes String   // Ex: "06/2026"
+  observacoes   String?
+
+  usuario       Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@map("adiantamentos")
 }
