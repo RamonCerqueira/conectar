@@ -35,7 +35,7 @@ export default function Navbar({ onAgendar }: NavbarProps) {
       >
         <div className="max-w-7xl mx-auto px-6 w-full flex items-center justify-between">
           {/* Logo */}
-          <a href="#" className="flex items-center gap-3 decoration-none shrink-0">
+          <a href="#" aria-label="Instituto Conectar - Ir para a página inicial" className="flex items-center gap-3 decoration-none shrink-0">
             <img 
               src="/logo.png" 
               alt="Logo Instituto Conectar" 
@@ -45,13 +45,13 @@ export default function Navbar({ onAgendar }: NavbarProps) {
               }}
             />
             <div className="leading-tight text-left">
-              <span className="text-[10px] uppercase tracking-widest text-[#8E7BBE] font-black block">Instituto</span>
-              <strong className="text-base font-black tracking-tight text-[#4A4A4A]">CONECTAR</strong>
+              <span className="text-[10px] uppercase tracking-widest text-[#8E7BBE] font-bold block">Instituto</span>
+              <strong className="text-base font-bold tracking-tight text-[#4A4A4A]">CONECTAR</strong>
             </div>
           </a>
 
           {/* Center Navigation */}
-          <nav className="hidden lg:flex items-center gap-6 text-[11px] uppercase tracking-wider font-black text-zinc-500">
+          <nav role="navigation" aria-label="Menu Principal" className="hidden lg:flex items-center gap-6 text-[11px] uppercase tracking-wider font-black text-zinc-500">
             <a href="#" className="hover:text-[#8E7BBE] transition-colors">Início</a>
             <a href="#sobre" className="hover:text-[#8E7BBE] transition-colors">Sobre</a>
             <a href="#especialidades" className="hover:text-[#8E7BBE] transition-colors">Especialidades</a>
@@ -70,6 +70,7 @@ export default function Navbar({ onAgendar }: NavbarProps) {
               href="https://wa.me/5511999999999"
               target="_blank"
               rel="noopener noreferrer"
+              aria-label="Falar com o Instituto Conectar no WhatsApp"
               className="w-10 h-10 rounded-full border border-[#69C4B5]/30 flex items-center justify-center text-[#69C4B5] hover:bg-[#69C4B5]/5 transition-colors shrink-0"
             >
               <Phone className="w-4.5 h-4.5" />

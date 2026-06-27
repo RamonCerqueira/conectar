@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Outfit:wght@200;300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
 :root {
@@ -14,28 +15,37 @@
 
 body {
   background-color: #ffffff;
-  color: #1e1e24;
-  font-family: 'Outfit', 'Inter', sans-serif;
+  color: #4A4A4A;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 300; /* Light weight by default for a clean, delicate feel */
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Gradient Primary text & backgrounds */
+/* Headings fine tuning: prevent overly bold look */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Outfit', sans-serif;
+  font-weight: 600; /* Use semi-bold instead of heavy black weights */
+  letter-spacing: -0.01em;
+}
+
+/* Cursive Font Style */
+.font-cursive {
+  font-family: 'Caveat', cursive;
+  font-weight: 700;
+  display: inline-block;
+}
+
+/* Gradient text & backgrounds */
 .gradient-text-primary {
-  background: linear-gradient(135deg, #8e7bbe 0%, #db2777 100%);
+  background: linear-gradient(90deg, #8E7BBE, #E98BAE, #69C4B5, #F3B357);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .gradient-bg-primary {
-  background: linear-gradient(135deg, #8e7bbe 0%, #db2777 100%);
-}
-
-.gradient-bg-green {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-}
-
-.gradient-bg-pink {
-  background: linear-gradient(135deg, #db2777 0%, #ec4899 100%);
+  background: linear-gradient(90deg, #8E7BBE, #E98BAE, #69C4B5, #F3B357);
 }
 
 /* Float animations */
@@ -49,7 +59,17 @@ body {
   100% { transform: translateY(0px); }
 }
 
-/* Accordion transition utility */
-.accordion-content {
-  transition: max-height 0.3s cubic-bezier(0, 1, 0, 1);
+/* Scrollbar customization */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Focus indicator rings for accessibility (a11y) */
+*:focus-visible {
+  outline: 2px solid #8E7BBE;
+  outline-offset: 2px;
 }

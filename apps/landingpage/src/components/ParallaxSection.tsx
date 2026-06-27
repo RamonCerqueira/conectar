@@ -10,6 +10,7 @@ interface ParallaxSectionProps {
 export default function ParallaxSection({ onAgendar }: ParallaxSectionProps) {
   return (
     <section 
+      id="estrutura"
       className="relative w-full h-[420px] flex items-center justify-center overflow-hidden"
       style={{
         backgroundImage: "url('/parallax_clinic_room.png')",

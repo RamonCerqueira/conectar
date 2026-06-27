@@ -33,12 +33,14 @@ export default function SectionTitle({
       <span className="text-[10px] font-black uppercase tracking-widest text-[#8E7BBE] block">
         {subtitle}
       </span>
-      <h2 className="text-3xl md:text-4xl font-black text-[#4A4A4A] leading-tight">
+      <h2 className="text-3xl md:text-4xl font-bold text-[#4A4A4A] leading-tight">
         {parts.map((part, index) => (
           <span key={index}>
             {part}
             {index < parts.length - 1 && (
-              <span className={coloredWordColor}>{coloredWord}</span>
+              <span className={`font-cursive ${coloredWordColor} text-[1.2em] px-1.5`}>
+                {coloredWord}
+              </span>
             )}
           </span>
         ))}

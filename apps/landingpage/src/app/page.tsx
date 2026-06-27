@@ -10,8 +10,10 @@ import Hero from "@/components/Hero";
 import Features from "@/components/Features";
 import Services from "@/components/Services";
 import About from "@/components/About";
+import ParallaxSection from "@/components/ParallaxSection";
 import Results from "@/components/Results";
 import Team from "@/components/Team";
+import Blog from "@/components/Blog";
 import CTA from "@/components/CTA";
 import Footer from "@/components/Footer";
 import ChatbotWidget from "@/components/ChatbotWidget";
@@ -25,6 +27,7 @@ if (typeof window === "undefined") {
     const src1 = "C:\\Users\\Ramon DevTec\\.gemini\\antigravity-ide\\brain\\b1a52cc7-b1f6-4f4f-ab0c-36f173906c2a\\hero_clinic_photo_1782589799634.png";
     const src2 = "C:\\Users\\Ramon DevTec\\.gemini\\antigravity-ide\\brain\\b1a52cc7-b1f6-4f4f-ab0c-36f173906c2a\\reception_clinic_photo_1782589845045.png";
     const srcLogo = "C:\\Users\\Ramon DevTec\\.gemini\\antigravity-ide\\brain\\b1a52cc7-b1f6-4f4f-ab0c-36f173906c2a\\media__1782561486091.png";
+    const srcParallax = "C:\\Users\\Ramon DevTec\\.gemini\\antigravity-ide\\brain\\b1a52cc7-b1f6-4f4f-ab0c-36f173906c2a\\parallax_clinic_room_1782598318110.png";
     
     const publicDir = path.join(process.cwd(), "public");
     if (!fs.existsSync(publicDir)) fs.mkdirSync(publicDir, { recursive: true });
@@ -32,6 +35,7 @@ if (typeof window === "undefined") {
     if (fs.existsSync(src1)) fs.copyFileSync(src1, path.join(publicDir, "hero_clinic_photo.png"));
     if (fs.existsSync(src2)) fs.copyFileSync(src2, path.join(publicDir, "reception_clinic_photo.png"));
     if (fs.existsSync(srcLogo)) fs.copyFileSync(srcLogo, path.join(publicDir, "logo.png"));
+    if (fs.existsSync(srcParallax)) fs.copyFileSync(srcParallax, path.join(publicDir, "parallax_clinic_room.png"));
   } catch (e) {
     console.error("Server-side asset copier skipped or error:", e);
   }
@@ -99,11 +103,17 @@ export default function Home() {
         {/* 4. Sobre Nós */}
         <About onAgendar={handleOpenLeadModal} />
 
+        {/* Parallax Section - Espaço Sensorial */}
+        <ParallaxSection onAgendar={handleOpenLeadModal} />
+
         {/* 5. Resultados (Statistics & Testimonials) */}
         <Results />
 
         {/* 6. Equipe */}
         <Team />
+
+        {/* Blog section */}
+        <Blog />
 
         {/* 7. CTA */}
         <CTA onAgendar={handleOpenLeadModal} onChat={handleOpenChat} />

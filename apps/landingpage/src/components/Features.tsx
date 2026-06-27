@@ -23,7 +23,7 @@ export default function Features() {
             <div className="w-8 h-8 rounded-full bg-[#E98BAE]/10 flex items-center justify-center text-[#E98BAE] group-hover:scale-110 transition-transform">
               <Heart className="w-4 h-4 fill-current" />
             </div>
-            <span className="text-[11px] font-black uppercase tracking-wider text-zinc-700">Atendimento Humanizado</span>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-700">Atendimento Humanizado</span>
           </motion.div>
 
           {/* Col 2 */}
@@ -34,7 +34,7 @@ export default function Features() {
             <div className="w-8 h-8 rounded-full bg-[#8E7BBE]/10 flex items-center justify-center text-[#8E7BBE] group-hover:scale-110 transition-transform">
               <Users className="w-4 h-4" />
             </div>
-            <span className="text-[11px] font-black uppercase tracking-wider text-zinc-700">Equipe Especializada</span>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-700">Equipe Especializada</span>
           </motion.div>
 
           {/* Col 3 */}
@@ -45,7 +45,7 @@ export default function Features() {
             <div className="w-8 h-8 rounded-full bg-[#69C4B5]/10 flex items-center justify-center text-[#69C4B5] group-hover:scale-110 transition-transform">
               <HomeIcon className="w-4 h-4" />
             </div>
-            <span className="text-[11px] font-black uppercase tracking-wider text-zinc-700">Ambiente Acolhedor</span>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-700">Ambiente Acolhedor</span>
           </motion.div>
 
           {/* Col 4 */}
@@ -56,7 +56,7 @@ export default function Features() {
             <div className="w-8 h-8 rounded-full bg-[#F3B357]/10 flex items-center justify-center text-[#F3B357] group-hover:scale-110 transition-transform">
               <Star className="w-4 h-4 fill-current" />
             </div>
-            <span className="text-[11px] font-black uppercase tracking-wider text-zinc-700">Desenvolvimento Individual</span>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-700">Desenvolvimento Individual</span>
           </motion.div>
 
         </div>

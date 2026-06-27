@@ -41,29 +41,16 @@ export default function Services({ onAgendar }: ServicesProps) {
           </div>
         </div>
 
-        {/* Right cards list carousel column */}
-        <div className="lg:col-span-8 space-y-6">
-          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-none snap-x snap-mandatory">
+        {/* Right cards list grid column */}
+        <div className="lg:col-span-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
             {specialtiesList.map((spec, idx) => (
-              <div key={idx} className="snap-start">
-                <ServiceCard 
-                  title={spec.title}
-                  description={spec.desc}
-                  icon={spec.icon}
-                  color={spec.color}
-                />
-              </div>
-            ))}
-          </div>
-
-          {/* Indicator slider dots */}
-          <div className="flex justify-center gap-2 pt-2">
-            {[0, 1, 2, 3].map((dot) => (
-              <span 
-                key={dot} 
-                className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                  dot === 0 ? "bg-[#8E7BBE]" : "bg-zinc-200"
-                }`}
+              <ServiceCard 
+                key={idx}
+                title={spec.title}
+                description={spec.desc}
+                icon={spec.icon}
+                color={spec.color}
               />
             ))}
           </div>

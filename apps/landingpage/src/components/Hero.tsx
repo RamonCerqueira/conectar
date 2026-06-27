@@ -20,10 +20,10 @@ export default function Hero({ onAgendar, onChat }: HeroProps) {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-4xl md:text-5xl font-black text-[#8E7BBE] leading-[1.12]"
+            className="text-4xl md:text-5xl font-bold text-[#8E7BBE] leading-[1.12]"
           >
             Conectando caminhos,<br />
-            <span className="text-[#E98BAE]">desenvolvendo</span> potencialidades.
+            <span className="font-cursive text-[#E98BAE] text-[1.25em] px-1">desenvolvendo</span> potencialidades.
           </motion.h1>
 
           <motion.p 
