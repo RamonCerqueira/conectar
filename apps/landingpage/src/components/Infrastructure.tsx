@@ -1,39 +1,78 @@
 "use client";
 
-import { CheckCircle2 } from "lucide-react";
+import { ChevronRight, Instagram, Mail } from "lucide-react";
+
+const team = [
+  { n: "Dra. Ana Paula", r: "Psicóloga", reg: "CRP 06/123456", img: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150" },
+  { n: "Dra. Marina Costa", r: "Psicopedagoga", reg: "CRPp 06/654321", img: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150" },
+  { n: "Dr. Lucas Mendes", r: "Neuropsicólogo", reg: "CRP 06/789012", img: "https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=150" },
+  { n: "Dra. Juliana R.", r: "Fonoaudióloga", reg: "CRFa 06/78545", img: "https://images.unsplash.com/photo-1594824813573-246434de83fb?w=150" },
+  { n: "Dra. Camila Alves", r: "Terapeuta Ocupacional", reg: "CREFITO 12/3566", img: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150" }
+];
+
+const rooms = [
+  { name: "Recepção Acolhedora", url: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=300" },
+  { name: "Sala Sensorial (TO)", url: "https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?w=300" },
+  { name: "Consultório Infantil", url: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=300" },
+  { name: "Brinquedoteca Lúdica", url: "https://images.unsplash.com/photo-1566411520896-01e7ca4726af?w=300" },
+  { name: "Área Sensorial", url: "https://images.unsplash.com/photo-1491308056676-205b7c9a7dc1?w=300" }
+];
 
 export default function Infrastructure() {
   return (
-    <section id="estrutura" className="py-24">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
-          <div className="flex justify-center order-2 lg:order-1">
-            <div className="w-full max-w-[460px] glass-card rounded-2xl p-8 flex flex-col gap-5 border border-white/5">
-              <div className="bg-white/2 p-4 rounded-xl border border-white/5">
-                <strong className="text-base font-bold text-white block mb-1">Sala Sensorial</strong>
-                <span className="text-xs text-zinc-400 leading-relaxed">Com balanços suspensos, piscina de bolinhas e materiais texturizados para integração sensorial de T.O.</span>
+    <section className="py-20 bg-white space-y-24 text-xs">
+      
+      {/* 1. Nossa Equipe */}
+      <div id="equipe" className="max-w-7xl mx-auto px-6 space-y-8">
+        <div className="flex justify-between items-end">
+          <div className="text-left space-y-1">
+            <span className="text-[10px] uppercase tracking-widest text-[#8e7bbe] font-black">NOSSA EQUIPE</span>
+            <h3 className="text-2xl font-black text-[#3c2a4d] leading-none">
+              Profissionais que acolhem,<br />
+              orientam e transformam.
+            </h3>
+          </div>
+          <a href="#" className="text-xs font-bold text-[#8e7bbe] hover:text-[#7e6bb5] flex items-center gap-1 hover:gap-2 transition-all shrink-0">
+            <span>Ver todos os profissionais</span>
+            <ChevronRight className="w-4 h-4" />
+          </a>
+        </div>
+
+        {/* Profile cards matching the screenshot */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+          {team.map((emp, idx) => (
+            <div key={idx} className="p-6 bg-white border border-zinc-100 rounded-3xl text-center space-y-4 shadow-xs hover:shadow-md transition-shadow">
+              {/* Circular profile image at the top */}
+              <div className="w-20 h-20 rounded-full overflow-hidden mx-auto bg-zinc-50 border border-zinc-100">
+                <img src={emp.img} alt={emp.n} className="w-full h-full object-cover" />
               </div>
-              <div className="bg-white/2 p-4 rounded-xl border border-white/5">
-                <strong className="text-base font-bold text-white block mb-1">Salas Temáticas (Amarela e Azul)</strong>
-                <span className="text-xs text-zinc-400 leading-relaxed">Voltadas a atendimentos lúdicos e acolhedores de fonoaudiologia, pedagogia e psicologia.</span>
+              <div className="space-y-1">
+                <h4 className="font-extrabold text-xs text-[#3c2a4d]">{emp.n}</h4>
+                <p className="text-[10px] text-zinc-400 font-bold">{emp.r}</p>
+                <p className="text-[9px] text-zinc-400 font-semibold">{emp.reg}</p>
+              </div>
+              {/* Two pink social circles */}
+              <div className="flex gap-2 justify-center pt-2">
+                <a 
+                  href="https://instagram.com" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="w-7 h-7 rounded-full border border-[#db2777]/25 flex items-center justify-center text-[#db2777] hover:bg-[#db2777]/5 transition-colors"
+                >
+                  <Instagram className="w-3.5 h-3.5" />
+                </a>
+                <a 
+                  href="mailto:contato@institutoconectar.com.br" 
+                  className="w-7 h-7 rounded-full border border-[#db2777]/25 flex items-center justify-center text-[#db2777] hover:bg-[#db2777]/5 transition-colors"
+                >
+                  <Mail className="w-3.5 h-3.5" />
+                </a>
               </div>
             </div>
-          </div>
-
-          <div className="flex flex-col gap-6 order-1 lg:order-2">
-            <span className="text-sm font-semibold text-violet-400 uppercase tracking-widest block font-display">Espaço Físico</span>
-            <h2 className="text-3xl md:text-4xl font-display font-extrabold tracking-tight">Nossa Estrutura Acolhedora</h2>
-            <p className="text-zinc-400 leading-relaxed">
-              Acreditamos que o ambiente físico faz parte do sucesso terapêutico. Contamos com consultórios equipados com recursos pedagógicos, jogos terapêuticos e equipamentos sensoriais suspensos certificados para garantir total segurança física.
-            </p>
-            <ul className="flex flex-col gap-3.5 mb-2">
-              <li className="flex items-center gap-3 text-sm font-semibold"><CheckCircle2 className="w-5 h-5 text-violet-400 shrink-0" /> Equipamentos sensoriais inspecionados regularmente</li>
-              <li className="flex items-center gap-3 text-sm font-semibold"><CheckCircle2 className="w-5 h-5 text-violet-400 shrink-0" /> Ambientes organizados e livres de ruídos perturbadores</li>
-              <li className="flex items-center gap-3 text-sm font-semibold"><CheckCircle2 className="w-5 h-5 text-violet-400 shrink-0" /> Espaço de recepção confortável e acolhedor para pais</li>
-            </ul>
-          </div>
+          ))}
         </div>
       </div>
+
     </section>
   );
 }

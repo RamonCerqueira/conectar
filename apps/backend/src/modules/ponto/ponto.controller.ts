@@ -13,8 +13,11 @@ export class PontoController {
 
   @Post('bater')
   @ApiOperation({ summary: 'Registrar entrada ou saída de ponto' })
-  baterPonto(@CurrentUser() user: any) {
-    return this.service.baterPonto(user.id);
+  baterPonto(
+    @CurrentUser() user: any,
+    @Body() body: { latitude?: number; longitude?: number; fotoAuditoriaBase64?: string },
+  ) {
+    return this.service.baterPonto(user.id, body.latitude, body.longitude, body.fotoAuditoriaBase64);
   }
 
   @Get('me')

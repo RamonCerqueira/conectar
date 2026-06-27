@@ -1,5 +1,7 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import * as fs from 'fs';
+import { join } from 'path';
 
 @Injectable()
 export class PontoService {
@@ -11,9 +13,36 @@ export class PontoService {
     return start;
   }
 
-  async baterPonto(usuarioId: string) {
+  private saveBase64Selfie(base64Data: string, usuarioId: string): string {
+    try {
+      const dir = join(process.cwd(), 'storage/pontos');
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+      const base64Image = base64Data.replace(/^data:image\/\w+;base64,/, '');
+      const buffer = Buffer.from(base64Image, 'base64');
+      const filename = `selfie-${usuarioId}-${Date.now()}.png`;
+      const filepath = join(dir, filename);
+      fs.writeFileSync(filepath, buffer);
+      return `/storage/pontos/${filename}`;
+    } catch (e) {
+      console.error('Erro ao salvar selfie do ponto:', e);
+      return '';
+    }
+  }
+
+  async baterPonto(
+    usuarioId: string,
+    latitude?: number,
+    longitude?: number,
+    fotoAuditoriaBase64?: string,
+  ) {
     const now = new Date();
     const startOfToday = this.getStartOfDay(now);
+    let fotoUrl: string | null = null;
+    if (fotoAuditoriaBase64) {
+      fotoUrl = this.saveBase64Selfie(fotoAuditoriaBase64, usuarioId);
+    }
 
     // Encontra ou cria o registro para o dia de hoje
     let registro = await this.prisma.registroPonto.findFirst({
@@ -31,6 +60,9 @@ export class PontoService {
           data: startOfToday,
           entrada: now,
           status: 'NORMAL',
+          latitude,
+          longitude,
+          fotoAuditoria: fotoUrl,
         },
       });
       return { message: 'Entrada registrada com sucesso!', registro };
@@ -40,6 +72,9 @@ export class PontoService {
         where: { id: registro.id },
         data: {
           saida: now,
+          latitude,
+          longitude,
+          fotoAuditoria: fotoUrl || registro.fotoAuditoria,
         },
       });
       return { message: 'Saída registrada com sucesso!', registro };

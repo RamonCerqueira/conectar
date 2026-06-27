@@ -1,0 +1,40 @@
+- [x] Create apps/frontend/src/app/(app)/perfil/page.tsx
+- [x] Create apps/frontend/src/components/pages/perfil-page.tsx
+- [x] Modify apps/frontend/src/components/layout/app-header.tsx to link to /perfil
+- [x] Create apps/frontend/src/app/(app)/colaboradores/page.tsx
+- [x] Create apps/frontend/src/components/pages/colaboradores-page.tsx
+- [x] Modify apps/frontend/src/components/layout/app-sidebar.tsx to add Collaborators nav item
+- [x] Fix cashFlowData is not defined error in financeiro-page.tsx
+- [x] Fix Post import and bcryptjs import errors in backend professionals module
+- [x] Upgrade FinanceiroPage to an Elite Cash Flow and Payroll system (Holerites)
+- [x] Expand Prisma schema to include RegistroPonto and Feriado tables
+- [x] Create backend Ponto module (service, controller, module) and register in AppModule
+- [x] Insert Ponto Eletrônico navigation link in Sidebar (Principal)
+- [x] Create route and PontoPage component on the frontend with Clock-in/out, adjustment requests, holiday management, and Vale Transporte monthly release on the 28th.
+- [x] Expose meus-contracheques route in backend FinanceiroController
+- [x] Add dynamic holerite parser and print handler in PerfilPage (Meus Contracheques tab)
+- [x] Insert print buttons for receipts (Gerar Comprovante) and payroll slips (Imprimir Contracheque) in FinanceiroPage ledger table
+- [x] Update Prisma schema to add Paciente billing fields, Lancamento contaCaixa and Contrato billing fields
+- [x] Run db:migrate
+- [x] Update Paciente CRUD (backend & frontend) to include modelCobranca & valorConsulta
+- [x] Implement Contratos billing trigger (spawning monthly installments on contract sign/creation)
+- [x] Implement Agenda/Frequencia status check-in trigger (spawning session billing on PRESENTE status)
+- [x] Implement Conta Caixa select/filter in FinanceiroPage and cash flow balances
+- [x] Implement Reception checkout confirmation dialog on Agenda page
+- [x] Add FechamentoCaixa and Adiantamento tables to Prisma schema
+- [x] Create backend Cash Reconciliation endpoints (/financeiro/caixa/*)
+- [x] Create backend Advances and Therapist Split endpoints (/financeiro/adiantamentos, /financeiro/repasses/*)
+- [x] Add Fechamento de Caixa dashboard UI tab
+- [x] Add Vales/Adiantamentos sub-modal in Payroll list ( Folha )
+- [x] Add Therapist Splits / Commissions calculation tab
+- [x] Add Inadimplentes tab with automatic notification copy warning
+- [x] Integrate recurrent fixed expense generation in creation modal
+- [x] Add Specialty/Category Rentabilidade PieChart next to main Cash Flow chart
+- [x] Add simulated PIX QR Code Checkout overlay modal in Ledger list
+- [x] Move patient-specific generated contracts list to a tab in PacienteDetailsDrawer
+- [x] Redesign ContratosPage to focus on templates (print empty or send/link to patient)
+- [x] Implement ModeloContrato table in database schema and run migration
+- [x] Build backend templates CRUD endpoints under (/contratos/modelos)
+- [x] Connect frontend templates view to backend endpoints supporting full CRUD (create, edit, delete, print)
+- [x] Support PDF file uploads for both Template models and custom Patient contract files
+- [x] Design a fully dynamic Access Control (RBAC) CRUD under Settings page, allowing creating custom roles and configuring page visibility in real-time

@@ -61,6 +61,35 @@ export class ContratosController {
     return this.contratosService.createTemplate(data);
   }
 
+  @Post('modelos/:id/upload')
+  @ApiOperation({ summary: 'Upload do PDF do modelo de contrato' })
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: join(process.cwd(), 'storage/contratos'),
+        filename: (req, file, cb) => {
+          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+          cb(null, `modelo-${req.params.id}-${uniqueSuffix}${extname(file.originalname)}`);
+        },
+      }),
+      fileFilter: (req, file, cb) => {
+        if (!file.mimetype.match(/\/(pdf)$/)) {
+          return cb(new Error('Apenas arquivos PDF são aceitos'), false);
+        }
+        cb(null, true);
+      },
+      limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+    }),
+  )
+  uploadModeloPDF(
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    const arquivoUrl = `/storage/contratos/${file.filename}`;
+    return this.contratosService.updateModeloArquivoUrl(id, arquivoUrl);
+  }
+
   @Put('modelos/:id')
   updateTemplate(@Param('id') id: string, @Body() data: any) {
     return this.contratosService.updateTemplate(id, data);
@@ -77,8 +106,11 @@ export class ContratosController {
   }
 
   @Put(':id/assinar')
-  sign(@Param('id') id: string) {
-    return this.contratosService.sign(id);
+  sign(
+    @Param('id') id: string,
+    @Body() body: { assinaturaBase64?: string },
+  ) {
+    return this.contratosService.sign(id, body.assinaturaBase64);
   }
 
   @Delete(':id')

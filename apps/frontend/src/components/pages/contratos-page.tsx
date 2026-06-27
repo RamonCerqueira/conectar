@@ -16,7 +16,8 @@ import {
   Sparkles,
   Users,
   Edit2,
-  Trash2
+  Trash2,
+  Upload
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
@@ -52,6 +53,8 @@ export function ContratosPage() {
   const [tTipo, setTTipo] = useState("contrato");
   const [tDescricao, setTDescricao] = useState("");
   const [tConteudo, setTConteudo] = useState("");
+  const [vincularPdfModelo, setVincularPdfModelo] = useState(false);
+  const [tUploadFile, setTUploadFile] = useState<File | null>(null);
 
   const loadTemplates = async () => {
     setLoading(true);
@@ -131,7 +134,7 @@ export function ContratosPage() {
         pacienteId: selectedPacienteId,
         tipo: selectedTemplate.tipo,
         titulo: selectedTemplate.titulo,
-        caminho: `/storage/contratos/${chosenPaciente.nome.toLowerCase().replace(/ /g, "_")}_${Date.now()}.pdf`,
+        caminho: selectedTemplate.arquivoUrl || `/storage/contratos/${chosenPaciente.nome.toLowerCase().replace(/ /g, "_")}_${Date.now()}.pdf`,
         valorMensal: selectedTemplate.tipo === "contrato" ? parseFloat(cValor) : null,
         qtdParcelas: selectedTemplate.tipo === "contrato" ? parseInt(cParcelas) : null,
         diaVencimento: selectedTemplate.tipo === "contrato" ? parseInt(cDiaVenc) : null,
@@ -151,25 +154,40 @@ export function ContratosPage() {
   // CRUD Template Submit Handler
   const handleSaveTemplate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!tTitulo || !tDescricao || !tConteudo) return;
+    if (!tTitulo || !tDescricao) return;
 
     const payload = {
       titulo: tTitulo,
       tipo: tTipo,
       descricao: tDescricao,
-      conteudo: tConteudo
+      conteudo: tConteudo || "Contrato vinculado via PDF físico."
     };
 
     try {
+      let savedModel;
       if (editingTemplate) {
-        await api.put(`/contratos/modelos/${editingTemplate.id}`, payload);
+        const res = await api.put(`/contratos/modelos/${editingTemplate.id}`, payload);
+        savedModel = res.data;
         toast.success("Modelo de documento atualizado com sucesso!");
       } else {
-        await api.post("/contratos/modelos", payload);
+        const res = await api.post("/contratos/modelos", payload);
+        savedModel = res.data;
         toast.success("Novo modelo de documento cadastrado com sucesso!");
       }
+
+      if (vincularPdfModelo && tUploadFile && savedModel?.id) {
+        const formData = new FormData();
+        formData.append("file", tUploadFile);
+        await api.post(`/contratos/modelos/${savedModel.id}/upload`, formData, {
+          headers: { "Content-Type": "multipart/form-data" }
+        });
+        toast.success("Arquivo PDF do modelo anexado com sucesso!");
+      }
+
       setIsTemplateModalOpen(false);
       setEditingTemplate(null);
+      setVincularPdfModelo(false);
+      setTUploadFile(null);
       loadTemplates();
     } catch (err) {
       console.error(err);
@@ -195,6 +213,8 @@ export function ContratosPage() {
     setTTipo("contrato");
     setTDescricao("");
     setTConteudo("");
+    setVincularPdfModelo(false);
+    setTUploadFile(null);
     setIsTemplateModalOpen(true);
   };
 
@@ -204,6 +224,8 @@ export function ContratosPage() {
     setTTipo(temp.tipo);
     setTDescricao(temp.descricao);
     setTConteudo(temp.conteudo);
+    setVincularPdfModelo(!!temp.arquivoUrl);
+    setTUploadFile(null);
     setIsTemplateModalOpen(true);
   };
 
@@ -320,13 +342,25 @@ export function ContratosPage() {
 
               <div className="space-y-2 mt-4 pt-4 border-t border-border">
                 <div className="flex gap-2">
-                  <button
-                    onClick={() => handlePrintBlank(temp)}
-                    className="flex-1 flex items-center justify-center gap-1 py-2 rounded-lg border text-[10px] font-bold hover:bg-muted transition-colors cursor-pointer bg-transparent"
-                    style={{ borderColor: "hsl(var(--border))", color: "hsl(var(--foreground))" }}
-                  >
-                    <Printer className="h-3.5 w-3.5" /> Imprimir Branco
-                  </button>
+                  {temp.arquivoUrl ? (
+                    <a
+                      href={`${api.defaults.baseURL?.replace("/api", "")}${temp.arquivoUrl}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 flex items-center justify-center gap-1 py-2 rounded-lg border text-[10px] font-bold hover:bg-muted transition-colors text-center text-foreground decoration-none"
+                      style={{ borderColor: "hsl(var(--border))" }}
+                    >
+                      <Download className="h-3.5 w-3.5" /> Ver PDF Modelo
+                    </a>
+                  ) : (
+                    <button
+                      onClick={() => handlePrintBlank(temp)}
+                      className="flex-1 flex items-center justify-center gap-1 py-2 rounded-lg border text-[10px] font-bold hover:bg-muted transition-colors cursor-pointer bg-transparent"
+                      style={{ borderColor: "hsl(var(--border))", color: "hsl(var(--foreground))" }}
+                    >
+                      <Printer className="h-3.5 w-3.5" /> Imprimir Branco
+                    </button>
+                  )}
 
                   <button
                     onClick={() => {
@@ -526,12 +560,44 @@ export function ContratosPage() {
                   <label className="text-[10px] font-bold text-muted-foreground uppercase">Corpo / Cláusulas do Documento</label>
                   <textarea
                     rows={8}
-                    required
+                    required={!vincularPdfModelo}
                     placeholder="Digite o texto completo do contrato ou termo aqui..."
                     value={tConteudo}
                     onChange={(e) => setTConteudo(e.target.value)}
                     className="w-full p-3 rounded-lg border bg-background text-foreground outline-none font-mono resize-none leading-relaxed text-[11px]"
                   />
+                </div>
+
+                <div className="p-3 bg-muted/40 rounded-lg border space-y-2">
+                  <div className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      id="vincularPdfModelo"
+                      checked={vincularPdfModelo}
+                      onChange={(e) => setVincularPdfModelo(e.target.checked)}
+                      className="rounded border-border text-purple-500 w-4 h-4 cursor-pointer"
+                    />
+                    <label htmlFor="vincularPdfModelo" className="font-bold text-foreground cursor-pointer">Vincular PDF Pronto</label>
+                  </div>
+                  {vincularPdfModelo && (
+                    <div className="space-y-1 pt-1.5 border-t border-border/40 font-bold text-muted-foreground uppercase">
+                      <label className="text-[9px] flex items-center gap-1">
+                        <Upload className="h-3.5 w-3.5" /> Selecionar Arquivo PDF
+                      </label>
+                      <input
+                        type="file"
+                        accept=".pdf"
+                        required={vincularPdfModelo && !editingTemplate?.arquivoUrl}
+                        onChange={(e) => setTUploadFile(e.target.files?.[0] || null)}
+                        className="w-full text-[10px] text-muted-foreground cursor-pointer mt-1"
+                      />
+                      {editingTemplate?.arquivoUrl && (
+                        <p className="text-[9px] text-purple-400 lowercase normal-case font-normal mt-1">
+                          Já existe um arquivo PDF associado. Selecione outro para substituir.
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 <div className="pt-4 border-t flex justify-end gap-2">

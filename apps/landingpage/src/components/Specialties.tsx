@@ -1,175 +1,137 @@
 "use client";
 
 import { useState } from "react";
+import { ChevronRight, Brain, BookOpen, Volume2, Hand, Heart, Users, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle2, Volume2, ToyBrick, BookOpen } from "lucide-react";
 
-type TabKey = "psicologia" | "fonoaudiologia" | "terapia" | "pedagogia";
+const especialidades = [
+  {
+    id: "psicologia",
+    titulo: "Psicologia",
+    icone: Brain,
+    descShort: "Apoio emocional e comportamental para o desenvolvimento saudável.",
+    descLong: "A psicoterapia infantil foca no acolhimento de questões emocionais, de comportamento e socialização. Através do lúdico, ajudamos a criança a expressar sentimentos, regular emoções e superar conflitos internos em parceria com a família."
+  },
+  {
+    id: "psicopedagogia",
+    titulo: "Psicopedagogia",
+    icone: BookOpen,
+    descShort: "Avaliação e intervenção nas dificuldades de aprendizagem.",
+    descLong: "Identifica como a criança aprende e quais os obstáculos na leitura, escrita ou raciocínio. Desenvolve estratégias de estudo personalizadas e estimula funções cognitivas fundamentais para o sucesso escolar."
+  },
+  {
+    id: "fonoaudiologia",
+    titulo: "Fonoaudiologia",
+    icone: Volume2,
+    descShort: "Desenvolvimento da comunicação, fala, linguagem e audição.",
+    descLong: "Tratamento para atrasos de fala, trocas na escrita, gagueira e processamento auditivo central. Estimula as habilidades de comunicação expressiva e compreensiva com foco na socialização."
+  },
+  {
+    id: "terapia-ocupacional",
+    titulo: "Terapia Ocupacional",
+    icone: Hand,
+    descShort: "Estimula habilidades para autonomia e participação diária.",
+    descLong: "Trabalha com integração sensorial, coordenação motora fina/ampla e atividades de vida diária (AVD). Indicado para crianças com dificuldades de regulação e que necessitam de maior autonomia."
+  },
+  {
+    id: "neuropsicologia",
+    titulo: "Neuropsicologia",
+    icone: Heart,
+    descShort: "Avaliação das funções cognitivas e comportamentais.",
+    descLong: "Realização de testes padronizados para mapear atenção, memória, raciocínio e funções executivas. Essencial para o diagnóstico diferencial de TEA, TDAH e dificuldades específicas de aprendizagem."
+  },
+  {
+    id: "orientacao-familiar",
+    titulo: "Orientação Familiar",
+    icone: Users,
+    descShort: "Apoio e direcionamento contínuo para os pais e cuidadores.",
+    descLong: "Espaço dedicado para instrumentalizar os pais na condução das rotinas infantis, controle de comportamentos desafiadores e fortalecimento dos vínculos afetivos saudáveis no lar."
+  }
+];
 
-interface TabContent {
-  title: string;
-  description: string;
-  items: string[];
-  ctaText: string;
-  ctaUrl: string;
-  badgeText: string;
-  previewTitle: string;
-  previewDesc: string;
-  icon: React.ReactNode;
+interface SpecialtiesProps {
+  onAgendar: () => void;
 }
 
-export default function Specialties() {
-  const [activeTab, setActiveTab] = useState<TabKey>("psicologia");
-
-  const contents: Record<TabKey, TabContent> = {
-    psicologia: {
-      title: "Psicoterapia Infantil e Neuropsicologia",
-      description: "Apoio emocional para auxiliar crianças e adolescentes a compreenderem sentimentos, superarem desafios comportamentais e sociais. Realizamos avaliações neuropsicológicas completas para diagnóstico preciso e direcionamento de intervenção precoce.",
-      items: [
-        "Psicoterapia Comportamental Cognitiva",
-        "Avaliação Neuropsicológica Completa",
-        "Orientação Parental e Suporte Familiar"
-      ],
-      ctaText: "Falar com Especialista",
-      ctaUrl: "https://wa.me/5500000000000",
-      badgeText: "Área Emocional",
-      previewTitle: "Foco do Tratamento",
-      previewDesc: "Cognição, Emoção & Comportamento",
-      icon: <CheckCircle2 className="w-5 h-5 text-violet-400 shrink-0" />
-    },
-    fonoaudiologia: {
-      title: "Desenvolvimento da Comunicação e Linguagem",
-      description: "Tratamento especializado para distúrbios da fala, linguagem oral e escrita, processamento auditivo e motricidade orofacial. Ajudamos a desbloquear o potencial de comunicação, promovendo a autoconfiança social e escolar.",
-      items: [
-        "Terapia de Linguagem e Atraso de Fala",
-        "Transtorno de Processamento Auditivo Central (TPAC)",
-        "Intervenção na Seletividade Alimentar & Mastigação"
-      ],
-      ctaText: "Agendar Triagem de Fono",
-      ctaUrl: "https://wa.me/5500000000000",
-      badgeText: "Comunicação",
-      previewTitle: "Método Clínico",
-      previewDesc: "Intervenção lúdica e estimulação de sons corretos",
-      icon: <Volume2 className="w-5 h-5 text-emerald-400 shrink-0" />
-    },
-    terapia: {
-      title: "Autonomia e Integração Sensorial",
-      description: "Desenvolvimento da coordenação motora fina e grossa, habilidades sensoriais e autonomia nas Atividades de Vida Diária (como vestir-se, alimentar-se e brincar). Focado no desenvolvimento da auto-regulação e processamento de estímulos.",
-      items: [
-        "Integração Sensorial de Ayres",
-        "Habilidades de Coordenação e Motricidade",
-        "Treino de Atividades de Vida Diária (AVD)"
-      ],
-      ctaText: "Saber mais sobre T.O.",
-      ctaUrl: "https://wa.me/5500000000000",
-      badgeText: "Integração Sensorial",
-      previewTitle: "Respostas Adaptativas",
-      previewDesc: "Estímulos proprioceptivos e vestibulares controlados",
-      icon: <ToyBrick className="w-5 h-5 text-blue-400 shrink-0" />
-    },
-    pedagogia: {
-      title: "Dificuldades de Aprendizagem e Apoio Cognitivo",
-      description: "Apoio psicopedagógico focado no diagnóstico de bloqueios de aprendizagem, TDAH, dislexia e apoio no desenvolvimento acadêmico, estimulando o interesse escolar e a autonomia intelectual.",
-      items: [
-        "Diagnóstico Psicopedagógico Clínico",
-        "Estimulação de Funções Executivas e Raciocínio",
-        "Orientação Escolar e Adaptação de Estudos"
-      ],
-      ctaText: "Falar com Psicopedagoga",
-      ctaUrl: "https://wa.me/5500000000000",
-      badgeText: "Área Cognitiva",
-      previewTitle: "Desenvolvimento Escolar",
-      previewDesc: "Apoio direcionado na leitura, escrita e raciocínio lógico",
-      icon: <BookOpen className="w-5 h-5 text-purple-400 shrink-0" />
-    }
-  };
-
-  const current = contents[activeTab];
+export default function Specialties({ onAgendar }: SpecialtiesProps) {
+  const [selectedSpec, setSelectedSpec] = useState<any | null>(null);
 
   return (
-    <section id="especialidades" className="py-24">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="text-center max-w-2xl mx-auto mb-16 flex flex-col gap-4">
-          <h2 className="text-3xl md:text-4xl font-display font-extrabold tracking-tight">Nossos Serviços Especializados</h2>
-          <p className="text-zinc-400 leading-relaxed">
-            Oferecemos terapias integradas focadas em potencializar as habilidades motoras, cognitivas, emocionais e de fala de cada paciente.
+    <section id="especialidades" className="py-24 bg-zinc-50/50">
+      <div className="max-w-7xl mx-auto px-6 text-center space-y-12">
+        <div className="max-w-xl mx-auto space-y-3">
+          <span className="text-[10px] uppercase tracking-widest text-[#db2777] font-black">Nossas Especialidades</span>
+          <h2 className="text-3xl font-black text-[#3c2a4d]">
+            Cuidado completo para cada fase do desenvolvimento.
+          </h2>
+          <p className="text-zinc-500 text-xs leading-relaxed">
+            Equipe clínica transdisciplinar altamente qualificada nas áreas de aprendizagem infantil, comportamento e reabilitação sensorial.
           </p>
         </div>
 
-        <div className="flex justify-center mb-12">
-          <div className="flex flex-col sm:flex-row gap-2 bg-white/[0.02] border border-white/5 p-1.5 rounded-2xl max-w-full sm:max-w-fit">
-            {(Object.keys(contents) as TabKey[]).map((key) => (
-              <button
-                key={key}
-                onClick={() => setActiveTab(key)}
-                className={`px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-300 cursor-pointer ${
-                  activeTab === key
-                    ? "bg-violet-600/15 text-violet-300 shadow-[inset_0_0_0_1px_rgba(124,58,237,0.25)]"
-                    : "text-zinc-400 hover:text-white"
-                }`}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {especialidades.map((spec) => {
+            const Icon = spec.icone;
+            return (
+              <div
+                key={spec.id}
+                onClick={() => setSelectedSpec(spec)}
+                className="p-6 bg-white border border-[#8e7bbe]/15 rounded-2xl text-left space-y-4 hover:border-[#8e7bbe]/45 hover:shadow-xl hover:shadow-[#8e7bbe]/5 transition-all cursor-pointer group"
               >
-                {key === "psicologia" && "Psicologia & Neuro"}
-                {key === "fonoaudiologia" && "Fonoaudiologia"}
-                {key === "terapia" && "Terapia Ocupacional"}
-                {key === "pedagogia" && "Psicopedagogia"}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="relative min-h-[380px]">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeTab}
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -15 }}
-              transition={{ duration: 0.3 }}
-              className="grid lg:grid-cols-2 gap-16 items-center"
-            >
-              <div className="flex flex-col gap-6">
-                <h3 className="text-2xl md:text-3xl font-display font-bold">{current.title}</h3>
-                <p className="text-zinc-400 leading-relaxed">{current.description}</p>
-                <ul className="flex flex-col gap-3.5 mb-2">
-                  {current.items.map((item, idx) => (
-                    <li key={idx} className="flex items-center gap-3 text-sm font-semibold">
-                      {current.icon}
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
-                <div>
-                  <a
-                    href={current.ctaUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-semibold px-6 py-3.5 rounded-xl hover:brightness-115 transition-all"
-                  >
-                    <span>{current.ctaText}</span>
-                  </a>
+                <div className="w-12 h-12 rounded-xl bg-[#8e7bbe]/10 flex items-center justify-center text-[#8e7bbe] group-hover:bg-[#8e7bbe] group-hover:text-white transition-all">
+                  <Icon className="w-6 h-6" />
                 </div>
-              </div>
-              <div className="flex justify-center">
-                <div className="w-full max-w-[400px] h-[250px] glass-card rounded-2xl p-8 flex items-center justify-center border border-white/5">
-                  <div className="w-full flex flex-col gap-4">
-                    <span className="inline-flex items-center gap-2 bg-white/5 border border-white/8 text-zinc-300 px-3.5 py-1 rounded-full text-xs font-semibold w-fit">
-                      {current.badgeText}
-                    </span>
-                    <div className="bg-white/2 p-5 rounded-xl border border-white/5">
-                      <strong className="text-xs text-zinc-500 uppercase tracking-widest block mb-1">
-                        {current.previewTitle}
-                      </strong>
-                      <p className="text-sm text-zinc-200 font-bold leading-normal">
-                        {current.previewDesc}
-                      </p>
-                    </div>
-                  </div>
+                <div className="space-y-1.5">
+                  <h3 className="font-bold text-sm text-[#3c2a4d]">{spec.titulo}</h3>
+                  <p className="text-zinc-500 text-xs leading-relaxed">{spec.descShort}</p>
                 </div>
+                <span className="text-[10px] font-bold text-[#8e7bbe] flex items-center gap-1 group-hover:gap-2 transition-all">
+                  Saiba mais <ChevronRight className="w-3.5 h-3.5" />
+                </span>
               </div>
-            </motion.div>
-          </AnimatePresence>
+            );
+          })}
         </div>
       </div>
+
+      <AnimatePresence>
+        {selectedSpec && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
+            <div className="absolute inset-0" onClick={() => setSelectedSpec(null)} />
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="relative w-full max-w-sm rounded-2xl shadow-2xl border bg-white p-6 space-y-4"
+              style={{ borderColor: "hsl(var(--border))" }}
+            >
+              <div className="flex justify-between items-center border-b pb-2">
+                <h3 className="font-bold text-sm text-[#3c2a4d]">{selectedSpec.titulo}</h3>
+                <button
+                  onClick={() => setSelectedSpec(null)}
+                  className="p-1 hover:bg-zinc-100 rounded text-zinc-400 border-0 bg-transparent cursor-pointer"
+                >
+                  <X className="h-4.5 w-4.5" />
+                </button>
+              </div>
+              <p className="text-zinc-600 text-xs leading-relaxed text-left">
+                {selectedSpec.descLong}
+              </p>
+              <div className="pt-3 border-t flex justify-end">
+                <button
+                  onClick={() => {
+                    setSelectedSpec(null);
+                    onAgendar();
+                  }}
+                  className="px-5 py-2 rounded-xl font-bold text-white bg-[#8e7bbe] hover:bg-[#8e7bbe]/90 border-0 cursor-pointer text-[10px] uppercase"
+                >
+                  Agendar Avaliação
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }

@@ -1,50 +1,63 @@
 "use client";
 
 import { useState } from "react";
-import { Sparkles, Menu, X } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { Menu, X, Phone } from "lucide-react";
 
-export default function Header() {
+interface HeaderProps {
+  onAgendar: () => void;
+}
+
+export default function Header({ onAgendar }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <>
-      <header className="fixed top-0 left-0 w-full z-50 bg-[#0a0a0c]/75 backdrop-blur-md border-b border-white/5 transition-all">
+      <header className="fixed top-0 left-0 w-full z-50 bg-white/95 backdrop-blur-md border-b border-zinc-100 transition-all">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <a href="#" className="flex items-center gap-2.5 text-white decoration-transparent font-display text-xl font-medium">
+          <a href="#" className="flex items-center gap-3 decoration-none">
             <img 
-              src="/logo.jpeg" 
+              src="/logo.png" 
               alt="Logo Instituto Conectar" 
-              className="w-9 h-9 rounded-xl object-cover border border-white/10" 
+              className="w-10 h-10 object-contain"
               onError={(e) => {
                 e.currentTarget.style.display = 'none';
               }}
             />
-            <span className="text-white">
-              Instituto <strong className="font-extrabold bg-gradient-to-r from-violet-400 to-indigo-400 bg-clip-text text-transparent">Conectar</strong>
-            </span>
+            <div className="leading-tight">
+              <span className="text-[10px] uppercase tracking-widest text-[#8e7bbe] font-black block">Instituto</span>
+              <strong className="text-base font-black tracking-tight text-[#3c2a4d]">CONECTAR</strong>
+            </div>
           </a>
 
-          <nav className="hidden md:flex items-center gap-8">
-            <a href="#especialidades" className="text-zinc-400 hover:text-white transition-colors text-sm font-medium">Especialidades</a>
-            <a href="#diferenciais" className="text-zinc-400 hover:text-white transition-colors text-sm font-medium">Diferenciais</a>
-            <a href="#estrutura" className="text-zinc-400 hover:text-white transition-colors text-sm font-medium">Estrutura</a>
-            <a href="#faq" className="text-zinc-400 hover:text-white transition-colors text-sm font-medium">Dúvidas</a>
+          <nav className="hidden lg:flex items-center gap-6 text-[11px] uppercase tracking-wider font-extrabold text-zinc-500">
+            <a href="#sobre" className="hover:text-[#8e7bbe] transition-colors">Sobre</a>
+            <a href="#especialidades" className="hover:text-[#8e7bbe] transition-colors">Especialidades</a>
+            <a href="#equipe" className="hover:text-[#8e7bbe] transition-colors">Nossa Equipe</a>
+            <a href="#estrutura" className="hover:text-[#8e7bbe] transition-colors">Estrutura</a>
+            <a href="http://localhost:3000/portal/login" target="_blank" rel="noopener noreferrer" className="hover:text-[#db2777] transition-colors">Portal dos Pais</a>
+            <a href="http://localhost:3000/login" target="_blank" rel="noopener noreferrer" className="hover:text-[#3fbaab] transition-colors">Área do Profissional</a>
           </nav>
 
-          <div className="hidden md:flex items-center gap-4">
-            <a href="http://localhost:5000/login" className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-white/5 border border-white/8 hover:bg-white/10 transition-all duration-300">
-              Área do Profissional
-            </a>
-            <a href="http://localhost:5000/portal/login" className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-violet-600 to-indigo-600 hover:shadow-lg hover:shadow-violet-500/20 hover:brightness-110 transition-all duration-300">
-              Portal dos Pais
+          <div className="hidden lg:flex items-center gap-2.5">
+            <button
+              onClick={onAgendar}
+              className="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-[#3fbaab] hover:bg-[#349e91] shadow-md shadow-[#3fbaab]/10 border-0 cursor-pointer transition-all flex items-center gap-1.5"
+            >
+              Agendar Avaliação
+            </button>
+            <a
+              href="https://wa.me/5511999999999"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-10 h-10 rounded-full border border-[#3fbaab]/30 flex items-center justify-center text-[#3fbaab] hover:bg-[#3fbaab]/5 transition-colors"
+            >
+              <Phone className="w-4.5 h-4.5" />
             </a>
           </div>
 
           <button
             onClick={() => setMobileMenuOpen(true)}
-            className="md:hidden p-2 text-white hover:bg-white/5 rounded-lg"
-            aria-label="Abrir Menu"
+            className="lg:hidden p-2 text-zinc-600 hover:bg-zinc-100 rounded-lg border-0 bg-transparent cursor-pointer"
           >
             <Menu className="w-6 h-6" />
           </button>
@@ -52,54 +65,31 @@ export default function Header() {
       </header>
 
       {/* Mobile Drawer Menu */}
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <motion.div
-            initial={{ y: "-100%" }}
-            animate={{ y: 0 }}
-            exit={{ y: "-100%" }}
-            transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed inset-0 w-full h-screen bg-[#0a0a0c] z-50 p-6 flex flex-col gap-12"
-          >
-            <div className="flex items-center justify-between">
-              <a href="#" className="flex items-center gap-2.5 font-display text-xl font-medium">
-                <img 
-                  src="/logo.jpeg" 
-                  alt="Logo Instituto Conectar" 
-                  className="w-9 h-9 rounded-xl object-cover border border-white/10" 
-                  onError={(e) => {
-                    e.currentTarget.style.display = 'none';
-                  }}
-                />
-                <span className="text-white">
-                  Instituto <strong className="font-extrabold bg-gradient-to-r from-violet-400 to-indigo-400 bg-clip-text text-transparent">Conectar</strong>
-                </span>
-              </a>
-              <button
-                onClick={() => setMobileMenuOpen(false)}
-                className="p-2 text-white hover:bg-white/5 rounded-lg"
-                aria-label="Fechar Menu"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 w-full h-screen bg-white z-50 p-6 flex flex-col gap-8 lg:hidden">
+          <div className="flex items-center justify-between">
+            <a href="#" className="flex items-center gap-3">
+              <img src="/logo.png" alt="Logo" className="w-8 h-8 object-contain" />
+              <strong className="text-sm font-black text-[#3c2a4d]">Instituto Conectar</strong>
+            </a>
+            <button
+              onClick={() => setMobileMenuOpen(false)}
+              className="p-2 text-zinc-600 hover:bg-zinc-100 rounded-lg border-0 bg-transparent cursor-pointer"
+            >
+              <X className="w-6 h-6" />
+            </button>
+          </div>
 
-            <nav className="flex flex-col gap-6 text-lg font-semibold">
-              <a href="#especialidades" onClick={() => setMobileMenuOpen(false)} className="text-zinc-400 hover:text-white transition-colors">Especialidades</a>
-              <a href="#diferenciais" onClick={() => setMobileMenuOpen(false)} className="text-zinc-400 hover:text-white transition-colors">Diferenciais</a>
-              <a href="#estrutura" onClick={() => setMobileMenuOpen(false)} className="text-zinc-400 hover:text-white transition-colors">Estrutura</a>
-              <a href="#faq" onClick={() => setMobileMenuOpen(false)} className="text-zinc-400 hover:text-white transition-colors">Dúvidas</a>
-              <hr className="border-white/10 my-2" />
-              <a href="http://localhost:5000/login" className="w-full py-3 rounded-xl text-center text-sm font-semibold text-white bg-white/5 border border-white/8 hover:bg-white/10 transition-all">
-                Área do Profissional
-              </a>
-              <a href="http://localhost:5000/portal/login" className="w-full py-3 rounded-xl text-center text-sm font-semibold text-white bg-gradient-to-r from-violet-600 to-indigo-600 transition-all">
-                Portal dos Pais
-              </a>
-            </nav>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          <nav className="flex flex-col gap-4 text-xs font-bold uppercase tracking-wider text-zinc-600">
+            <a href="#sobre" onClick={() => setMobileMenuOpen(false)} className="py-2 border-b">Sobre</a>
+            <a href="#especialidades" onClick={() => setMobileMenuOpen(false)} className="py-2 border-b">Especialidades</a>
+            <a href="#equipe" onClick={() => setMobileMenuOpen(false)} className="py-2 border-b">Nossa Equipe</a>
+            <a href="#estrutura" onClick={() => setMobileMenuOpen(false)} className="py-2 border-b">Estrutura</a>
+            <a href="http://localhost:3000/portal/login" target="_blank" rel="noopener noreferrer" className="py-2 border-b text-[#db2777]">Portal dos Pais</a>
+            <a href="http://localhost:3000/login" target="_blank" rel="noopener noreferrer" className="py-2 text-[#3fbaab]">Área do Profissional</a>
+          </nav>
+        </div>
+      )}
     </>
   );
 }

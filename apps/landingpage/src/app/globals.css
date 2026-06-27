@@ -1,52 +1,55 @@
 @import "tailwindcss";
 
-@custom-variant dark (&:where(.dark, .dark *));
-
 :root {
-  --background: 240 10% 4%;
-  --foreground: 0 0% 98%;
-  --muted-foreground: 240 5% 70%;
+  --background: 0 0% 100%;
+  --foreground: 224 71.4% 4.1%;
+  --muted-foreground: 220 14.3% 41.8%;
+  --border: 220 13% 91%;
+  --card: 0 0% 100%;
   --primary: 262 83% 58%;
-  --primary-glow: rgba(124, 58, 237, 0.4);
+  --primary-glow: rgba(124, 58, 237, 0.15);
   --success: 142 71% 45%;
   --info: 217 91% 60%;
 }
 
 body {
-  background-color: hsl(var(--background));
-  color: hsl(var(--foreground));
-  font-family: 'Inter', sans-serif;
+  background-color: #ffffff;
+  color: #1e1e24;
+  font-family: 'Outfit', 'Inter', sans-serif;
   overflow-x: hidden;
 }
 
-/* Custom background blur anim */
-.orb {
-  position: absolute;
-  width: 45vw;
-  height: 45vw;
-  max-width: 600px;
-  max-height: 600px;
-  border-radius: 50%;
-  filter: blur(140px);
-  opacity: 0.12;
-  pointer-events: none;
-  z-index: 0;
-  animation: orb-float 22s infinite ease-in-out;
+/* Gradient Primary text & backgrounds */
+.gradient-text-primary {
+  background: linear-gradient(135deg, #8e7bbe 0%, #db2777 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-@keyframes orb-float {
-  0%, 100% {
-    transform: translate(0, 0) scale(1);
-  }
-  50% {
-    transform: translate(5% , 6%) scale(1.15);
-  }
+.gradient-bg-primary {
+  background: linear-gradient(135deg, #8e7bbe 0%, #db2777 100%);
 }
 
-/* Glassmorphism panel */
-.glass-card {
-  background: rgba(22, 22, 26, 0.45);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+.gradient-bg-green {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.gradient-bg-pink {
+  background: linear-gradient(135deg, #db2777 0%, #ec4899 100%);
+}
+
+/* Float animations */
+.floating {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+/* Accordion transition utility */
+.accordion-content {
+  transition: max-height 0.3s cubic-bezier(0, 1, 0, 1);
 }

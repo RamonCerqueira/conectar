@@ -365,9 +365,23 @@ export function AppSidebar() {
         <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-4">
           {navGroups
             .map((group) => {
-              const allowedItems = group.items.filter(
-                (item) => !item.allowedRoles || item.allowedRoles.includes(userRole)
-              );
+              const allowedItems = group.items.filter((item) => {
+                if (typeof window !== "undefined") {
+                  const rbacRulesRaw = localStorage.getItem("rbac_rules");
+                  if (rbacRulesRaw) {
+                    try {
+                      const rules = JSON.parse(rbacRulesRaw);
+                      const roleRules = rules[userRole];
+                      if (roleRules && Array.isArray(roleRules)) {
+                        return roleRules.includes(item.label);
+                      }
+                    } catch (e) {
+                      console.error("Error parsing rbac_rules:", e);
+                    }
+                  }
+                }
+                return !item.allowedRoles || item.allowedRoles.includes(userRole);
+              });
               return { ...group, items: allowedItems };
             })
             .filter((group) => group.items.length > 0)

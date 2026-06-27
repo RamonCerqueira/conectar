@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import * as fs from 'fs';
+import { join } from 'path';
 
 @Injectable()
 export class ContratosService {
@@ -33,12 +35,36 @@ export class ContratosService {
     return contrato;
   }
 
-  async sign(id: string) {
+  private saveBase64Signature(base64Data: string, contratoId: string): string {
+    try {
+      const dir = join(process.cwd(), 'storage/contratos');
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+      const base64Image = base64Data.replace(/^data:image\/\w+;base64,/, '');
+      const buffer = Buffer.from(base64Image, 'base64');
+      const filename = `signature-${contratoId}-${Date.now()}.png`;
+      const filepath = join(dir, filename);
+      fs.writeFileSync(filepath, buffer);
+      return `/storage/contratos/${filename}`;
+    } catch (e) {
+      console.error('Erro ao salvar assinatura em imagem:', e);
+      return '';
+    }
+  }
+
+  async sign(id: string, assinaturaBase64?: string) {
+    let assinaturaUrl: string | null = null;
+    if (assinaturaBase64) {
+      assinaturaUrl = this.saveBase64Signature(assinaturaBase64, id);
+    }
+
     const contrato = await this.prisma.contrato.update({
       where: { id },
       data: {
         assinado: true,
         assinadoEm: new Date(),
+        assinaturaUrl,
       },
     });
 
@@ -173,6 +199,13 @@ Assinatura do Responsável Legal`
   async deleteTemplate(id: string) {
     return this.prisma.modeloContrato.delete({
       where: { id },
+    });
+  }
+
+  async updateModeloArquivoUrl(id: string, arquivoUrl: string) {
+    return this.prisma.modeloContrato.update({
+      where: { id },
+      data: { arquivoUrl },
     });
   }
 }

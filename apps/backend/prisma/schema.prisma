@@ -668,6 +668,7 @@ model Contrato {
   qtdParcelas     Int?      @default(1)
   diaVencimento   Int?      @default(10)
   gerouFinanceiro Boolean   @default(false)
+  assinaturaUrl   String?   // Imagem da assinatura desenhada
   criadoEm       DateTime  @default(now())
 
   paciente Paciente @relation(fields: [pacienteId], references: [id])
@@ -911,6 +912,9 @@ model RegistroPonto {
   justificativa  String?
   entradaSol     DateTime? // Entrada solicitada para ajuste
   saidaSol       DateTime? // Saída solicitada para ajuste
+  latitude       Float?
+  longitude      Float?
+  fotoAuditoria  String?   // Caminho da selfie salva
   criadoEm       DateTime  @default(now())
   atualizadoEm   DateTime  @updatedAt
 
@@ -950,15 +954,48 @@ model FechamentoCaixa {
 }
 
 model Adiantamento {
-  id            String   @id @default(uuid())
-  usuarioId     String
-  valor         Decimal  @db.Decimal(10, 2)
-  data          DateTime @default(now())
-  pago          Boolean  @default(false)
-  referenciaMes String   // Ex: "06/2026"
-  observacoes   String?
+  id          String   @id @default(uuid())
+  usuarioId   String
+  valor       Decimal  @db.Decimal(10, 2)
+  mesReferencia String // Formato YYYY-MM
+  status      String   @default("PENDENTE") // PENDENTE | PAGO
+  criadoEm    DateTime @default(now())
 
-  usuario       Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  usuario     Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
 
   @@map("adiantamentos")
+}
+
+model MensagemFila {
+  id           String   @id @default(uuid())
+  destinatario String
+  mensagem     String   @db.Text
+  status       String   // PENDENTE | ENVIADO | FALHA
+  criadoEm     DateTime @default(now())
+
+  @@map("mensagem_fila")
+}
+
+model ChatbotPasso {
+  id        String   @id @default(uuid())
+  ordem     Int      @unique
+  pergunta  String   @db.Text
+  campoChave String   // nomeCrianca, idade, queixa, periodo, etc.
+  criadoEm  DateTime @default(now())
+
+  @@map("chatbot_passos")
+}
+
+model TriagemLead {
+  id           String   @id @default(uuid())
+  telefone     String
+  nomeCrianca  String?
+  idade        String?
+  queixa       String?
+  periodo      String?
+  status       String   @default("PENDENTE") // PENDENTE | EM_ATENDIMENTO | FINALIZADO
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+
+  @@map("triagem_leads")
 }

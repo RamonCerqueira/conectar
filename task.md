@@ -1,0 +1,15 @@
+- [x] Modify Prisma schema for RegistroPonto, Contrato and new model MensagemFila
+- [x] Run pnpm db:migrate
+- [x] Implement backend update for Ponto geoloc & webcam photo save in ponto.service.ts/controller.ts
+- [x] Implement backend update for signature base64 save in contratos.service.ts/controller.ts
+- [x] Implement backend DRE forecast in financeiro.service.ts/controller.ts
+- [x] Implement backend whatsapp outbound messages log in comunicacao.controller.ts/service.ts
+- [x] Implement frontend signature draw modal in PacienteDetailsDrawer
+- [x] Implement frontend camera and geoloc audit during clock-in in PontoPage
+- [x] Implement frontend DRE future earnings forecast section in FinanceiroPage
+- [x] Implement frontend WhatsApp outbound logs list in ComunicacaoPage
+- [x] Implement backend models and controller routes for Q&A Triaging Chatbot and Leads CRM
+- [x] Implement frontend Q&A Chatbot Step Builder and CRM Leads management tab in ComunicacaoPage
+- [x] Redesign Landing Page with clean, cozy white theme according to clinical guidelines
+- [x] Integrate interactive WhatsApp triage chatbot simulator widget on Landing Page
+- [x] Verify everything runs and builds correctly

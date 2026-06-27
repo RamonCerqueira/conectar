@@ -70,6 +70,11 @@ export class FinanceiroController {
     return this.service.lancarRepasse(body);
   }
 
+  @Get('previsao-dre')
+  getPrevisaoDRE() {
+    return this.service.getPrevisaoDRE();
+  }
+
   @Get() findAll(@Query() q: any) { return this.service.findAll(q); }
   @Post() create(@Body() body: any) { return this.service.create(body); }
   @Put(':id') update(@Param('id') id: string, @Body() body: any) { return this.service.update(id, body); }

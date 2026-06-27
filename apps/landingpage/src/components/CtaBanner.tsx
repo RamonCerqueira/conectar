@@ -1,36 +1,66 @@
 "use client";
 
-import { Phone, Users } from "lucide-react";
+import { Calendar, Phone } from "lucide-react";
 
-export default function CtaBanner() {
+interface CtaBannerProps {
+  onAgendar: () => void;
+  onChat: () => void;
+}
+
+export default function CtaBanner({ onAgendar, onChat }: CtaBannerProps) {
   return (
-    <section className="py-24">
-      <div className="max-w-5xl mx-auto px-6">
-        <div className="glass-card rounded-3xl p-12 text-center border border-violet-500/20 bg-gradient-to-b from-violet-500/[0.06] to-transparent relative overflow-hidden">
-          <div className="relative z-10 flex flex-col gap-8 max-w-2xl mx-auto">
-            <h2 className="text-3xl md:text-5xl font-display font-extrabold tracking-tight">
-              Agende uma visita ao Instituto Conectar
+    <section className="py-12 px-6">
+      <div 
+        className="max-w-7xl mx-auto rounded-3xl p-8 md:p-12 text-white relative overflow-hidden shadow-xl flex flex-col lg:flex-row items-center justify-between gap-8 text-left"
+        style={{ background: "linear-gradient(to right, #8e7bbe 0%, #db2777 33%, #f3a856 66%, #3fbaab 100%)" }}
+      >
+        
+        {/* Left container */}
+        <div className="flex items-center gap-6 relative z-10 w-full lg:w-auto">
+          {/* White square calendar box */}
+          <div className="w-20 h-20 rounded-[1.5rem] bg-white flex items-center justify-center text-[#8e7bbe] shrink-0 shadow-lg">
+            <Calendar className="w-10 h-10" />
+          </div>
+          <div className="space-y-1">
+            <h2 className="text-xl md:text-2xl font-extrabold tracking-tight leading-snug max-w-xl">
+              Vamos construir juntos novos caminhos para o desenvolvimento do seu filho.
             </h2>
-            <p className="text-zinc-300 leading-relaxed text-base md:text-lg">
-              Venha conhecer nosso espaço lúdico e conversar com nossos profissionais sobre o desenvolvimento e acolhimento de quem você mais ama.
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-2">
-              <a
-                href="https://wa.me/5500000000000"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-semibold px-8 py-4 rounded-xl shadow-lg shadow-violet-500/20 hover:brightness-110 hover:-translate-y-0.5 transition-all duration-300"
-              >
-                <Phone className="w-5 h-5" />
-                <span>Agendar via WhatsApp</span>
-              </a>
-              <a
-                href="http://localhost:5000/portal/login"
-                className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white/5 border border-white/8 hover:bg-white/10 text-white font-semibold px-8 py-4 rounded-xl hover:-translate-y-0.5 transition-all duration-300"
-              >
-                <Users className="w-5 h-5" />
-                <span>Portal da Família</span>
-              </a>
+          </div>
+        </div>
+
+        {/* Buttons and Hearts container */}
+        <div className="flex items-center gap-8 shrink-0 w-full lg:w-auto relative z-10">
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+            {/* White button with green text & calendar icon */}
+            <button
+              onClick={onAgendar}
+              className="w-full sm:w-auto px-6 py-3 rounded-full font-bold bg-white text-[#3fbaab] hover:bg-zinc-50 border-0 cursor-pointer text-xs flex items-center justify-center gap-2 shadow-md transition-all shrink-0"
+            >
+              <Calendar className="w-4 h-4" />
+              <span>Agendar Avaliação</span>
+            </button>
+            {/* Transparent outline button with phone icon */}
+            <button
+              onClick={onChat}
+              className="w-full sm:w-auto px-6 py-3 rounded-full font-bold border-2 border-white bg-transparent text-white hover:bg-white/5 cursor-pointer text-xs flex items-center justify-center gap-2 transition-all shrink-0"
+            >
+              <Phone className="w-4 h-4" />
+              <span>Falar no WhatsApp</span>
+            </button>
+          </div>
+
+          {/* Outlined hearts far right */}
+          <div className="hidden xl:flex items-center gap-2 shrink-0 select-none">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-white/40">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+            </svg>
+            <div className="flex flex-col gap-1.5">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-white/40">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+              </svg>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-white/40">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+              </svg>
             </div>
           </div>
         </div>

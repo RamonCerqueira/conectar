@@ -1,110 +1,110 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Phone, Users, Smile, Heart, ShieldCheck } from "lucide-react";
+import GradientButton from "./GradientButton";
+import FloatingIcons from "./FloatingIcons";
 
-export default function Hero() {
+interface HeroProps {
+  onAgendar: () => void;
+  onChat: () => void;
+}
+
+export default function Hero({ onAgendar, onChat }: HeroProps) {
   return (
-    <section className="pt-44 pb-20 relative">
-      <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-12 gap-16 items-center">
-        <motion.div 
-          initial={{ opacity: 0, x: -30 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="md:col-span-7 flex flex-col gap-8"
-        >
-          <div>
-            <span className="inline-flex items-center gap-2 bg-violet-600/10 border border-violet-500/30 text-violet-300 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide">
-              <span className="w-1.5 h-1.5 bg-violet-400 rounded-full animate-ping" />
-              Clínica Multidisciplinar de Saúde
-            </span>
-          </div>
+    <section className="pt-[140px] pb-20 bg-gradient-to-b from-[#8E7BBE]/5 via-white to-white relative overflow-hidden text-xs">
+      <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+        
+        {/* Left Column */}
+        <div className="lg:col-span-6 space-y-6 text-left">
+          <motion.h1 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-4xl md:text-5xl font-black text-[#8E7BBE] leading-[1.12]"
+          >
+            Conectando caminhos,<br />
+            <span className="text-[#E98BAE]">desenvolvendo</span> potencialidades.
+          </motion.h1>
 
-          <h1 className="text-4xl md:text-6xl font-display font-extrabold leading-[1.1] tracking-tight">
-            Cuidado integrado para o <br />
-            <span className="bg-gradient-to-r from-violet-400 via-indigo-300 to-blue-400 bg-clip-text text-transparent">
-              desenvolvimento infantil
-            </span>
-          </h1>
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-[#4A4A4A] text-xs md:text-sm leading-relaxed max-w-lg font-semibold"
+          >
+            Atendimento especializado para crianças e adolescentes com dificuldades de aprendizagem, desenvolvimento e comportamento, oferecendo um cuidado individualizado para que cada criança alcance seu máximo potencial.
+          </motion.p>
 
-          <p className="text-lg text-zinc-400 leading-relaxed max-w-xl">
-            Acolhimento humanizado e terapias especializadas em Psicologia, Fonoaudiologia, Terapia Ocupacional e Psicopedagogia. Apoiamos famílias na jornada do desenvolvimento e evolução de quem você ama.
-          </p>
+          {/* Action buttons */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="flex flex-wrap items-center gap-3.5"
+          >
+            <GradientButton onClick={onAgendar} variant="primary">
+              Agendar Avaliação
+            </GradientButton>
+            <GradientButton onClick={onChat} variant="secondary">
+              Falar no WhatsApp
+            </GradientButton>
+          </motion.div>
 
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
-            <a
-              href="https://wa.me/5500000000000"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-semibold px-8 py-4 rounded-2xl shadow-lg shadow-violet-500/20 hover:brightness-110 hover:-translate-y-0.5 transition-all duration-300"
-            >
-              <Phone className="w-5 h-5" />
-              <span>Agendar Consulta</span>
-            </a>
-            <a
-              href="http://localhost:5000/portal/login"
-              className="flex items-center justify-center gap-2 bg-white/5 border border-white/8 hover:bg-white/10 hover:border-white/20 text-white font-semibold px-8 py-4 rounded-2xl hover:-translate-y-0.5 transition-all duration-300"
-            >
-              <Users className="w-5 h-5" />
-              <span>Portal da Família</span>
-            </a>
-          </div>
-        </motion.div>
-
-        <motion.div 
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-          className="md:col-span-5 flex justify-center"
-        >
-          <div className="w-full max-w-[480px] glass-card rounded-3xl overflow-hidden border border-white/10 shadow-2xl relative z-10">
-            <div className="h-10 bg-black/30 border-b border-white/5 flex items-center px-4">
-              <span className="text-xs text-white/30 font-medium">Instituto Conectar</span>
+          {/* Trust Row */}
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+            className="pt-4 border-t border-[#E7E7E7] flex items-center gap-3.5"
+          >
+            <div className="flex -space-x-2">
+              <img className="w-8 h-8 rounded-full border-2 border-white object-cover shadow-sm" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100" alt="Avatar 1" />
+              <img className="w-8 h-8 rounded-full border-2 border-white object-cover shadow-sm" src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100" alt="Avatar 2" />
+              <img className="w-8 h-8 rounded-full border-2 border-white object-cover shadow-sm" src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=100" alt="Avatar 3" />
             </div>
-            <div className="p-8 flex flex-col justify-between h-[300px]">
-              <div className="text-center">
-                <h4 className="text-lg font-semibold text-white">Atendimento Integrado</h4>
-                <p className="text-xs text-zinc-400 mt-1">Nossa rede de suporte para o paciente</p>
-              </div>
+            <p className="text-[10px] text-zinc-500 font-extrabold uppercase tracking-wide">
+              Mais de <span className="text-[#8E7BBE] font-black">200 famílias</span> já confiam em nosso trabalho.
+            </p>
+          </motion.div>
+        </div>
 
-              <div className="flex items-center justify-between my-4 px-2">
-                <div className="flex flex-col items-center gap-2.5 w-20 text-center text-violet-400">
-                  <div className="w-12 h-12 rounded-full bg-violet-500/5 border border-violet-500/20 flex items-center justify-center shadow-lg shadow-violet-500/10 hover:scale-105 transition-transform">
-                    <Smile className="w-6 h-6" />
-                  </div>
-                  <span className="text-xs font-semibold">Paciente</span>
-                </div>
-
-                <div className="flex-1 h-[1px] bg-gradient-to-r from-white/5 via-white/25 to-white/5 mx-2 relative">
-                  <span className="absolute top-[-2px] left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-white/30" />
-                </div>
-
-                <div className="flex flex-col items-center gap-2.5 w-20 text-center text-emerald-400">
-                  <div className="w-12 h-12 rounded-full bg-emerald-500/5 border border-emerald-500/20 flex items-center justify-center shadow-lg shadow-emerald-500/10 hover:scale-105 transition-transform">
-                    <Heart className="w-6 h-6" />
-                  </div>
-                  <span className="text-xs font-semibold">Terapeutas</span>
-                </div>
-
-                <div className="flex-1 h-[1px] bg-gradient-to-r from-white/5 via-white/25 to-white/5 mx-2 relative">
-                  <span className="absolute top-[-2px] left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-white/30" />
-                </div>
-
-                <div className="flex flex-col items-center gap-2.5 w-20 text-center text-blue-400">
-                  <div className="w-12 h-12 rounded-full bg-blue-500/5 border border-blue-500/20 flex items-center justify-center shadow-lg shadow-blue-500/10 hover:scale-105 transition-transform">
-                    <Users className="w-6 h-6" />
-                  </div>
-                  <span className="text-xs font-semibold">Família</span>
-                </div>
-              </div>
-
-              <div className="mt-4 flex items-center justify-center gap-1.5 text-xs text-zinc-400 bg-white/[0.02] border border-white/5 py-2 px-4 rounded-xl">
-                <ShieldCheck className="w-4 h-4 text-emerald-500" />
-                <span>Prontuário integrado & evolução transparente</span>
-              </div>
+        {/* Right Column (Blob Mask Image) */}
+        <div className="lg:col-span-6 relative flex justify-center">
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="relative"
+          >
+            {/* Gradient border effect background blob */}
+            <div 
+              className="absolute inset-0 -m-2 opacity-25 blur-lg pointer-events-none" 
+              style={{ 
+                borderRadius: "40% 60% 70% 30% / 40% 50% 60% 50%",
+                background: "linear-gradient(90deg, #8E7BBE, #E98BAE, #69C4B5, #F3B357)" 
+              }}
+            />
+            
+            {/* The main blob mask image */}
+            <div 
+              className="w-80 h-80 md:w-96 md:h-96 overflow-hidden border-8 border-white shadow-2xl relative bg-zinc-100"
+              style={{ borderRadius: "40% 60% 70% 30% / 40% 50% 60% 50%" }}
+            >
+              <img
+                src="/hero_clinic_photo.png"
+                alt="Terapeuta e Criança"
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.currentTarget.src = "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=600";
+                }}
+              />
             </div>
-          </div>
-        </motion.div>
+
+            {/* Floating Hearts, Leaves & Sparkles */}
+            <FloatingIcons />
+          </motion.div>
+        </div>
+
       </div>
     </section>
   );

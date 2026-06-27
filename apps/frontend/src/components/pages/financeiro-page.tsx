@@ -31,7 +31,8 @@ import {
   Send,
   Lock,
   Unlock,
-  Printer
+  Printer,
+  Landmark
 } from "lucide-react";
 import {
   AreaChart,
@@ -63,7 +64,9 @@ interface Employee {
 }
 
 export function FinanceiroPage() {
-  const [activeTab, setActiveTab] = useState<"fluxo" | "lancamentos" | "folha" | "repasses" | "inadimplentes" | "caixa">("fluxo");
+  const [activeTab, setActiveTab] = useState<"fluxo" | "lancamentos" | "folha" | "repasses" | "inadimplentes" | "caixa" | "previsao">("fluxo");
+  const [previsaoData, setPrevisaoData] = useState<any[]>([]);
+  const [previsaoLoading, setPrevisaoLoading] = useState(false);
   const [lancamentos, setLancamentos] = useState<any[]>([]);
   const [funcionarios, setFuncionarios] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
@@ -231,11 +234,26 @@ export function FinanceiroPage() {
     setVencimento(today);
   }, []);
 
+  const loadPrevisao = async () => {
+    setPrevisaoLoading(true);
+    try {
+      const res = await api.get("/financeiro/previsao-dre");
+      setPrevisaoData(res.data || []);
+    } catch (err) {
+      console.error(err);
+      toast.error("Erro ao carregar projeção DRE.");
+    } finally {
+      setPrevisaoLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (activeTab === "repasses") {
       loadRepasses();
     } else if (activeTab === "caixa") {
       loadCaixaHistorico();
+    } else if (activeTab === "previsao") {
+      loadPrevisao();
     }
   }, [activeTab, mesReferencia]);
 
@@ -829,6 +847,7 @@ export function FinanceiroPage() {
         {[
           { id: "fluxo", label: "Fluxo de Caixa", icon: TrendingUp },
           { id: "lancamentos", label: "Livro Caixa", icon: Wallet },
+          { id: "previsao", label: "Previsão & DRE", icon: Landmark },
           { id: "folha", label: "Folha / Holerites", icon: FileText },
           { id: "repasses", label: "Repasses Terapeutas", icon: Users },
           { id: "inadimplentes", label: "Inadimplência", icon: AlertTriangle },
@@ -1398,6 +1417,86 @@ export function FinanceiroPage() {
               </table>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* ─── TAB: PREVISÃO & DRE (FUTURE CASH FLOW PROJECTION) ──────────── */}
+      {activeTab === "previsao" && (
+        <div className="space-y-6 text-xs animate-in fade-in duration-200">
+          <div className="p-4 rounded-2xl border bg-card flex items-start gap-3" style={{ borderColor: "hsl(var(--border))" }}>
+            <Info className="h-5 w-5 text-purple-400 shrink-0 mt-0.5" />
+            <div className="space-y-1">
+              <p className="font-bold text-foreground">💡 Projeção e Previsibilidade de Receitas futuras (12 meses)</p>
+              <p className="text-muted-foreground leading-relaxed">
+                Este painel projeta o faturamento estimado da clínica baseando-se nos contratos recorrentes ativos e nos custos mensais cadastrados (salários de colaboradores CLT/PJ e contas fixas). Ele ajuda você a antecipar meses com saldo negativo e planejar investimentos clínicos de longo prazo.
+              </p>
+            </div>
+          </div>
+
+          {previsaoLoading ? (
+            <div className="flex h-64 items-center justify-center">
+              <div className="h-8 w-8 animate-spin rounded-full border-4 border-solid border-purple-500 border-t-transparent" />
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Projeção Gráfica */}
+              <div className="lg:col-span-2 p-5 rounded-2xl border bg-card space-y-4" style={{ borderColor: "hsl(var(--border))" }}>
+                <h3 className="font-bold text-sm text-foreground">Gráfico de Projeção Mensal</h3>
+                <div className="h-72">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={previsaoData}>
+                      <defs>
+                        <linearGradient id="colorRecs" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#22c55e" stopOpacity={0.2} />
+                          <stop offset="95%" stopColor="#22c55e" stopOpacity={0} />
+                        </linearGradient>
+                        <linearGradient id="colorDesps" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#ef4444" stopOpacity={0.2} />
+                          <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <XAxis dataKey="mesFormatado" stroke="#888888" fontSize={10} tickLine={false} axisLine={false} />
+                      <YAxis stroke="#888888" fontSize={10} tickLine={false} axisLine={false} tickFormatter={(v) => `R$ ${v}`} />
+                      <Tooltip formatter={(value) => `R$ ${Number(value).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`} />
+                      <Area type="monotone" dataKey="receitas" stroke="#22c55e" fillOpacity={1} fill="url(#colorRecs)" name="Receitas Previstas" strokeWidth={2} />
+                      <Area type="monotone" dataKey="despesas" stroke="#ef4444" fillOpacity={1} fill="url(#colorDesps)" name="Despesas Previstas" strokeWidth={2} />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              {/* Tabela de Valores Previstos */}
+              <div className="lg:col-span-1 p-5 rounded-2xl border bg-card space-y-4" style={{ borderColor: "hsl(var(--border))" }}>
+                <h3 className="font-bold text-sm text-foreground">Projeção por Competência</h3>
+                <div className="overflow-hidden border rounded-xl" style={{ borderColor: "hsl(var(--border))" }}>
+                  <div className="max-h-64 overflow-y-auto">
+                    <table className="w-full text-left text-[11px] border-collapse">
+                      <thead>
+                        <tr className="bg-muted/50 border-b text-muted-foreground font-bold">
+                          <th className="p-3">Mês</th>
+                          <th className="p-3">Previsão Entradas</th>
+                          <th className="p-3">Previsão Custos</th>
+                          <th className="p-3 text-right">Saldo Previsto</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-border">
+                        {previsaoData.map((d) => (
+                          <tr key={d.mes} className="hover:bg-muted/10 transition-colors">
+                            <td className="p-3 font-bold text-foreground uppercase">{d.mesFormatado}</td>
+                            <td className="p-3 text-emerald-500 font-semibold">R$ {Number(d.receitas).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td>
+                            <td className="p-3 text-red-500 font-semibold">R$ {Number(d.despesas).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</td>
+                            <td className={cn("p-3 font-bold text-right", d.saldo >= 0 ? "text-emerald-500" : "text-red-500")}>
+                              R$ {Number(d.saldo).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
