@@ -1,0 +1,866 @@
+// ═══════════════════════════════════════════════════════════════════════════════
+//  PRISMA SCHEMA — Instituto Conectar
+//  Banco: PostgreSQL com JSONB, Full-text Search e UUID
+// ═══════════════════════════════════════════════════════════════════════════════
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  ENUMS
+// ─────────────────────────────────────────────────────────────────────────────
+
+enum PerfilUsuario {
+  ADMINISTRADOR
+  DIRETOR
+  COORDENADOR
+  RECEPCAO
+  FINANCEIRO
+  PSICOLOGO
+  PSICOPEDAGOGO
+  NEUROPSICÓLOGO
+  FONOAUDIOLOGO
+  TERAPEUTA_OCUPACIONAL
+  PEDAGOGO
+  SUPERVISOR
+  PAIS
+}
+
+enum Sexo {
+  MASCULINO
+  FEMININO
+  OUTRO
+  NAO_INFORMADO
+}
+
+enum StatusPaciente {
+  ATIVO
+  INATIVO
+  LISTA_ESPERA
+  ALTA
+  TRANSFERIDO
+}
+
+enum TipoResponsavel {
+  PAI
+  MAE
+  AVO_PATERNO
+  AVO_MATERNA
+  TUTOR
+  OUTRO
+}
+
+enum StatusAgendamento {
+  AGENDADO
+  CONFIRMADO
+  PRESENTE
+  FALTOU
+  FALTA_JUSTIFICADA
+  CANCELADO
+  REPOSICAO
+  EM_ATENDIMENTO
+}
+
+enum TipoAtendimento {
+  PRESENCIAL
+  ONLINE
+}
+
+enum TipoProfissional {
+  PSICOLOGO
+  PSICOPEDAGOGO
+  NEUROPSICÓLOGO
+  FONOAUDIOLOGO
+  TERAPEUTA_OCUPACIONAL
+  PEDAGOGO
+  MEDICO
+  OUTRO
+}
+
+enum StatusSala {
+  DISPONIVEL
+  OCUPADA
+  MANUTENCAO
+  BLOQUEADA
+}
+
+enum TipoLancamento {
+  RECEITA
+  DESPESA
+}
+
+enum FormaPagamento {
+  PIX
+  CARTAO_CREDITO
+  CARTAO_DEBITO
+  DINHEIRO
+  CONVENIO
+  BOLETO
+  TRANSFERENCIA
+}
+
+enum StatusPagamento {
+  PENDENTE
+  PAGO
+  ATRASADO
+  CANCELADO
+  ESTORNADO
+}
+
+enum StatusMeta {
+  NAO_INICIADO
+  EM_ANDAMENTO
+  CONCLUIDO
+  PAUSADO
+}
+
+enum TipoNotificacao {
+  SISTEMA
+  AGENDAMENTO
+  FINANCEIRO
+  MENSAGEM
+  ALERTA
+}
+
+enum TipoArquivo {
+  EXAME
+  LAUDO
+  RECEITA
+  CONTRATO
+  FOTO
+  VIDEO
+  AUDIO
+  DOCUMENTO
+  OUTRO
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  USUÁRIOS E AUTENTICAÇÃO
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Usuario {
+  id            String         @id @default(uuid())
+  email         String         @unique
+  senha         String
+  nome          String
+  foto          String?
+  perfil        PerfilUsuario
+  ativo         Boolean        @default(true)
+  ultimoLogin   DateTime?
+  criadoEm     DateTime       @default(now())
+  atualizadoEm DateTime       @updatedAt
+
+  // Relações
+  profissional    Profissional?
+  refreshTokens   RefreshToken[]
+  auditLogs       AuditLog[]
+  notificacoes    Notificacao[]
+
+  @@index([email])
+  @@map("usuarios")
+}
+
+model RefreshToken {
+  id         String   @id @default(uuid())
+  token      String   @unique
+  usuarioId  String
+  expiresAt  DateTime
+  criadoEm  DateTime @default(now())
+
+  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@map("refresh_tokens")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  PROFISSIONAIS
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Profissional {
+  id            String           @id @default(uuid())
+  usuarioId     String           @unique
+  tipo          TipoProfissional
+  especialidade String?
+  especialidades String[]        // Array de especialidades adicionais
+  registro      String?          // CRP, CREFITO, CREFONO etc.
+  orgaoRegistro String?          // CRP, CREFITO, CFP etc.
+  bio           String?
+  formacao      String?          // Formação acadêmica
+  cor           String           @default("#7c3aed") // Cor na agenda
+  ativo         Boolean          @default(true)
+  criadoEm     DateTime         @default(now())
+  atualizadoEm DateTime         @updatedAt
+
+  // Contato
+  telefone      String?
+
+  // Endereço
+  cep           String?
+  logradouro    String?
+  numero        String?
+  complemento   String?
+  bairro        String?
+  cidade        String?
+  uf            String?
+
+  // Dados contratuais
+  cpfCnpj            String?   // CPF (PJ) ou CNPJ
+  tipoContrato       String?   @default("CLT")  // CLT | PJ | AUTONOMO
+  cargaHoraria       String?   // Ex: "40h"
+  salarioBase        Decimal?  @db.Decimal(10, 2)
+  comissaoPorcentagem Decimal? @db.Decimal(5, 2) // Ex: 10.00 = 10%
+  chavePix           String?
+
+  // Horários de trabalho (JSONB)
+  horariosTrabalho Json?         // { segunda: [{inicio: "08:00", fim: "18:00"}], ... }
+
+  // Relações
+  usuario       Usuario           @relation(fields: [usuarioId], references: [id])
+  salas         ProfissionalSala[]
+  alocacoesSala SalaAlocacao[]
+  agendamentos  Agendamento[]
+  prontuarios   Prontuario[]
+  avaliacoes    Avaliacao[]
+  bloqueios     BloqueioAgenda[]
+
+  @@map("profissionais")
+}
+
+model ProfissionalSala {
+  profissionalId String
+  salaId         String
+
+  profissional Profissional @relation(fields: [profissionalId], references: [id])
+  sala         Sala         @relation(fields: [salaId], references: [id])
+
+  @@id([profissionalId, salaId])
+  @@map("profissionais_salas")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  SALAS
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Sala {
+  id          String     @id @default(uuid())
+  nome        String
+  descricao   String?
+  capacidade  Int        @default(1)
+  status      StatusSala @default(DISPONIVEL)
+  cor         String     @default("#14b8a6")
+  ativa       Boolean    @default(true)
+  criadoEm   DateTime   @default(now())
+
+  // Relações
+  profissionais ProfissionalSala[]
+  alocacoes     SalaAlocacao[]
+  agendamentos  Agendamento[]
+
+  @@map("salas")
+}
+
+model SalaAlocacao {
+  id             String   @id @default(uuid())
+  salaId         String
+  profissionalId String
+  diasSemana     String[] // Ex: ["SEGUNDA", "QUARTA", "SEXTA"]
+  horarioInicio  String   // Ex: "08:00"
+  horarioFim     String   // Ex: "12:00"
+  ativo          Boolean  @default(true)
+  criadoEm      DateTime @default(now())
+  atualizadoEm  DateTime @updatedAt
+
+  sala         Sala         @relation(fields: [salaId], references: [id], onDelete: Cascade)
+  profissional Profissional @relation(fields: [profissionalId], references: [id])
+
+  @@index([salaId])
+  @@index([profissionalId])
+  @@map("salas_alocacoes")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  PACIENTES
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Paciente {
+  id              String         @id @default(uuid())
+  nome            String
+  foto            String?
+  sexo            Sexo           @default(NAO_INFORMADO)
+  dataNascimento  DateTime
+  cpf             String?        @unique
+  rg              String?
+  status          StatusPaciente @default(ATIVO)
+
+  // Endereço
+  cep             String?
+  logradouro      String?
+  numero          String?
+  complemento     String?
+  bairro          String?
+  cidade          String?
+  estado          String?
+
+  // Escola
+  escola          String?
+  serie           String?
+  turnoEscolar    String?
+  nomeProf        String?        // Professor
+  coordenador     String?
+
+  // Info médica
+  diagnosticos    Diagnostico[]
+  alergias        String[]
+  medicamentos    String[]
+  observacoesMed  String?
+
+  // Convênio
+  convenio        String?
+  numeroConvenio  String?
+  validade        DateTime?
+
+  // Médicos responsáveis (JSONB)
+  medicosRef      Json?         // { neurologista: "...", psiquiatra: "...", pediatra: "..." }
+
+  // Controle
+  primeiraConsulta DateTime?
+  ativo           Boolean        @default(true)
+  observacoes     String?
+  criadoEm       DateTime       @default(now())
+  atualizadoEm   DateTime       @updatedAt
+
+  // Busca Full-text (campo gerado)
+  buscaVetor      Unsupported("tsvector")?
+
+  // Relações
+  responsaveis    Responsavel[]
+  agendamentos    Agendamento[]
+  prontuarios     Prontuario[]
+  avaliacoes      Avaliacao[]
+  planosTerapeuticos PlanoTerapeutico[]
+  frequencias     Frequencia[]
+  arquivos        Arquivo[]
+  contratos       Contrato[]
+  evolucoes       Evolucao[]
+  exercicios      ExercicioCasa[]
+  contatosEscolares ContatoEscolar[]
+  laudos          Laudo[]
+  lancamentos     Lancamento[]
+
+  @@index([nome])
+  @@index([cpf])
+  @@map("pacientes")
+}
+
+model Diagnostico {
+  id          String   @id @default(uuid())
+  pacienteId  String
+  cid         String?
+  descricao   String
+  data        DateTime @default(now())
+  observacoes String?
+
+  paciente Paciente @relation(fields: [pacienteId], references: [id], onDelete: Cascade)
+
+  @@map("diagnosticos")
+}
+
+model Responsavel {
+  id           String          @id @default(uuid())
+  pacienteId   String
+  nome         String
+  cpf          String?
+  rg           String?
+  telefone     String?
+  whatsapp     String?
+  email        String?
+  grauParent   TipoResponsavel
+  profissao    String?
+  isPrincipal  Boolean         @default(false)
+  criadoEm    DateTime        @default(now())
+
+  // Portal dos pais
+  senhaPortal  String?
+  ativoPortal  Boolean         @default(false)
+
+  paciente Paciente @relation(fields: [pacienteId], references: [id], onDelete: Cascade)
+
+  @@map("responsaveis")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  AGENDA
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Agendamento {
+  id              String            @id @default(uuid())
+  pacienteId      String
+  profissionalId  String
+  salaId          String?
+  data            DateTime
+  dataFim         DateTime
+  tipo            TipoAtendimento   @default(PRESENCIAL)
+  status          StatusAgendamento @default(AGENDADO)
+  observacoes     String?
+  linkOnline      String?
+  repetirSemanal  Boolean           @default(false)
+  grupoRepeticao  String?           // UUID para agrupar recorrências
+  criadoEm       DateTime          @default(now())
+  atualizadoEm   DateTime          @updatedAt
+
+  // Relações
+  paciente      Paciente      @relation(fields: [pacienteId], references: [id])
+  profissional  Profissional  @relation(fields: [profissionalId], references: [id])
+  sala          Sala?         @relation(fields: [salaId], references: [id])
+  frequencia    Frequencia?
+  prontuario    Prontuario?
+
+  @@index([data])
+  @@index([pacienteId])
+  @@index([profissionalId])
+  @@map("agendamentos")
+}
+
+model BloqueioAgenda {
+  id             String       @id @default(uuid())
+  profissionalId String
+  inicio         DateTime
+  fim            DateTime
+  motivo         String?
+  tipoMotivo     String?      // ferias, almoco, reuniao, outro
+  criadoEm      DateTime     @default(now())
+
+  profissional Profissional @relation(fields: [profissionalId], references: [id])
+
+  @@map("bloqueios_agenda")
+}
+
+model ListaEspera {
+  id             String   @id @default(uuid())
+  nome           String
+  telefone       String
+  email          String?
+  especialidade  String?
+  observacoes    String?
+  notificado     Boolean  @default(false)
+  criadoEm      DateTime @default(now())
+
+  @@map("lista_espera")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  PRONTUÁRIO ELETRÔNICO
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Prontuario {
+  id             String   @id @default(uuid())
+  pacienteId     String
+  profissionalId String
+  agendamentoId  String?  @unique
+  data           DateTime @default(now())
+
+  // Campos do prontuário
+  queixaPrincipal    String?
+  observacoes        String?
+  objetivosSessao    String?
+  atividadesRealizadas String?
+  resultados         String?
+  comportamento      String?
+  orientacoesPais    String?
+  proximaMeta        String?
+
+  // JSONB para campos extras por especialidade
+  dadosExtra         Json?
+
+  criadoEm          DateTime @default(now())
+  atualizadoEm      DateTime @updatedAt
+
+  // Relações
+  paciente      Paciente     @relation(fields: [pacienteId], references: [id])
+  profissional  Profissional @relation(fields: [profissionalId], references: [id])
+  agendamento   Agendamento? @relation(fields: [agendamentoId], references: [id])
+
+  @@index([pacienteId])
+  @@index([profissionalId])
+  @@map("prontuarios")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  AVALIAÇÕES
+// ─────────────────────────────────────────────────────────────────────────────
+
+model TipoAvaliacao {
+  id          String @id @default(uuid())
+  nome        String
+  descricao   String?
+  campos      Json   // Array de campos configuráveis
+  ativo       Boolean @default(true)
+  criadoEm   DateTime @default(now())
+
+  avaliacoes Avaliacao[]
+
+  @@map("tipos_avaliacao")
+}
+
+model Avaliacao {
+  id             String   @id @default(uuid())
+  pacienteId     String
+  profissionalId String
+  tipoId         String
+  data           DateTime @default(now())
+  respostas      Json     // Respostas aos campos configuráveis
+  conclusao      String?
+  criadoEm      DateTime @default(now())
+  atualizadoEm  DateTime @updatedAt
+
+  paciente     Paciente      @relation(fields: [pacienteId], references: [id])
+  profissional Profissional  @relation(fields: [profissionalId], references: [id])
+  tipo         TipoAvaliacao @relation(fields: [tipoId], references: [id])
+
+  @@map("avaliacoes")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  PLANO TERAPÊUTICO E METAS
+// ─────────────────────────────────────────────────────────────────────────────
+
+model PlanoTerapeutico {
+  id         String   @id @default(uuid())
+  pacienteId String
+  titulo     String
+  descricao  String?
+  ativo      Boolean  @default(true)
+  criadoEm  DateTime @default(now())
+
+  paciente Paciente @relation(fields: [pacienteId], references: [id])
+  metas    MetaTerapeutica[]
+
+  @@map("planos_terapeuticos")
+}
+
+model MetaTerapeutica {
+  id        String     @id @default(uuid())
+  planoId   String
+  objetivo  String
+  descricao String?
+  progresso Int        @default(0) // 0-100
+  status    StatusMeta @default(NAO_INICIADO)
+  prazo     DateTime?
+  criadoEm DateTime   @default(now())
+
+  plano          PlanoTerapeutico   @relation(fields: [planoId], references: [id], onDelete: Cascade)
+  historicoProgresso HistoricoProgresso[]
+
+  @@map("metas_terapeuticas")
+}
+
+model HistoricoProgresso {
+  id        String   @id @default(uuid())
+  metaId    String
+  progresso Int
+  nota      String?
+  data      DateTime @default(now())
+
+  meta MetaTerapeutica @relation(fields: [metaId], references: [id], onDelete: Cascade)
+
+  @@map("historico_progresso")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  EVOLUÇÃO
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Evolucao {
+  id         String   @id @default(uuid())
+  pacienteId String
+  area       String   // Ex: leitura, escrita, coordenação motora
+  valor      Float    // Valor em %
+  observacao String?
+  data       DateTime @default(now())
+
+  paciente Paciente @relation(fields: [pacienteId], references: [id])
+
+  @@index([pacienteId, area])
+  @@map("evolucoes")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  FREQUÊNCIA
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Frequencia {
+  id             String            @id @default(uuid())
+  pacienteId     String
+  agendamentoId  String            @unique
+  status         StatusAgendamento
+  justificativa  String?
+  criadoEm      DateTime          @default(now())
+
+  paciente    Paciente    @relation(fields: [pacienteId], references: [id])
+  agendamento Agendamento @relation(fields: [agendamentoId], references: [id])
+
+  @@map("frequencias")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  FINANCEIRO
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Lancamento {
+  id             String          @id @default(uuid())
+  tipo           TipoLancamento
+  descricao      String
+  valor          Decimal         @db.Decimal(10, 2)
+  formaPagamento FormaPagamento?
+  status         StatusPagamento @default(PENDENTE)
+  vencimento     DateTime?
+  pagamento      DateTime?
+  pacienteId     String?
+  referencia     String?         // Mês de referência (2026-01)
+  comprovante    String?         // Caminho do arquivo
+  observacoes    String?
+  criadoEm      DateTime        @default(now())
+  atualizadoEm  DateTime        @updatedAt
+
+  paciente Paciente? @relation(fields: [pacienteId], references: [id])
+
+  @@index([tipo])
+  @@index([status])
+  @@index([vencimento])
+  @@map("lancamentos")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  CONTRATOS E DOCUMENTOS
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Contrato {
+  id          String   @id @default(uuid())
+  pacienteId  String
+  tipo        String   // contrato, lgpd, autorizacao_imagem, outro
+  titulo      String
+  caminho     String
+  assinado    Boolean  @default(false)
+  assinadoEm  DateTime?
+  criadoEm   DateTime @default(now())
+
+  paciente Paciente @relation(fields: [pacienteId], references: [id])
+
+  @@map("contratos")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  ARQUIVOS
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Arquivo {
+  id          String      @id @default(uuid())
+  pacienteId  String?
+  nome        String
+  nomeOriginal String
+  caminho     String
+  tipo        TipoArquivo @default(DOCUMENTO)
+  mimeType    String
+  tamanho     Int         // bytes
+  criadoEm   DateTime    @default(now())
+
+  paciente Paciente? @relation(fields: [pacienteId], references: [id])
+
+  @@map("arquivos")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  LAUDOS
+// ─────────────────────────────────────────────────────────────────────────────
+
+model ModeloLaudo {
+  id       String @id @default(uuid())
+  nome     String
+  tipo     String
+  conteudo String // Template com variáveis {{nome}}, {{data}}, etc.
+  ativo    Boolean @default(true)
+  criadoEm DateTime @default(now())
+
+  laudos Laudo[]
+
+  @@map("modelos_laudo")
+}
+
+model Laudo {
+  id          String   @id @default(uuid())
+  pacienteId  String
+  modeloId    String
+  conteudo    String   // Conteúdo preenchido
+  caminhoPdf  String?
+  revisado    Boolean  @default(false)
+  publicado   Boolean  @default(false)
+  criadoEm   DateTime @default(now())
+
+  paciente Paciente    @relation(fields: [pacienteId], references: [id])
+  modelo   ModeloLaudo @relation(fields: [modeloId], references: [id])
+
+  @@map("laudos")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  EXERCÍCIOS PARA CASA
+// ─────────────────────────────────────────────────────────────────────────────
+
+model ExercicioCasa {
+  id         String   @id @default(uuid())
+  pacienteId String
+  titulo     String
+  descricao  String?
+  tipo       String   // pdf, video, imagem, jogo, orientacao
+  caminho    String?
+  url        String?
+  realizado  Boolean? // null = não respondido, true = feito, false = não feito
+  criadoEm  DateTime @default(now())
+
+  paciente Paciente @relation(fields: [pacienteId], references: [id])
+
+  @@map("exercicios_casa")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  CONTROLE ESCOLAR
+// ─────────────────────────────────────────────────────────────────────────────
+
+model ContatoEscolar {
+  id         String   @id @default(uuid())
+  pacienteId String
+  escola     String
+  professor  String?
+  coordenador String?
+  telefone   String?
+  email      String?
+  observacoes String?
+  criadoEm  DateTime @default(now())
+
+  paciente Paciente @relation(fields: [pacienteId], references: [id])
+  reunioes  ReuniaoEscolar[]
+  relatorios RelatorioEscolar[]
+
+  @@map("contatos_escolares")
+}
+
+model ReuniaoEscolar {
+  id          String   @id @default(uuid())
+  contatoId   String
+  data        DateTime
+  objetivo    String?
+  resumo      String?
+  participantes String[]
+  criadoEm   DateTime @default(now())
+
+  contato ContatoEscolar @relation(fields: [contatoId], references: [id])
+
+  @@map("reunioes_escolares")
+}
+
+model RelatorioEscolar {
+  id         String   @id @default(uuid())
+  contatoId  String
+  titulo     String
+  caminho    String
+  enviado    Boolean  @default(false)
+  enviadoEm  DateTime?
+  criadoEm  DateTime @default(now())
+
+  contato ContatoEscolar @relation(fields: [contatoId], references: [id])
+
+  @@map("relatorios_escolares")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  NOTIFICAÇÕES
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Notificacao {
+  id        String          @id @default(uuid())
+  usuarioId String
+  tipo      TipoNotificacao @default(SISTEMA)
+  titulo    String
+  mensagem  String
+  lida      Boolean         @default(false)
+  url       String?
+  criadoEm DateTime        @default(now())
+
+  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+
+  @@index([usuarioId, lida])
+  @@map("notificacoes")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  AUDITORIA E LGPD
+// ─────────────────────────────────────────────────────────────────────────────
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  usuarioId String?
+  acao      String   // LOGIN, LOGOUT, CREATE, UPDATE, DELETE, VIEW
+  recurso   String   // Tabela/entidade afetada
+  recursoId String?
+  dados     Json?    // Dados antes/depois
+  ip        String?
+  userAgent String?
+  criadoEm DateTime @default(now())
+
+  usuario Usuario? @relation(fields: [usuarioId], references: [id], onDelete: SetNull)
+
+  @@index([usuarioId])
+  @@index([criadoEm])
+  @@index([recurso, recursoId])
+  @@map("audit_logs")
+}
+
+model ConsentimentoLGPD {
+  id          String   @id @default(uuid())
+  pacienteId  String
+  tipo        String   // uso_dados, imagem, compartilhamento
+  aceito      Boolean
+  ip          String?
+  versao      String   @default("1.0")
+  criadoEm   DateTime @default(now())
+
+  @@index([pacienteId])
+  @@map("consentimentos_lgpd")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  MATERIAIS / INVENTÁRIO
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Material {
+  id          String   @id @default(uuid())
+  nome        String
+  categoria   String   // brinquedo, jogo, material_pedagogico, livro, teste
+  quantidade  Int      @default(1)
+  descricao   String?
+  localizacao String?  // Sala onde está
+  ativo       Boolean  @default(true)
+  criadoEm   DateTime @default(now())
+
+  @@map("materiais")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  CONFIGURAÇÕES DO SISTEMA
+// ─────────────────────────────────────────────────────────────────────────────
+
+model Configuracao {
+  id    String @id @default(uuid())
+  chave String @unique
+  valor Json
+  grupo String @default("geral")
+
+  @@map("configuracoes")
+}
