@@ -12,7 +12,11 @@ interface HeroProps {
 export default function Hero({ onAgendar, onChat }: HeroProps) {
   return (
     <section className="pt-[140px] pb-20 bg-gradient-to-b from-[#8E7BBE]/5 via-white to-white relative overflow-hidden text-xs">
-      <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+      {/* Background ambient glows for top-tier master UI/UX depth */}
+      <div className="glow-sphere-purple -top-20 -left-20 opacity-70" />
+      <div className="glow-sphere-teal bottom-0 right-10 opacity-60" />
+
+      <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
         
         {/* Left Column */}
         <div className="lg:col-span-6 space-y-6 text-left">

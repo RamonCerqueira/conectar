@@ -11,13 +11,21 @@ interface NavbarProps {
 export default function Navbar({ onAgendar }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
 
   useEffect(() => {
     const handleScroll = () => {
+      // Calculate Scroll Position
       if (window.scrollY > 10) {
         setScrolled(true);
       } else {
         setScrolled(false);
+      }
+
+      // Calculate Scroll Progress
+      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+      if (totalHeight > 0) {
+        setScrollProgress((window.scrollY / totalHeight) * 100);
       }
     };
     window.addEventListener("scroll", handleScroll);
@@ -62,7 +70,25 @@ export default function Navbar({ onAgendar }: NavbarProps) {
           </nav>
 
           {/* Right Action buttons */}
-          <div className="hidden lg:flex items-center gap-2.5">
+          <div className="hidden lg:flex items-center gap-3.5">
+            <a 
+              href="http://localhost:3000/portal/login" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 hover:text-[#8E7BBE] transition-colors"
+            >
+              Portal dos Pais
+            </a>
+            <a 
+              href="http://localhost:3000/login" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 hover:text-[#8E7BBE] transition-colors mr-2"
+            >
+              Área Restrita
+            </a>
+            <span className="w-[1px] h-4 bg-zinc-200" />
+            
             <GradientButton onClick={onAgendar} variant="primary">
               Agendar Avaliação
             </GradientButton>
@@ -84,6 +110,14 @@ export default function Navbar({ onAgendar }: NavbarProps) {
             <Menu className="w-6 h-6" />
           </button>
         </div>
+        {/* Scroll Progress Indicator Bar */}
+        <div 
+          className="absolute bottom-0 left-0 h-[3px] transition-all duration-75"
+          style={{ 
+            width: `${scrollProgress}%`,
+            background: "linear-gradient(90deg, #8E7BBE, #E98BAE, #69C4B5, #F3B357)" 
+          }}
+        />
       </header>
 
       {/* Mobile Menu Drawer */}
@@ -109,7 +143,27 @@ export default function Navbar({ onAgendar }: NavbarProps) {
             <a href="#equipe" onClick={() => setMobileMenuOpen(false)} className="py-2 border-b">Nossa Equipe</a>
             <a href="#estrutura" onClick={() => setMobileMenuOpen(false)} className="py-2 border-b">Estrutura</a>
             <a href="#blog" onClick={() => setMobileMenuOpen(false)} className="py-2 border-b">Blog</a>
-            <a href="#faq" onClick={() => setMobileMenuOpen(false)} className="py-2">Contato</a>
+            <a href="#faq" onClick={() => setMobileMenuOpen(false)} className="py-2 border-b">Contato</a>
+            
+            {/* Portals inside Mobile Menu */}
+            <a 
+              href="http://localhost:3000/portal/login" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              onClick={() => setMobileMenuOpen(false)} 
+              className="py-2 border-b text-[#8E7BBE]"
+            >
+              Portal dos Pais
+            </a>
+            <a 
+              href="http://localhost:3000/login" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              onClick={() => setMobileMenuOpen(false)} 
+              className="py-2 text-[#E98BAE]"
+            >
+              Área Restrita
+            </a>
           </nav>
         </div>
       )}

@@ -11,6 +11,9 @@ interface AboutProps {
 export default function About({ onAgendar }: AboutProps) {
   return (
     <section id="sobre" className="py-24 bg-white relative overflow-hidden text-xs">
+      {/* Background ambient glows */}
+      <div className="glow-sphere-purple -top-10 -left-10 opacity-40" />
+      <div className="glow-sphere-teal bottom-10 -right-10 opacity-30" />
       {/* Decorative leaf outline vector on the right */}
       <div className="absolute right-0 bottom-0 text-[#69C4B5]/10 opacity-70 pointer-events-none select-none translate-y-12">
         <svg width="220" height="220" fill="currentColor" viewBox="0 0 24 24">
