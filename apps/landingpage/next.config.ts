@@ -14,14 +14,25 @@ try {
     fs.mkdirSync(publicDir, { recursive: true });
   }
   
+  // 1. Sync generated assets
   if (fs.existsSync(src1)) fs.copyFileSync(src1, path.join(publicDir, "hero_clinic_photo.png"));
   if (fs.existsSync(src2)) fs.copyFileSync(src2, path.join(publicDir, "reception_clinic_photo.png"));
   if (fs.existsSync(srcLogo)) fs.copyFileSync(srcLogo, path.join(publicDir, "logo.png"));
   if (fs.existsSync(srcParallax)) fs.copyFileSync(srcParallax, path.join(publicDir, "parallax_clinic_room.png"));
   
+  // 2. Clean up deprecated static files that intercept Next.js routing at '/'
+  const filesToDelete = ["index.html", "style.css", "app.js"];
+  filesToDelete.forEach(file => {
+    const filePath = path.join(publicDir, file);
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+      console.log(`Successfully cleaned up deprecated static file: ${file}`);
+    }
+  });
+
   console.log("Clinic assets synced successfully in public/ directory!");
 } catch (e: any) {
-  console.error("Config assets copier error:", e.message);
+  console.error("Config assets sync/cleanup error:", e.message);
 }
 
 const nextConfig: NextConfig = {
