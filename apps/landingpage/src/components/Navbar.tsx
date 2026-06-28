@@ -37,7 +37,7 @@ export default function Navbar({ onAgendar }: NavbarProps) {
       <header 
         className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 h-[90px] flex items-center ${
           scrolled 
-            ? "bg-white/90 backdrop-blur-md shadow-sm border-b border-[#E7E7E7]/30" 
+            ? "bg-white/70 backdrop-blur-md shadow-premium-sm border-b border-white/20" 
             : "bg-white border-b border-transparent"
         }`}
       >
@@ -122,7 +122,7 @@ export default function Navbar({ onAgendar }: NavbarProps) {
 
       {/* Mobile Menu Drawer */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 w-full h-screen bg-white z-50 p-6 flex flex-col gap-8 lg:hidden">
+        <div className="fixed inset-0 w-full h-screen bg-white/80 backdrop-blur-xl z-50 p-6 flex flex-col gap-8 lg:hidden border-l border-white/20">
           <div className="flex items-center justify-between">
             <a href="#" className="flex items-center gap-3">
               <img src="/logo.png" alt="Logo" className="w-8 h-8 object-contain" />
