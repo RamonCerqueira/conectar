@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "react";
 import { Heart, Activity, ShieldCheck, Users, Milestone } from "lucide-react";
 import GradientButton from "./GradientButton";
 
