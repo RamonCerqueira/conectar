@@ -9,7 +9,8 @@ const targetApps = [
   'apps/frontend',
   'apps/backend',
   'apps/ai-service',
-  'apps/whatsapp-service'
+  'apps/whatsapp-service',
+  'apps/landingpage'
 ];
 
 function syncEnv() {
