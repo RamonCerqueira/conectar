@@ -44,10 +44,11 @@ api.interceptors.response.use(
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return api(originalRequest);
       } catch (refreshError) {
-        // Refresh token expirado — redireciona para login
+        // Refresh token expirado — redireciona para login correspondente
         setAccessToken(null);
         if (typeof window !== "undefined") {
-          window.location.href = "/login";
+          const isPortal = window.location.pathname.startsWith("/portal");
+          window.location.href = isPortal ? "/portal/login" : "/login";
         }
         return Promise.reject(refreshError);
       }

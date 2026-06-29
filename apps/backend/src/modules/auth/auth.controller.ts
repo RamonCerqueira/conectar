@@ -34,10 +34,11 @@ export class AuthController {
       await this.authService.login(dto);
 
     // Refresh Token em cookie HttpOnly (não acessível via JS)
+    const isProd = process.env.NODE_ENV === 'production';
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      secure: isProd,
+      sameSite: isProd ? 'none' : 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 dias
       path: '/api/auth',
     });
@@ -56,10 +57,11 @@ export class AuthController {
     const { accessToken, refreshToken, responsavel } =
       await this.authService.loginResponsavel(dto);
 
+    const isProd = process.env.NODE_ENV === 'production';
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      secure: isProd,
+      sameSite: isProd ? 'none' : 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000,
       path: '/api/auth',
     });
@@ -79,10 +81,11 @@ export class AuthController {
     const { accessToken, refreshToken } =
       await this.authService.refreshTokens(token);
 
+    const isProd = process.env.NODE_ENV === 'production';
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      secure: isProd,
+      sameSite: isProd ? 'none' : 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000,
       path: '/api/auth',
     });
@@ -102,7 +105,13 @@ export class AuthController {
     const token = req.cookies?.refreshToken;
     await this.authService.logout(token, user.id);
 
-    res.clearCookie('refreshToken', { path: '/api/auth' });
+    const isProd = process.env.NODE_ENV === 'production';
+    res.clearCookie('refreshToken', {
+      path: '/api/auth',
+      secure: isProd,
+      sameSite: isProd ? 'none' : 'lax',
+      httpOnly: true,
+    });
     return { message: 'Logout realizado com sucesso' };
   }
 

@@ -91,7 +91,7 @@ export class AuthService {
 
     const storedToken = await this.prisma.refreshToken.findUnique({
       where: { token },
-      include: { usuario: true },
+      include: { usuario: true, responsavel: true },
     });
 
     if (!storedToken || storedToken.expiresAt < new Date()) {
@@ -101,11 +101,21 @@ export class AuthService {
     // Rotação de refresh token (invalida o antigo)
     await this.prisma.refreshToken.delete({ where: { token } });
 
-    return this.generateTokens(
-      storedToken.usuario.id,
-      storedToken.usuario.email,
-      storedToken.usuario.perfil as any,
-    );
+    if (storedToken.usuario) {
+      return this.generateTokens(
+        storedToken.usuario.id,
+        storedToken.usuario.email,
+        storedToken.usuario.perfil as any,
+      );
+    } else if (storedToken.responsavel) {
+      return this.generateTokens(
+        storedToken.responsavel.id,
+        storedToken.responsavel.email!,
+        'PAIS',
+      );
+    } else {
+      throw new UnauthorizedException('Token inválido');
+    }
   }
 
   async logout(token: string, usuarioId: string) {
@@ -115,12 +125,18 @@ export class AuthService {
         .catch(() => {}); // Ignora se já foi deletado
     }
 
-    // Log de auditoria
+    // Log de auditoria - evita quebrar se for responsável
+    const usuarioExists = await this.prisma.usuario.findUnique({
+      where: { id: usuarioId },
+      select: { id: true },
+    });
+
     await this.prisma.auditLog.create({
       data: {
-        usuarioId,
+        usuarioId: usuarioExists ? usuarioId : null,
         acao: 'LOGOUT',
         recurso: 'auth',
+        dados: !usuarioExists ? { responsavelId: usuarioId } : null,
       },
     });
   }
@@ -160,10 +176,13 @@ export class AuthService {
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 7);
 
+    const isResponsavel = perfil === 'PAIS';
+
     await this.prisma.refreshToken.create({
       data: {
         token: refreshTokenRaw,
-        usuarioId,
+        usuarioId: isResponsavel ? null : usuarioId,
+        responsavelId: isResponsavel ? usuarioId : null,
         expiresAt,
       },
     });

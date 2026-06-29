@@ -178,13 +178,15 @@ model Usuario {
 }
 
 model RefreshToken {
-  id         String   @id @default(uuid())
-  token      String   @unique
-  usuarioId  String
-  expiresAt  DateTime
-  criadoEm  DateTime @default(now())
+  id            String       @id @default(uuid())
+  token         String       @unique
+  usuarioId     String?
+  responsavelId String?
+  expiresAt     DateTime
+  criadoEm      DateTime     @default(now())
 
-  usuario Usuario @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  usuario     Usuario?     @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  responsavel Responsavel? @relation(fields: [responsavelId], references: [id], onDelete: Cascade)
 
   @@index([token])
   @@map("refresh_tokens")
@@ -386,24 +388,25 @@ model Diagnostico {
 }
 
 model Responsavel {
-  id           String          @id @default(uuid())
-  pacienteId   String
-  nome         String
-  cpf          String?
-  rg           String?
-  telefone     String?
-  whatsapp     String?
-  email        String?
-  grauParent   TipoResponsavel
-  profissao    String?
-  isPrincipal  Boolean         @default(false)
-  criadoEm    DateTime        @default(now())
+  id            String          @id @default(uuid())
+  pacienteId    String
+  nome          String
+  cpf           String?
+  rg            String?
+  telefone      String?
+  whatsapp      String?
+  email         String?
+  grauParent    TipoResponsavel
+  profissao     String?
+  isPrincipal   Boolean         @default(false)
+  criadoEm      DateTime        @default(now())
 
   // Portal dos pais
-  senhaPortal  String?
-  ativoPortal  Boolean         @default(false)
+  senhaPortal   String?
+  ativoPortal   Boolean         @default(false)
 
-  paciente Paciente @relation(fields: [pacienteId], references: [id], onDelete: Cascade)
+  paciente      Paciente        @relation(fields: [pacienteId], references: [id], onDelete: Cascade)
+  refreshTokens RefreshToken[]
 
   @@map("responsaveis")
 }
