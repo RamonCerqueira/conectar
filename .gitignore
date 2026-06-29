@@ -52,3 +52,6 @@ storage/
 
 # TypeScript
 *.tsbuildinfo
+
+# VPS runbook
+vps.md

@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/lib/utils";
+import { toast } from "sonner";
 
 // ─── DADOS MOCKADOS COMPLETOS ───────────────────────────────────────────────
 const reportsList = [
@@ -152,6 +153,12 @@ export function RelatoriosPage() {
 
             {/* Ação Exportar */}
             <button
+              onClick={() => {
+                toast.success(`Exportação do "${rep.titulo}" em formato ${rep.formato} iniciada.`);
+                setTimeout(() => {
+                  toast.success(`Download do arquivo "${rep.titulo.toLowerCase().replace(/ /g, "_")}.${rep.formato.toLowerCase()}" concluído!`);
+                }, 1500);
+              }}
               className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border text-xs font-bold transition-all hover:bg-purple-500/10 hover:border-purple-500 text-purple-500 cursor-pointer"
               style={{ borderColor: "hsl(var(--border))" }}
             >

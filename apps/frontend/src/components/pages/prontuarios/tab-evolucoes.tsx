@@ -6,6 +6,7 @@ import { Search, Clock, MessageSquare, Sparkles, X, Activity, ClipboardList, Use
 import { cn, formatDate } from "@/lib/utils";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
+import { saveOfflineProntuario } from "@/lib/offline-sync";
 
 interface TabEvolucoesProps {
   paciente: any;
@@ -47,12 +48,15 @@ export function TabEvolucoes({ paciente, prontuarios, isModalOpen, setIsModalOpe
 
   const handleCreateProntuario = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    const isOffline = typeof window !== "undefined" && !navigator.onLine;
+
     const newPr = {
       id: `pr-${Date.now()}`,
       pacienteId: paciente.id,
       pacienteNome: paciente.nome,
       data: new Date().toISOString(),
-      profissional: "Dra. Ana Lima (Psicopedagoga)",
+      profissional: { usuario: { nome: "Dra. Ana Lima" }, especialidade: "Psicopedagogia" },
       queixaPrincipal: queixa,
       objetivosSessao: objetivos,
       atividadesRealizadas: atividades,
@@ -60,7 +64,37 @@ export function TabEvolucoes({ paciente, prontuarios, isModalOpen, setIsModalOpe
       comportamento: comportamento,
       orientacoesPais: orientacoes,
       proximaMeta: proximaMeta,
+      isOfflinePending: isOffline,
     };
+
+    if (isOffline) {
+      saveOfflineProntuario({
+        id: newPr.id,
+        pacienteId: paciente.id,
+        queixaPrincipal: queixa,
+        objetivosSessao: objetivos,
+        atividadesRealizadas: atividades,
+        resultados: resultados,
+        comportamento: comportamento,
+        orientacoesPais: orientacoes,
+        proximaMeta: proximaMeta,
+        data: newPr.data,
+        pacienteNome: paciente.nome,
+        profissional: "Dra. Ana Lima (Psicopedagoga)"
+      });
+      toast.warning("Você está offline! A evolução foi salva localmente e será enviada automaticamente quando a conexão retornar.");
+      onAddEvolution(newPr);
+      setIsModalOpen(false);
+      // Reset Form
+      setQueixa("");
+      setObjetivos("");
+      setAtividades("");
+      setResultados("");
+      setComportamento("");
+      setOrientacoes("");
+      setProximaMeta("");
+      return;
+    }
 
     try {
       await api.post("/prontuarios", {
@@ -72,12 +106,27 @@ export function TabEvolucoes({ paciente, prontuarios, isModalOpen, setIsModalOpe
         comportamento: comportamento,
         orientacoesPais: orientacoes,
         proximaMeta: proximaMeta,
-        data: new Date().toISOString()
+        data: newPr.data
       });
       toast.success("Evolução salva!");
     } catch (err) {
-      console.warn("Saved to demo state only.");
-      toast.success("Evolução salva (Demonstração)");
+      console.warn("Salvando offline devido a erro de rede:", err);
+      saveOfflineProntuario({
+        id: newPr.id,
+        pacienteId: paciente.id,
+        queixaPrincipal: queixa,
+        objetivosSessao: objetivos,
+        atividadesRealizadas: atividades,
+        resultados: resultados,
+        comportamento: comportamento,
+        orientacoesPais: orientacoes,
+        proximaMeta: proximaMeta,
+        data: newPr.data,
+        pacienteNome: paciente.nome,
+        profissional: "Dra. Ana Lima (Psicopedagoga)"
+      });
+      newPr.isOfflinePending = true;
+      toast.warning("Erro de rede. A evolução foi salva localmente para sincronização posterior.");
     }
 
     onAddEvolution(newPr);
@@ -194,7 +243,14 @@ export function TabEvolucoes({ paciente, prontuarios, isModalOpen, setIsModalOpe
                     <p className="text-xs font-bold text-purple-600 dark:text-purple-400 font-mono">
                       {profName}
                     </p>
-                    <h4 className="font-bold text-sm text-foreground mt-0.5">Evolução Clínica de Sessão</h4>
+                    <h4 className="font-bold text-sm text-foreground mt-0.5 flex items-center gap-1.5 flex-wrap">
+                      <span>Evolução Clínica de Sessão</span>
+                      {pr.isOfflinePending && (
+                        <span className="px-2 py-0.5 rounded bg-amber-500/10 text-amber-500 font-bold text-[9px] uppercase tracking-wider animate-pulse border border-amber-500/20">
+                          Pendente de Envio
+                        </span>
+                      )}
+                    </h4>
                   </div>
                 </div>
 

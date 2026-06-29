@@ -747,15 +747,16 @@ model Laudo {
 // ─────────────────────────────────────────────────────────────────────────────
 
 model ExercicioCasa {
-  id         String   @id @default(uuid())
-  pacienteId String
-  titulo     String
-  descricao  String?
-  tipo       String   // pdf, video, imagem, jogo, orientacao
-  caminho    String?
-  url        String?
-  realizado  Boolean? // null = não respondido, true = feito, false = não feito
-  criadoEm  DateTime @default(now())
+  id                   String   @id @default(uuid())
+  pacienteId           String
+  titulo               String
+  descricao            String?
+  tipo                 String   // pdf, video, imagem, jogo, orientacao
+  caminho              String?
+  url                  String?
+  realizado            Boolean? // null = não respondido, true = feito, false = não feito
+  observacaoResponsavel String?  @db.Text
+  criadoEm            DateTime @default(now())
 
   paciente Paciente @relation(fields: [pacienteId], references: [id])
 

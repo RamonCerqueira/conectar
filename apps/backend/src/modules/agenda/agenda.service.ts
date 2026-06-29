@@ -17,6 +17,25 @@ export class AgendaService {
   async create(dto: CreateAgendamentoDto) {
     const { repetirSemanal, semanas, ...dados } = dto;
 
+    // Se já tiver uma marcação futura, não deixar marcar outra data anterior a ela
+    const agendamentoFuturo = await this.prisma.agendamento.findFirst({
+      where: {
+        pacienteId: dados.pacienteId,
+        data: { gt: new Date() },
+        status: { in: ['AGENDADO', 'CONFIRMADO'] },
+      },
+      orderBy: { data: 'asc' },
+    });
+
+    if (agendamentoFuturo) {
+      const novaData = new Date(dados.data);
+      if (novaData < agendamentoFuturo.data) {
+        throw new BadRequestException(
+          `Não é permitido agendar uma consulta em data anterior a uma marcação futura ativa (${agendamentoFuturo.data.toLocaleDateString('pt-BR')}). Solicite a desmarcação da consulta futura ao corpo administrativo.`
+        );
+      }
+    }
+
     // Verificar conflito de sala
     if (dados.salaId) {
       await this.verificarConflito(dados.salaId, dados.data, dados.dataFim);
@@ -278,6 +297,36 @@ export class AgendaService {
 
     this.gateway.emitNovoAgendamento({ grupo: grupoRepeticao, quantidade: semanas });
     return agendamentos;
+  }
+
+  async checkinQrCode(pacienteId: string, token: string) {
+    if (token !== 'totem-checkin-hoje') {
+      throw new BadRequestException('Token de check-in inválido ou expirado.');
+    }
+
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+
+    const todayEnd = new Date();
+    todayEnd.setHours(23, 59, 59, 999);
+
+    const agendamento = await this.prisma.agendamento.findFirst({
+      where: {
+        pacienteId,
+        data: {
+          gte: todayStart,
+          lte: todayEnd,
+        },
+        status: { in: ['AGENDADO', 'CONFIRMADO'] },
+      },
+      orderBy: { data: 'asc' },
+    });
+
+    if (!agendamento) {
+      throw new BadRequestException('Nenhum agendamento ativo encontrado para hoje. Fale com a recepção.');
+    }
+
+    return this.updateStatus(agendamento.id, 'PRESENTE');
   }
 
   private includeRelacoes() {

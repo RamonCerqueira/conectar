@@ -35,6 +35,19 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  experimental: {
+    optimizePackageImports: [
+      "recharts",
+      "lucide-react",
+      "@fullcalendar/react",
+      "@fullcalendar/daygrid",
+      "@fullcalendar/timegrid",
+      "@fullcalendar/interaction",
+      "@fullcalendar/resource",
+      "@fullcalendar/resource-timegrid",
+      "@fullcalendar/list"
+    ]
+  }
 };
 
 export default nextConfig;

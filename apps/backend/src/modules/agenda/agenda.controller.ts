@@ -56,6 +56,14 @@ export class AgendaController {
     return this.agendaService.updateStatus(id, body.status, body.justificativa);
   }
 
+  @Post('checkin-qrcode')
+  @ApiOperation({ summary: 'Check-in de paciente por leitura de QR Code do Totem' })
+  checkinQrCode(
+    @Body() body: { pacienteId: string; token: string },
+  ) {
+    return this.agendaService.checkinQrCode(body.pacienteId, body.token);
+  }
+
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Cancelar agendamento' })

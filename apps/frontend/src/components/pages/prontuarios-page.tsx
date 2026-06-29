@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 import { Prontuario } from "@/types/prontuario";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
+import { getOfflineProntuarios } from "@/lib/offline-sync";
 
 // Imports of refactored tab components
 import { PacienteProfileBanner } from "./prontuarios/paciente-profile-banner";
@@ -97,11 +98,14 @@ export function ProntuariosPage({ defaultTab = "evolucao" }: ProntuariosPageProp
     // 1. Evolutions
     try {
       const res = await api.get(`/prontuarios/paciente/${pacId}`);
-      setProntuarios(res.data || []);
+      const serverPronts = res.data || [];
+      const offlinePronts = getOfflineProntuarios().filter((p) => p.pacienteId === pacId);
+      setProntuarios([...offlinePronts, ...serverPronts]);
     } catch (e) {
-      setProntuarios([]);
+      const offlinePronts = getOfflineProntuarios().filter((p) => p.pacienteId === pacId);
+      setProntuarios(offlinePronts);
     }
-    
+
     // 2. Plans / Metas
     try {
       const res = await api.get(`/plano-terapeutico/paciente/${pacId}`);
@@ -168,7 +172,7 @@ export function ProntuariosPage({ defaultTab = "evolucao" }: ProntuariosPageProp
         if (plano.id === planoId) {
           return {
             ...plano,
-            metas: plano.metas.map((meta) => {
+            metas: plano.metas.map((meta: { id: string; historico: any; }) => {
               if (meta.id === metaId) {
                 const histItem = {
                   data: new Date().toISOString().split("T")[0],
@@ -214,7 +218,7 @@ export function ProntuariosPage({ defaultTab = "evolucao" }: ProntuariosPageProp
 
   return (
     <div className="space-y-6">
-      
+
       {/* ─── SEARCH & AUTOCOMPLETE BAR (TOP ALIGN) ─── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 z-40 relative">
         <div className="relative w-full max-w-xl">
@@ -339,7 +343,7 @@ export function ProntuariosPage({ defaultTab = "evolucao" }: ProntuariosPageProp
       {/* ─── MAIN WORKSPACE CONTENTS ─── */}
       {activePaciente && (
         <div className="space-y-6">
-          
+
           {/* Tabs bar */}
           <div className="border-b border-border">
             <div className="flex overflow-x-auto scrollbar-none">
