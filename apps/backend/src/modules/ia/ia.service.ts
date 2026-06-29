@@ -12,7 +12,7 @@ export class IaService {
   ) {}
 
   private get aiServiceUrl(): string {
-    return this.config.get('AI_SERVICE_URL') || 'http://localhost:5003';
+    return this.config.get('AI_SERVICE_URL') || 'http://localhost:8003';
   }
 
   // ─── Resumo automático de sessão ─────────────────────────────

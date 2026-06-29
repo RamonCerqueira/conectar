@@ -9,7 +9,7 @@ export class ComunicacaoService {
   constructor(private config: ConfigService, private prisma: PrismaService) {}
 
   private get whatsappServiceUrl(): string {
-    return this.config.get('WHATSAPP_SERVICE_URL') || 'http://localhost:3002';
+    return this.config.get('WHATSAPP_SERVICE_URL') || 'http://localhost:8002';
   }
 
   async sendEmail(to: string, subject: string, body: string) {

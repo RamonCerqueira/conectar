@@ -73,7 +73,7 @@ async function bootstrap() {
   }
 
   // ─── Start ───────────────────────────────────────────────────
-  const port = process.env.BACKEND_PORT || 5001;
+  const port = process.env.BACKEND_PORT || 8001;
   await app.listen(port);
   console.log(`\n🏥 Instituto Conectar API rodando em: http://localhost:${port}/api`);
   console.log(`📖 Swagger disponível em: http://localhost:${port}/api/docs\n`);

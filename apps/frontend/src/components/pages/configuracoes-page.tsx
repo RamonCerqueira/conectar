@@ -496,7 +496,7 @@ export function ConfiguracoesPage() {
                   <label className="text-xs font-semibold text-muted-foreground">Servidor WhatsApp Microservice URL</label>
                   <input
                     type="text"
-                    defaultValue="http://localhost:5002"
+                    defaultValue="http://localhost:8002"
                     className="w-full p-2.5 rounded-xl border bg-background text-foreground outline-none"
                   />
                   <p className="text-[10px] text-muted-foreground">Endpoints do microserviço de gatilhos automáticos do WhatsApp Web.</p>

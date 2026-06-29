@@ -142,28 +142,28 @@ Você pode entrar na pasta da aplicação correspondente e rodar o script `dev` 
     cd apps/frontend
     pnpm dev
     ```
-    *Roda em: http://localhost:5000*
+    *Roda em: http://localhost:8000*
 
 *   **Backend (NestJS API):**
     ```bash
     cd apps/backend
     pnpm dev
     ```
-    *Roda em: http://localhost:3001/api (Swagger disponível em http://localhost:3001/api/docs)*
+    *Roda em: http://localhost:8001/api (Swagger disponível em http://localhost:8001/api/docs)*
 
 *   **AI Service (Gemini Microservice):**
     ```bash
     cd apps/ai-service
     pnpm dev
     ```
-    *Roda em: http://localhost:5003*
+    *Roda em: http://localhost:8003*
 
 *   **WhatsApp Service (whatsapp-web.js):**
     ```bash
     cd apps/whatsapp-service
     pnpm dev
     ```
-    *Roda em: http://localhost:3002*
+    *Roda em: http://localhost:8002*
 
 ---
 
@@ -171,10 +171,11 @@ Você pode entrar na pasta da aplicação correspondente e rodar o script `dev` 
 
 | Serviço | Porta Local | Descrição |
 |---|---|---|
-| **Frontend** | `5000` | Interface Next.js do usuário |
-| **Backend** | `3001` | API Rest NestJS, WebSockets, etc. |
-| **WhatsApp Service** | `3002` | Gerenciamento de sessão e envio do WhatsApp |
-| **AI Service** | `5003` | Integração de IA com Google Gemini |
+| **Frontend** | `8000` | Interface Next.js do usuário |
+| **Backend** | `8001` | API Rest NestJS, WebSockets, etc. |
+| **WhatsApp Service** | `8002` | Gerenciamento de sessão e envio do WhatsApp |
+| **AI Service** | `8003` | Integração de IA com Google Gemini |
+| **Landing Page** | `8005` | Site institucional / Landing page |
 | **PostgreSQL** | `5432` | Banco de dados relacional primário |
 | **Redis** | `6379` | Cache e processamento de filas com BullMQ |
 
