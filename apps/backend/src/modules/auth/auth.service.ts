@@ -136,7 +136,7 @@ export class AuthService {
         usuarioId: usuarioExists ? usuarioId : null,
         acao: 'LOGOUT',
         recurso: 'auth',
-        dados: !usuarioExists ? { responsavelId: usuarioId } : null,
+        dados: !usuarioExists ? { responsavelId: usuarioId } : undefined,
       },
     });
   }
