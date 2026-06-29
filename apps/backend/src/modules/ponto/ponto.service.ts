@@ -265,7 +265,7 @@ export class PontoService {
     colaboradorIds: string[];
   }) {
     const { mesReferencia, diasUteis, colaboradorIds } = data;
-    const launchedExpenses = [];
+    const launchedExpenses: any[] = [];
 
     for (const colabId of colaboradorIds) {
       const colab = await this.prisma.usuario.findUnique({

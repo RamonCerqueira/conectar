@@ -6,7 +6,8 @@ module.exports = {
       args: "apps/backend/dist/main.js",
       env: {
         NODE_ENV: "production",
-        PORT: 8001
+        PORT: 8001,
+        BACKEND_PORT: 8001
       }
     },
     {
