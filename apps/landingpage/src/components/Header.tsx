@@ -10,6 +10,8 @@ interface HeaderProps {
 export default function Header({ onAgendar }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:5000";
+
   return (
     <>
       <header className="fixed top-0 left-0 w-full z-50 bg-white/95 backdrop-blur-md border-b border-zinc-100 transition-all">
@@ -34,8 +36,8 @@ export default function Header({ onAgendar }: HeaderProps) {
             <a href="#especialidades" className="hover:text-[#8e7bbe] transition-colors">Especialidades</a>
             <a href="#equipe" className="hover:text-[#8e7bbe] transition-colors">Nossa Equipe</a>
             <a href="#estrutura" className="hover:text-[#8e7bbe] transition-colors">Estrutura</a>
-            <a href="http://localhost:3000/portal/login" target="_blank" rel="noopener noreferrer" className="hover:text-[#db2777] transition-colors">Portal dos Pais</a>
-            <a href="http://localhost:3000/login" target="_blank" rel="noopener noreferrer" className="hover:text-[#3fbaab] transition-colors">Área do Profissional</a>
+            <a href={`${appUrl}/portal/login`} target="_blank" rel="noopener noreferrer" className="hover:text-[#db2777] transition-colors">Portal dos Pais</a>
+            <a href={`${appUrl}/login`} target="_blank" rel="noopener noreferrer" className="hover:text-[#3fbaab] transition-colors">Área do Profissional</a>
           </nav>
 
           <div className="hidden lg:flex items-center gap-2.5">
@@ -85,8 +87,8 @@ export default function Header({ onAgendar }: HeaderProps) {
             <a href="#especialidades" onClick={() => setMobileMenuOpen(false)} className="py-2 border-b">Especialidades</a>
             <a href="#equipe" onClick={() => setMobileMenuOpen(false)} className="py-2 border-b">Nossa Equipe</a>
             <a href="#estrutura" onClick={() => setMobileMenuOpen(false)} className="py-2 border-b">Estrutura</a>
-            <a href="http://localhost:3000/portal/login" target="_blank" rel="noopener noreferrer" className="py-2 border-b text-[#db2777]">Portal dos Pais</a>
-            <a href="http://localhost:3000/login" target="_blank" rel="noopener noreferrer" className="py-2 text-[#3fbaab]">Área do Profissional</a>
+            <a href={`${appUrl}/portal/login`} target="_blank" rel="noopener noreferrer" className="py-2 border-b text-[#db2777]">Portal dos Pais</a>
+            <a href={`${appUrl}/login`} target="_blank" rel="noopener noreferrer" className="py-2 text-[#3fbaab]">Área do Profissional</a>
           </nav>
         </div>
       )}

@@ -12,6 +12,8 @@ export default function Navbar({ onAgendar }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
+  
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:5000";
 
   useEffect(() => {
     const handleScroll = () => {
@@ -72,7 +74,7 @@ export default function Navbar({ onAgendar }: NavbarProps) {
           {/* Right Action buttons */}
           <div className="hidden lg:flex items-center gap-3.5">
             <a 
-              href="http://localhost:3000/portal/login" 
+              href={`${appUrl}/portal/login`} 
               target="_blank" 
               rel="noopener noreferrer"
               className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 hover:text-[#8E7BBE] transition-colors"
@@ -80,7 +82,7 @@ export default function Navbar({ onAgendar }: NavbarProps) {
               Portal dos Pais
             </a>
             <a 
-              href="http://localhost:3000/login" 
+              href={`${appUrl}/login`} 
               target="_blank" 
               rel="noopener noreferrer"
               className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 hover:text-[#8E7BBE] transition-colors mr-2"
@@ -147,7 +149,7 @@ export default function Navbar({ onAgendar }: NavbarProps) {
             
             {/* Portals inside Mobile Menu */}
             <a 
-              href="http://localhost:3000/portal/login" 
+              href={`${appUrl}/portal/login`} 
               target="_blank" 
               rel="noopener noreferrer"
               onClick={() => setMobileMenuOpen(false)} 
@@ -156,7 +158,7 @@ export default function Navbar({ onAgendar }: NavbarProps) {
               Portal dos Pais
             </a>
             <a 
-              href="http://localhost:3000/login" 
+              href={`${appUrl}/login`} 
               target="_blank" 
               rel="noopener noreferrer"
               onClick={() => setMobileMenuOpen(false)} 
