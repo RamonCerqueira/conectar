@@ -158,12 +158,12 @@ export class FinanceiroService {
     const { refMes } = query;
     return this.prisma.adiantamento.findMany({
       where: {
-        ...(refMes && { referenciaMes: refMes }),
+        ...(refMes && { mesReferencia: refMes }),
       },
       include: {
         usuario: { select: { id: true, nome: true, email: true } },
       },
-      orderBy: { data: 'desc' },
+      orderBy: { criadoEm: 'desc' },
     });
   }
 
@@ -172,9 +172,8 @@ export class FinanceiroService {
       data: {
         usuarioId: data.usuarioId,
         valor: data.valor,
-        referenciaMes: data.referenciaMes,
-        observacoes: data.observacoes,
-        pago: false,
+        mesReferencia: data.referenciaMes,
+        status: 'PENDENTE',
       },
     });
   }
@@ -281,7 +280,7 @@ export class FinanceiroService {
 
   async getPrevisaoDRE() {
     const today = new Date();
-    const result = [];
+    const result: any[] = [];
 
     // Calculate baseline from active contracts
     const activeContracts = await this.prisma.contrato.findMany({
