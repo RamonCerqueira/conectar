@@ -72,7 +72,7 @@ export function ContratosPage() {
   const loadPacientes = async () => {
     try {
       const res = await api.get("/pacientes");
-      setPacientes(res.data || []);
+      setPacientes(Array.isArray(res.data) ? res.data : (res.data?.data || []));
     } catch (err) {
       console.error(err);
     }

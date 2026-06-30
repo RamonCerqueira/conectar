@@ -25,7 +25,7 @@ export function PacientesPage() {
     setLoading(true);
     try {
       const res = await api.get("/pacientes");
-      const data = res.data || [];
+      const data = Array.isArray(res.data) ? res.data : (res.data?.data || []);
       const backendPacientes = data.map((p: any) => ({
         ...p,
         diagnosticos: p.diagnosticos || [],

@@ -77,7 +77,7 @@ export function ProntuariosPage({ defaultTab = "evolucao" }: ProntuariosPageProp
     const init = async () => {
       try {
         const res = await api.get("/pacientes");
-        const data = res.data || [];
+        const data = Array.isArray(res.data) ? res.data : (res.data?.data || []);
         if (data.length > 0) {
           const mapped = data.map((p: any) => ({
             ...p,

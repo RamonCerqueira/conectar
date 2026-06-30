@@ -57,7 +57,7 @@ export function IaPage() {
   useEffect(() => {
     api.get("/pacientes")
       .then((res) => {
-        const data = res.data || [];
+        const data = Array.isArray(res.data) ? res.data : (res.data?.data || []);
         if (data.length > 0) {
           setPacientes(data);
           setPacienteId(data[0].id);
