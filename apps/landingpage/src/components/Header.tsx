@@ -10,7 +10,8 @@ interface HeaderProps {
 export default function Header({ onAgendar }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:5000";
+  const isProd = process.env.NODE_ENV === "production";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || (isProd ? "https://app.institutoconectar.genioplay.com.br" : "http://localhost:8000");
 
   return (
     <>
