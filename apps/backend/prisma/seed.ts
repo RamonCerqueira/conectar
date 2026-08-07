@@ -92,7 +92,7 @@ async function main() {
       telefone: '(11) 97777-1002',
     },
   });
-  //Ramondev123Conectar
+
   const userRosana = await prisma.usuario.upsert({
     where: { email: 'dra.rosana@conectar.com' },
     update: { senha: hashedPassword },
