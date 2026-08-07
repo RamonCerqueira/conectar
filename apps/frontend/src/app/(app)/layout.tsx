@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { AppHeader } from "@/components/layout/app-header";
+import { ChatFloatingDock } from "@/components/chat/chat-floating-dock";
 
 export const metadata: Metadata = {
   title: {
@@ -22,6 +23,7 @@ export default function AppLayout({
         <main className="flex-1 overflow-auto p-6" style={{ background: "hsl(var(--background-soft))" }}>
           {children}
         </main>
+        <ChatFloatingDock />
       </div>
     </div>
   );

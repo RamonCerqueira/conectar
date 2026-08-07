@@ -18,6 +18,7 @@ import {
   X,
   Smartphone,
   CheckCircle2,
+  MessageSquare,
 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -215,6 +216,26 @@ export function AppHeader() {
           id="btn-qrcode-checkin"
         >
           <QrCode className="h-4 w-4" />
+        </motion.button>
+
+        {/* Chat Interno 1:1 */}
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => {
+            const btn = document.getElementById("btn-chat-flutuante");
+            if (btn) btn.click();
+          }}
+          className="relative p-2 rounded-lg transition-colors cursor-pointer"
+          style={{
+            background: "hsl(var(--muted))",
+            color: "hsl(var(--muted-foreground))",
+          }}
+          title="Abrir Chat Interno 1:1 (Recepção <-> Salas)"
+          id="btn-chat-header"
+        >
+          <MessageSquare className="h-4 w-4 text-purple-400" />
+          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-purple-500 animate-pulse"></span>
         </motion.button>
 
         {/* Notificações */}

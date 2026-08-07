@@ -32,6 +32,8 @@ import { MateriaisModule } from './modules/materiais/materiais.module';
 import { WebsocketModule } from './modules/websocket/websocket.module';
 import { PontoModule } from './modules/ponto/ponto.module';
 
+import { ChatModule } from './modules/chat/chat.module';
+
 @Module({
   imports: [
     // ─── Configuração ─────────────────────────────────────────
@@ -98,6 +100,7 @@ import { PontoModule } from './modules/ponto/ponto.module';
     IaModule,
     MateriaisModule,
     PontoModule,
+    ChatModule,
   ],
 })
 export class AppModule {}

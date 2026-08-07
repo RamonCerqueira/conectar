@@ -165,13 +165,15 @@ model Usuario {
   atualizadoEm DateTime       @updatedAt
 
   // Relações
-  profissional    Profissional?
-  refreshTokens   RefreshToken[]
-  auditLogs       AuditLog[]
-  notificacoes    Notificacao[]
-  pontoRecords    RegistroPonto[]
-  fechamentos     FechamentoCaixa[]
-  adiantamentos   Adiantamento[]
+  profissional            Profissional?
+  refreshTokens           RefreshToken[]
+  auditLogs               AuditLog[]
+  notificacoes            Notificacao[]
+  pontoRecords            RegistroPonto[]
+  fechamentos             FechamentoCaixa[]
+  adiantamentos           Adiantamento[]
+  mensagensChatEnviadas   MensagemChatInterno[] @relation("mensagensEnviadas")
+  mensagensChatRecebidas  MensagemChatInterno[] @relation("mensagensRecebidas")
 
   @@index([email])
   @@map("usuarios")
@@ -1003,3 +1005,24 @@ model TriagemLead {
 
   @@map("triagem_leads")
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  CHAT INTERNO 1:1 (RECEPÇÃO <-> SALAS/PROFISSIONAIS)
+// ─────────────────────────────────────────────────────────────────────────────
+
+model MensagemChatInterno {
+  id            String    @id @default(uuid())
+  remetenteId   String
+  remetente     Usuario   @relation("mensagensEnviadas", fields: [remetenteId], references: [id], onDelete: Cascade)
+  destinatarioId String
+  destinatario  Usuario   @relation("mensagensRecebidas", fields: [destinatarioId], references: [id], onDelete: Cascade)
+  conteudo      String    @db.Text
+  lida          Boolean   @default(false)
+  lidaEm        DateTime?
+  criadoEm      DateTime  @default(now())
+
+  @@index([remetenteId, destinatarioId])
+  @@index([destinatarioId, lida])
+  @@map("mensagens_chat_interno")
+}
+
