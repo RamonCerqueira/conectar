@@ -52,7 +52,7 @@ export function AgendaPage() {
     try {
       const [profsRes, waitRes] = await Promise.all([
         api.get("/profissionais"),
-        api.get("/lista-espera").catch(() => ({ data: [] }))
+        api.get("/agenda/lista-espera").catch(() => ({ data: [] }))
       ]);
 
       const mappedProfs = (profsRes.data || []).map((p: any) => ({
