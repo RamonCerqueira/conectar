@@ -67,12 +67,12 @@ async function main() {
   });
 
   // Usuários Terapeutas/Profissionais
-  const userCamila = await prisma.usuario.upsert({
-    where: { email: 'dra.camila@conectar.com' },
+  const userLeliane = await prisma.usuario.upsert({
+    where: { email: 'dra.leliane@conectar.com' },
     update: { senha: hashedPassword },
     create: {
-      nome: 'Dra. Camila Rocha',
-      email: 'dra.camila@conectar.com',
+      nome: 'Dra. Leliane Rocha',
+      email: 'dra.leliane@conectar.com',
       senha: hashedPassword,
       perfil: PerfilUsuario.PSICOLOGO,
       ativo: true,
@@ -92,13 +92,13 @@ async function main() {
       telefone: '(11) 97777-1002',
     },
   });
-
-  const userFernanda = await prisma.usuario.upsert({
-    where: { email: 'dra.fernanda@conectar.com' },
+  //Ramondev123Conectar
+  const userRosana = await prisma.usuario.upsert({
+    where: { email: 'dra.rosana@conectar.com' },
     update: { senha: hashedPassword },
     create: {
-      nome: 'Dra. Fernanda Alves',
-      email: 'dra.fernanda@conectar.com',
+      nome: 'Dra. Rosana Alves',
+      email: 'dra.rosana@conectar.com',
       senha: hashedPassword,
       perfil: PerfilUsuario.FONOAUDIOLOGO,
       ativo: true,
@@ -185,11 +185,11 @@ async function main() {
   // ─────────────────────────────────────────────────────────────────────────────
   console.log('👨‍⚕️ Criando profissionais e vinculando às salas...');
 
-  const profCamila = await prisma.profissional.upsert({
-    where: { usuarioId: userCamila.id },
+  const profLeliane = await prisma.profissional.upsert({
+    where: { usuarioId: userLeliane.id },
     update: {},
     create: {
-      usuarioId: userCamila.id,
+      usuarioId: userLeliane.id,
       tipo: TipoProfissional.PSICOLOGO,
       especialidade: 'Terapia Cognitivo-Comportamental (TCC) e TEA',
       especialidades: ['TCC Infantil', 'Autismo', 'Regulação Emocional'],
@@ -215,11 +215,11 @@ async function main() {
     },
   });
 
-  const profFernanda = await prisma.profissional.upsert({
-    where: { usuarioId: userFernanda.id },
+  const profRosana = await prisma.profissional.upsert({
+    where: { usuarioId: userRosana.id },
     update: {},
     create: {
-      usuarioId: userFernanda.id,
+      usuarioId: userRosana.id,
       tipo: TipoProfissional.FONOAUDIOLOGO,
       especialidade: 'Linguagem, Apraxia de Fala Infantil e Deglutição',
       especialidades: ['Comunicação Alternativa (PECS)', 'Fonoaudiologia Neurofuncional'],
@@ -249,9 +249,9 @@ async function main() {
   await prisma.profissionalSala.deleteMany({});
   await prisma.profissionalSala.createMany({
     data: [
-      { profissionalId: profCamila.id, salaId: sala2.id },
+      { profissionalId: profLeliane.id, salaId: sala2.id },
       { profissionalId: profBeatriz.id, salaId: sala4.id },
-      { profissionalId: profFernanda.id, salaId: sala3.id },
+      { profissionalId: profRosana.id, salaId: sala3.id },
       { profissionalId: profThiago.id, salaId: sala1.id },
     ],
   });
@@ -355,7 +355,7 @@ async function main() {
   await prisma.agendamento.create({
     data: {
       pacienteId: paciente1.id,
-      profissionalId: profCamila.id,
+      profissionalId: profLeliane.id,
       salaId: sala2.id,
       data: new Date(`${hojeStr}T09:00:00.000Z`),
       dataFim: new Date(`${hojeStr}T09:50:00.000Z`),
@@ -368,7 +368,7 @@ async function main() {
   await prisma.agendamento.create({
     data: {
       pacienteId: paciente2.id,
-      profissionalId: profFernanda.id,
+      profissionalId: profRosana.id,
       salaId: sala3.id,
       data: new Date(`${hojeStr}T10:00:00.000Z`),
       dataFim: new Date(`${hojeStr}T10:50:00.000Z`),
@@ -413,7 +413,7 @@ async function main() {
   await prisma.prontuario.create({
     data: {
       pacienteId: paciente1.id,
-      profissionalId: profCamila.id,
+      profissionalId: profLeliane.id,
       queixaPrincipal: 'Dificuldade de manter o foco e reagir com calmaria ao perder jogos.',
       objetivosSessao: 'Trabalhar a tolerância à frustração ao perder nos jogos de tabuleiro.',
       atividadesRealizadas: 'Jogo da Memória e Quebra-cabeça com regras modificadas.',
@@ -518,14 +518,14 @@ async function main() {
     data: [
       {
         remetenteId: recepcao.id,
-        destinatarioId: userCamila.id,
+        destinatarioId: userLeliane.id,
         conteudo: '⚡ O paciente Lucas Mendes acabou de chegar na recepção.',
         lida: true,
         lidaEm: new Date(),
         criadoEm: new Date(Date.now() - 30 * 60 * 1000),
       },
       {
-        remetenteId: userCamila.id,
+        remetenteId: userLeliane.id,
         destinatarioId: recepcao.id,
         conteudo: 'Perfeito! Já estou buscando o paciente na recepção.',
         lida: true,
@@ -534,7 +534,7 @@ async function main() {
       },
       {
         remetenteId: recepcao.id,
-        destinatarioId: userFernanda.id,
+        destinatarioId: userRosana.id,
         conteudo: '⚡ Próximo paciente Sofia Andrade aguardando na sala de espera.',
         lida: false,
         criadoEm: new Date(Date.now() - 5 * 60 * 1000),
@@ -548,8 +548,8 @@ async function main() {
   console.log('• Admin:       admin@conectar.com     | Senha: 123456');
   console.log('• Recepção:    recepcao@conectar.com  | Senha: 123456');
   console.log('• Diretoria:   diretoria@conectar.com | Senha: 123456');
-  console.log('• Psicóloga:   dra.camila@conectar.com| Senha: 123456');
-  console.log('• Fono:        dra.fernanda@conectar.com| Senha: 123456');
+  console.log('• Psicóloga:   dra.leliane@conectar.com| Senha: 123456');
+  console.log('• Fono:        dra.rosana@conectar.com| Senha: 123456');
   console.log('• Portal Pais: mariana.mendes@email.com| Senha: 123456');
   console.log('──────────────────────────────────────────────────────────────\n');
 }
