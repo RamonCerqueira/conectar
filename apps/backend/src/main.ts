@@ -22,11 +22,27 @@ async function bootstrap() {
   app.use(cookieParser(process.env.COOKIE_SECRET));
 
   // ─── CORS ────────────────────────────────────────────────────
+  const allowedOrigins = [
+    'https://app.institutoconectar.genioplay.com.br',
+    'https://institutoconectar.genioplay.com.br',
+    'https://api.institutoconectar.genioplay.com.br',
+    process.env.FRONTEND_URL,
+    'http://localhost:5202',
+    'http://localhost:5303',
+    'http://localhost:8000',
+  ].filter(Boolean);
+
   app.enableCors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:5000',
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.genioplay.com.br')) {
+        callback(null, true);
+      } else {
+        callback(null, true);
+      }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
   });
 
   // ─── Prefixo Global ──────────────────────────────────────────

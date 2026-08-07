@@ -13,7 +13,10 @@ import { Logger } from '@nestjs/common';
 import { ChatService } from './chat.service';
 
 @WebSocketGateway({
-  cors: { origin: process.env.FRONTEND_URL || 'http://localhost:5202', credentials: true },
+  cors: {
+    origin: (origin: string, callback: any) => callback(null, true),
+    credentials: true,
+  },
   namespace: '/',
 })
 export class ChatGateway
