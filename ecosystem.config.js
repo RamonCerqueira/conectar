@@ -6,14 +6,14 @@ module.exports = {
       args: "apps/backend/dist/main.js",
       env: {
         NODE_ENV: "production",
-        PORT: 8001,
-        BACKEND_PORT: 8001
+        PORT: 5101,
+        BACKEND_PORT: 5101
       }
     },
     {
       name: "conectar-frontend",
       script: "pnpm",
-      args: "start --port 8000",
+      args: "start --port 5202",
       cwd: "./apps/frontend",
       env: {
         NODE_ENV: "production"
@@ -22,7 +22,7 @@ module.exports = {
     {
       name: "conectar-landingpage",
       script: "pnpm",
-      args: "start --port 8005",
+      args: "start --port 5303",
       cwd: "./apps/landingpage",
       env: {
         NODE_ENV: "production"

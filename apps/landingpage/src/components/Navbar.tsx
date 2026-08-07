@@ -14,7 +14,7 @@ export default function Navbar({ onAgendar }: NavbarProps) {
   const [scrollProgress, setScrollProgress] = useState(0);
   
   const isProd = process.env.NODE_ENV === "production";
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || (isProd ? "https://app.institutoconectar.genioplay.com.br" : "http://localhost:8000");
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || (isProd ? "https://app.institutoconectar.genioplay.com.br" : "http://localhost:5202");
 
   useEffect(() => {
     const handleScroll = () => {

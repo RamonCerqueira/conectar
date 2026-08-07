@@ -104,7 +104,7 @@ export function ChatFloatingDock() {
     carregarContatos();
 
     // Conectar WebSocket
-    const wsUrl = process.env.NEXT_PUBLIC_WS_URL || "http://localhost:8001";
+    const wsUrl = process.env.NEXT_PUBLIC_WS_URL || "http://localhost:5101";
     const socket = io(wsUrl, {
       query: { usuarioId: usuarioIdLogado },
       transports: ["websocket", "polling"],
