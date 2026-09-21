@@ -2,8 +2,7 @@ module.exports = {
   apps: [
     {
       name: "conectar-backend",
-      script: "node",
-      args: "apps/backend/dist/main.js",
+      script: "apps/backend/dist/main.js",
       env: {
         NODE_ENV: "production",
         PORT: 5101,

@@ -6,13 +6,16 @@ import * as cookieParser from 'cookie-parser';
 import * as compression from 'compression';
 import helmet from 'helmet';
 import { join } from 'path';
-import * as dotenv from 'dotenv';
-
-// Garante carregamento do .env independente do cwd do PM2
-dotenv.config();
-dotenv.config({ path: join(__dirname, '../.env') });
-dotenv.config({ path: join(process.cwd(), '.env') });
-dotenv.config({ path: join(process.cwd(), 'apps/backend/.env') });
+try {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const dotenv = require('dotenv');
+  dotenv.config();
+  dotenv.config({ path: join(__dirname, '../.env') });
+  dotenv.config({ path: join(process.cwd(), '.env') });
+  dotenv.config({ path: join(process.cwd(), 'apps/backend/.env') });
+} catch {
+  // dotenv já embutido no Nest
+}
 
 import { AppModule } from './app.module';
 
