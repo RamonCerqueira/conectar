@@ -14,11 +14,11 @@
 ## 📊 Progresso Geral de Completude
 
 - **Status Inicial**: 78% (Módulos estruturados, alguns com dados mockados)
-- **Status Atual**: 80%
+- **Status Atual**: 84%
 - **Meta Final**: 100% (Todos os 19 módulos 100% integrados ao banco de dados e operacionais)
 
 ```
-[████████████████░░░░] 80% Concluído
+[█████████████████░░░] 84% Concluído
 ```
 
 ---
@@ -56,8 +56,8 @@
 - [ ] **Tarefa 16** — **Lista de Espera Inteligente**: Conectar fluxo de cancelamento de consulta à sugestão imediata de pacientes em lista de espera.
 - [ ] **Tarefa 17** — **Controle de Reposições de Consulta**: Regra para falta justificada gerar automaticamente crédito de reposição de sessão.
 - [ ] **Tarefa 18** — **Alerta de Evasão Clínica**: Notificar recepção e terapeutas quando o paciente acumular 3 faltas no mês.
-- [ ] **Tarefa 19** — **Portal dos Pais: Confirmação de Presença**: Adicionar botão no portal para os responsáveis confirmarem comparecimento à consulta.
-- [ ] **Tarefa 20** — **Portal dos Pais: Recibos para Reembolso**: Aba para os pais emitirem recibos de pagamento para convênio e declaração de IRPF.
+- [x] **Tarefa 19** — **Portal dos Pais: Confirmação de Presença**: Adicionar botão no portal para os responsáveis confirmarem comparecimento à consulta.
+- [x] **Tarefa 20** — **Portal dos Pais: Recibos para Reembolso**: Aba para os pais emitirem recibos de pagamento para convênio e declaração de IRPF.
 - [ ] **Tarefa 21** — **Colaboradores: Anexo de Documentos**: Upload e visualização de documentos profissionais (diplomas, contratos) no RH.
 - [ ] **Tarefa 22** — **Contratos Digitais: Envio por WhatsApp**: Botão para enviar link de assinatura externa com token seguro direto no WhatsApp do pai.
 - [ ] **Tarefa 23** — **Auditoria & Sincronização Offline**: Ativar listener de conexão no frontend para sincronizar automaticamente evoluções salvas no IndexedDB ao reconectar à internet.
