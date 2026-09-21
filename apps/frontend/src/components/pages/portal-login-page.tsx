@@ -3,13 +3,20 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Brain, Mail, Lock, ShieldAlert, Sparkles, Send } from "lucide-react";
+import { Nunito } from "next/font/google";
+import { Mail, Lock, ShieldAlert, Sparkles, Send, Loader2, Heart } from "lucide-react";
 import { api, setAccessToken } from "@/lib/api";
+
+const nunito = Nunito({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  display: "swap",
+});
 
 export function PortalLoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("mariana.mendes@email.com");
+  const [password, setPassword] = useState("123456");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -19,159 +26,164 @@ export function PortalLoginPage() {
     setLoading(true);
 
     try {
-      // Para demonstração 100% funcional, simulamos se não houver backend ativo ou chamamos a rota
-      const res = await api.post("/auth/login-responsavel", { email, password }).catch(() => {
-        // Fallback simulado para teste de fluxo direto
-        if (email === "mariana.mendes@email.com" && password === "123456") {
-          return { data: { accessToken: "mock-parent-token", responsavel: { nome: "Mariana Mendes", pacienteId: "pac-1" } } };
-        }
-        throw new Error("Credenciais inválidas");
-      });
+      const res = await api
+        .post("/auth/login-responsavel", { email, password })
+        .catch(() => {
+          if (email === "mariana.mendes@email.com" && password === "123456") {
+            return {
+              data: {
+                accessToken: "mock-parent-token",
+                responsavel: { nome: "Mariana Mendes", pacienteId: "pac-1" },
+              },
+            };
+          }
+          throw new Error("Credenciais inválidas. Verifique seu e-mail e senha.");
+        });
 
       const { accessToken, responsavel } = res.data;
-      setAccessToken(accessToken);
-      localStorage.setItem("parentName", responsavel.nome);
-      localStorage.setItem("pacienteId", responsavel.pacienteId);
+      if (accessToken) setAccessToken(accessToken);
+      localStorage.setItem("parentName", responsavel.nome || "Mariana Mendes");
+      localStorage.setItem("pacienteId", responsavel.pacienteId || "pac-1");
 
       router.push("/portal/dashboard");
     } catch (err: any) {
-      setError(err.message || "Falha na autenticação do portal. Verifique seus dados.");
+      setError(err.message || "Falha na autenticação do portal.");
     } finally {
       setLoading(false);
     }
   };
 
-  return (
-    <div className="flex h-screen overflow-hidden bg-background-soft">
-      {/* Lado Esquerdo - Info da Marca */}
-      <div className="hidden lg:flex lg:w-1/2 gradient-primary flex-col justify-between p-12 text-white relative overflow-hidden">
-        {/* Background blobs */}
-        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-white/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-white/5 rounded-full blur-3xl" />
+  const handleQuickDemo = () => {
+    setEmail("mariana.mendes@email.com");
+    setPassword("123456");
+    localStorage.setItem("parentName", "Mariana Mendes");
+    localStorage.setItem("pacienteId", "pac-1");
+    router.push("/portal/dashboard");
+  };
 
-        {/* Logo */}
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center shadow-lg">
-            <Brain className="h-6 w-6 text-white animate-pulse" />
+  return (
+    <div className={`min-h-screen w-full flex items-center justify-center p-4 bg-[#FAF7FD] text-[#29232F] selection:bg-[#E8DEFF] ${nunito.className}`}>
+      
+      {/* Background Blobs Orgânicos */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-[#A88BD9]/20 blur-3xl" />
+        <div className="absolute top-1/3 -right-28 w-96 h-96 rounded-full bg-[#F3A43B]/20 blur-3xl" />
+        <div className="absolute -bottom-24 left-1/4 w-96 h-96 rounded-full bg-[#F58A7E]/20 blur-3xl" />
+      </div>
+
+      {/* Container Centralizado do Login */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="relative w-full max-w-[420px] bg-white/95 backdrop-blur-md rounded-[32px] p-6 sm:p-8 shadow-2xl border border-white/80 z-10 space-y-5"
+      >
+        {/* Topo da Marca */}
+        <div className="text-center space-y-2">
+          <div className="inline-flex -space-x-1.5 items-center justify-center mb-1">
+            <span className="w-8 h-8 rounded-full bg-[#F58A7E] flex items-center justify-center text-white text-xs font-bold shadow-xs">💜</span>
+            <span className="w-8 h-8 rounded-full bg-[#8D5BD1] flex items-center justify-center text-white text-xs font-bold shadow-xs">🌱</span>
+            <span className="w-8 h-8 rounded-full bg-[#F3A43B] flex items-center justify-center text-white text-xs font-bold shadow-xs">💡</span>
           </div>
           <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-purple-200">Instituto</p>
-            <p className="text-base font-bold -mt-0.5">Conectar</p>
+            <span className="text-[18px] font-black tracking-tight text-[#8D5BD1] uppercase block">
+              INSTITUTO CONECTAR
+            </span>
+            <span className="inline-block mt-1 px-3 py-0.5 rounded-full bg-[#F0E8FF] text-[#8D5BD1] text-[9.5px] font-extrabold tracking-wider uppercase">
+              PORTAL DA FAMÍLIA
+            </span>
           </div>
-        </div>
-
-        {/* Content */}
-        <div className="space-y-4 max-w-md">
-          <span className="inline-block px-3 py-1 rounded-full bg-white/10 text-xs font-bold uppercase tracking-wider">
-            Portal dos Pais
-          </span>
-          <h2 className="text-3xl font-extrabold leading-tight">
-            Acompanhe o desenvolvimento clínico do seu filho em tempo real.
-          </h2>
-          <p className="text-sm text-purple-100 leading-relaxed">
-            Consulte a agenda de consultas, acesse evoluções do prontuário, confira tarefas para casa e consulte histórico financeiro.
+          <p className="text-[11px] text-[#77717E] font-medium leading-relaxed max-w-xs mx-auto">
+            Acompanhe em tempo real o desenvolvimento clínico, consultas e conquistas do seu filho.
           </p>
         </div>
 
-        {/* Footer */}
-        <p className="text-xs text-purple-200">
-          © {new Date().getFullYear()} Instituto Conectar. Todos os direitos reservados.
-        </p>
-      </div>
-
-      {/* Lado Direito - Formulário */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-center px-6 sm:px-16 lg:px-24 bg-card relative">
-        <div className="max-w-md w-full mx-auto space-y-6">
-          <div className="space-y-2">
-            <h1 className="text-2xl font-bold tracking-tight text-foreground">
-              Acesso ao Portal
-            </h1>
-            <p className="text-xs text-muted-foreground">
-              Para pais e responsáveis. Use o e-mail cadastrado na recepção e sua senha de acesso.
-            </p>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-4 text-xs">
-            {error && (
-              <div className="p-3.5 bg-red-500/10 text-red-500 rounded-xl font-semibold flex items-center gap-2">
-                <ShieldAlert className="h-4 w-4 shrink-0" />
-                <span>{error}</span>
-              </div>
-            )}
-
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground">Seu E-mail</label>
-              <div className="relative">
-                <Mail className="absolute left-3.5 top-3 h-4 w-4 text-muted-foreground" />
-                <input
-                  type="email"
-                  required
-                  placeholder="exemplo@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border text-sm outline-none focus:ring-1 focus:ring-purple-500 bg-muted/20 focus:bg-card"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-muted-foreground">Senha do Portal</label>
-              <div className="relative">
-                <Lock className="absolute left-3.5 top-3 h-4 w-4 text-muted-foreground" />
-                <input
-                  type="password"
-                  required
-                  placeholder="******"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border text-sm outline-none focus:ring-1 focus:ring-purple-500 bg-muted/20 focus:bg-card"
-                />
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3 rounded-xl text-xs font-bold text-white gradient-primary shadow-lg shadow-purple-500/10 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-55"
+        {/* Formulário de Login */}
+        <form onSubmit={handleSubmit} className="space-y-3.5 text-xs">
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="p-3 bg-red-500/10 border border-red-500/20 text-[#E11D48] rounded-[14px] font-bold flex items-center gap-2 text-[11px]"
             >
-              {loading ? (
-                <RotateCw className="h-4 w-4 animate-spin" />
-              ) : (
-                <>
-                  <Send className="h-4 w-4" />
-                  <span>Acessar Portal</span>
-                </>
-              )}
-            </button>
-          </form>
+              <ShieldAlert className="h-4 w-4 shrink-0" />
+              <span>{error}</span>
+            </motion.div>
+          )}
 
-          {/* Dica para demonstração */}
-          <div className="p-3 bg-purple-500/5 border border-purple-500/10 rounded-xl text-[10px] text-purple-600 dark:text-purple-300">
-            💡 <strong>Demonstração:</strong> Use o e-mail <code>mariana.mendes@email.com</code> e a senha <code>123456</code> para logar como a mãe do Lucas Mendes.
+          <div className="space-y-1">
+            <label className="text-[11px] font-extrabold text-[#29232F]">Seu E-mail</label>
+            <div className="relative">
+              <Mail className="absolute left-3.5 top-3 h-4 w-4 text-[#77717E]" />
+              <input
+                type="email"
+                required
+                placeholder="exemplo@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 rounded-[14px] border border-[#EEE8FA] bg-[#FAF8FF] text-[12px] font-semibold text-[#29232F] outline-none focus:ring-2 focus:ring-[#8D5BD1]/40 focus:bg-white transition-all"
+              />
+            </div>
           </div>
-        </div>
-      </div>
-    </div>
-  );
-}
 
-// Pequeno helper local para animação spin
-function RotateCw(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      {...props}
-    >
-      <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
-      <polyline points="21 3 21 8 16 8" />
-    </svg>
+          <div className="space-y-1">
+            <div className="flex justify-between items-center">
+              <label className="text-[11px] font-extrabold text-[#29232F]">Senha do Portal</label>
+              <a
+                href="https://wa.me/5511988880002?text=Olá,%20esqueci%20minha%20senha%20do%20Portal%20dos%20Pais."
+                target="_blank"
+                rel="noreferrer"
+                className="text-[10px] text-[#8D5BD1] font-bold hover:underline"
+              >
+                Esqueceu a senha?
+              </a>
+            </div>
+            <div className="relative">
+              <Lock className="absolute left-3.5 top-3 h-4 w-4 text-[#77717E]" />
+              <input
+                type="password"
+                required
+                placeholder="******"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 rounded-[14px] border border-[#EEE8FA] bg-[#FAF8FF] text-[12px] font-semibold text-[#29232F] outline-none focus:ring-2 focus:ring-[#8D5BD1]/40 focus:bg-white transition-all"
+              />
+            </div>
+          </div>
+
+          <motion.button
+            whileTap={{ scale: 0.98 }}
+            type="submit"
+            disabled={loading}
+            className="w-full py-3 rounded-[16px] text-xs font-extrabold text-white bg-gradient-to-r from-[#8D5BD1] to-[#7B48C2] hover:from-[#7E4BC4] hover:to-[#6E3BB5] shadow-md shadow-[#8D5BD1]/25 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 transition-all mt-2"
+          >
+            {loading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <>
+                <Send className="h-4 w-4" />
+                <span>Entrar no Portal</span>
+              </>
+            )}
+          </motion.button>
+        </form>
+
+        {/* Botão de Demonstração Imediata */}
+        <div className="pt-2 border-t border-[#EEE8FA] space-y-2">
+          <button
+            onClick={handleQuickDemo}
+            type="button"
+            className="w-full py-2.5 rounded-[14px] bg-[#FAF8FF] border border-[#EEE8FA] hover:bg-[#E8DEFF]/60 text-[#8D5BD1] text-[11px] font-extrabold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-[#F59E0B]" />
+            <span>Acesso Rápido de Demonstração (Mãe do Lucas)</span>
+          </button>
+
+          <p className="text-[9px] text-[#77717E] text-center">
+            Dúvidas no primeiro acesso? Contate a recepção pelo WhatsApp 💜
+          </p>
+        </div>
+      </motion.div>
+    </div>
   );
 }
