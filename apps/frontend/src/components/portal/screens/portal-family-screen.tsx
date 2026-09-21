@@ -18,6 +18,9 @@ import {
   BookOpen,
 } from "lucide-react";
 import { calculateAge } from "@/lib/utils";
+import { soundEffects } from "@/lib/sound-effects";
+import { PortalConfetti } from "@/components/portal/portal-confetti";
+import { toast } from "sonner";
 
 interface PortalFamilyScreenProps {
   pacienteData: any;
@@ -31,6 +34,14 @@ export function PortalFamilyScreen({
   onOpenWhatsApp,
 }: PortalFamilyScreenProps) {
   const [activeSubTab, setActiveSubTab] = useState<"equipe" | "escola" | "saude" | "conquistas">("equipe");
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [stampedList, setStampedList] = useState<Record<number, boolean>>({});
+  const [reactionsMap, setReactionsMap] = useState<Record<number, Record<string, number>>>({
+    0: { "💖": 12, "⭐": 8, "👏": 15, "🚀": 6 },
+    1: { "💖": 9, "⭐": 14, "👏": 11, "🚀": 4 },
+    2: { "💖": 7, "⭐": 10, "👏": 18, "🚀": 5 },
+  });
+  const [floatingParticles, setFloatingParticles] = useState<Array<{ id: number; char: string; x: number }>>([]);
 
   const childName = pacienteData?.nome || "Maria Júlia";
   const childAge = pacienteData?.dataNascimento ? `${calculateAge(pacienteData.dataNascimento)} anos` : "7 anos";
@@ -210,31 +221,159 @@ export function PortalFamilyScreen({
 
       {/* ─── TAB 2: CONQUISTAS E LINHA DO TEMPO ─── */}
       {activeSubTab === "conquistas" && (
-        <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} className="space-y-2.5">
-          <div className="p-3 rounded-[16px] bg-[#FFF8EC] border border-[#FFE4A3] flex items-center gap-2.5">
-            <Award className="w-6 h-6 text-[#D97706] shrink-0" />
-            <p className="text-[10.5px] text-[#29232F] font-bold leading-tight">
-              &quot;Celebrar pequenas vitórias constrói grandes futuros.&quot; 💜
-            </p>
+        <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} className="space-y-2.5 relative">
+          <div className="p-3 rounded-[16px] bg-[#FFF8EC] border border-[#FFE4A3] flex items-center justify-between shadow-2xs">
+            <div className="flex items-center gap-2.5">
+              <Award className="w-6 h-6 text-[#D97706] shrink-0" />
+              <p className="text-[10.5px] text-[#29232F] font-bold leading-tight">
+                &quot;Celebrar pequenas vitórias constrói grandes futuros.&quot; 💜
+              </p>
+            </div>
+            <span className="text-[9px] font-black px-2 py-0.5 rounded-full bg-[#D97706] text-white">
+              {conquistas.length} Marcos
+            </span>
           </div>
 
-          <div className="space-y-2">
-            {conquistas.map((c, idx) => (
-              <div key={idx} className="p-3 rounded-[14px] bg-white border border-[#EEEAF4] shadow-2xs space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <span className="px-2 py-0.5 rounded-full bg-[#E8DEFF] text-[#8D5BD1] text-[8.5px] font-extrabold">
-                    {c.tag}
-                  </span>
-                  <span className="text-[9px] text-[#77717E] font-medium">{c.data}</span>
-                </div>
-                <h4 className="text-[12px] font-extrabold text-[#29232F]">{c.titulo}</h4>
-                <p className="text-[10px] text-[#77717E] leading-relaxed font-medium">{c.descricao}</p>
-                <div className="pt-1 text-[8.5px] text-[#8D5BD1] font-bold">
-                  Registrado por: {c.terapeuta}
-                </div>
-              </div>
-            ))}
+          <div className="space-y-2.5">
+            {conquistas.map((c, idx) => {
+              const isStamped = !!stampedList[idx];
+              const reactions = reactionsMap[idx] || { "💖": 10, "⭐": 5, "👏": 12, "🚀": 3 };
+
+              const handleReaction = (emoji: string, label: string) => {
+                if (emoji === "💖") soundEffects.playHeartbeat();
+                else if (emoji === "⭐") soundEffects.playSparkle();
+                else if (emoji === "🚀") soundEffects.playChirp();
+                else soundEffects.playPop();
+
+                setReactionsMap((prev) => ({
+                  ...prev,
+                  [idx]: {
+                    ...prev[idx],
+                    [emoji]: (prev[idx]?.[emoji] || 0) + 1,
+                  },
+                }));
+
+                const newId = Date.now();
+                setFloatingParticles((prev) => [...prev, { id: newId, char: emoji, x: (Math.random() - 0.5) * 50 }]);
+                setTimeout(() => {
+                  setFloatingParticles((prev) => prev.filter((p) => p.id !== newId));
+                }, 900);
+
+                toast.success(`Carinho enviado: ${emoji} ${label}!`);
+              };
+
+              const handleStamp = () => {
+                soundEffects.playAchievement();
+                setShowConfetti(true);
+                setTimeout(() => setShowConfetti(false), 2000);
+                setStampedList((prev) => ({ ...prev, [idx]: true }));
+                toast.success(`Vitória carimbada no coração da família! 🌟`, {
+                  description: `Marco "${c.titulo}" comemorado com muito afeto.`,
+                });
+              };
+
+              return (
+                <motion.div
+                  key={idx}
+                  whileHover={{ y: -2 }}
+                  className={`p-3.5 rounded-[16px] bg-white border shadow-2xs space-y-2.5 transition-all relative overflow-hidden ${
+                    isStamped ? "border-[#F59E0B]/50 bg-gradient-to-br from-white to-[#FFFDF7]" : "border-[#EEEAF4] hover:border-[#8D5BD1]/30"
+                  }`}
+                >
+                  {/* Selo Dourado Carimbado */}
+                  {isStamped && (
+                    <motion.div
+                      initial={{ scale: 2, rotate: -25, opacity: 0 }}
+                      animate={{ scale: 1, rotate: -8, opacity: 0.95 }}
+                      transition={{ type: "spring", stiffness: 500, damping: 18 }}
+                      className="absolute top-2 right-2 border-2 border-[#D97706] bg-[#FEF3C7] text-[#B45309] font-black text-[9px] px-2 py-0.5 rounded-md uppercase tracking-wider shadow-xs pointer-events-none select-none z-10"
+                    >
+                      ★ Celebrado em Família!
+                    </motion.div>
+                  )}
+
+                  <div className="flex items-center justify-between pr-2">
+                    <span className="px-2 py-0.5 rounded-full bg-[#E8DEFF] text-[#8D5BD1] text-[8.5px] font-extrabold">
+                      {c.tag}
+                    </span>
+                    <span className="text-[9px] text-[#77717E] font-medium">{c.data}</span>
+                  </div>
+
+                  <div>
+                    <h4 className="text-[12.5px] font-extrabold text-[#29232F]">{c.titulo}</h4>
+                    <p className="text-[10px] text-[#77717E] leading-relaxed font-medium mt-0.5">{c.descricao}</p>
+                  </div>
+
+                  {/* Rodapé: Registrado por + Botão de Carimbar + Reações com Contador */}
+                  <div className="pt-2 border-t border-[#EEE8FA] flex flex-col gap-2">
+                    <div className="flex items-center justify-between text-[8.5px] text-[#8D5BD1] font-bold">
+                      <span>Registrado por: {c.terapeuta}</span>
+
+                      {!isStamped && (
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.92 }}
+                          onClick={handleStamp}
+                          className="px-2.5 py-1 rounded-full bg-[#FEF3C7] border border-[#FDE68A] text-[#B45309] font-extrabold text-[9px] flex items-center gap-1 cursor-pointer hover:bg-[#FDE68A] transition-colors shadow-2xs"
+                        >
+                          <span>🌟</span>
+                          <span>Carimbar Vitória</span>
+                        </motion.button>
+                      )}
+                    </div>
+
+                    {/* Botões de Reação Rápida dos Pais com Contadores e Micro-animações */}
+                    <div className="flex items-center justify-between pt-1">
+                      <span className="text-[8px] text-[#77717E] font-bold uppercase tracking-wider">
+                        Reações da Família:
+                      </span>
+
+                      <div className="flex items-center gap-1.5 relative">
+                        {/* Partículas flutuantes ao reagir */}
+                        <AnimatePresence>
+                          {floatingParticles.map((p) => (
+                            <motion.span
+                              key={p.id}
+                              initial={{ opacity: 1, scale: 0.6, y: 0, x: p.x }}
+                              animate={{ opacity: 0, scale: 1.6, y: -45, x: p.x * 1.5 }}
+                              exit={{ opacity: 0 }}
+                              transition={{ duration: 0.8 }}
+                              className="absolute -top-3 left-1/2 pointer-events-none text-base z-30"
+                            >
+                              {p.char}
+                            </motion.span>
+                          ))}
+                        </AnimatePresence>
+
+                        {[
+                          { emoji: "💖", label: "Amor" },
+                          { emoji: "⭐", label: "Orgulho" },
+                          { emoji: "👏", label: "Parabéns" },
+                          { emoji: "🚀", label: "Voa alto" },
+                        ].map((btn, bIdx) => (
+                          <motion.button
+                            key={bIdx}
+                            whileHover={{ scale: 1.15 }}
+                            whileTap={{ scale: 0.88 }}
+                            onClick={() => handleReaction(btn.emoji, btn.label)}
+                            className="px-2 py-0.5 rounded-full bg-[#FAF8FF] hover:bg-[#E8DEFF] border border-[#EEE8FA] flex items-center gap-1 text-[10px] font-bold text-[#29232F] cursor-pointer shadow-2xs transition-colors"
+                            title={btn.label}
+                          >
+                            <span>{btn.emoji}</span>
+                            <span className="text-[9px] font-black text-[#8D5BD1]">
+                              {reactions[btn.emoji] || 0}
+                            </span>
+                          </motion.button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
+
+          <PortalConfetti active={showConfetti} onComplete={() => setShowConfetti(false)} />
         </motion.div>
       )}
 

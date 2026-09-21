@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { Home, Users, CalendarHeart, FileHeart, User } from "lucide-react";
+import { Home, Users, CalendarHeart, FileHeart, User, Volume2, VolumeX } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { soundEffects } from "@/lib/sound-effects";
 
 export type PortalTabId = "inicio" | "familia" | "agenda" | "conteudos" | "perfil";
 
@@ -12,6 +14,8 @@ interface PortalBottomNavProps {
 }
 
 export function PortalBottomNav({ activeTab, onChangeTab }: PortalBottomNavProps) {
+  const [soundOn, setSoundOn] = useState(true);
+
   // Suporte a Haptic Feedback no mobile (Capacitor nativo ou Web Vibration API)
   const triggerHaptic = () => {
     try {
@@ -21,7 +25,7 @@ export function PortalBottomNav({ activeTab, onChangeTab }: PortalBottomNavProps
         navigator.vibrate(10);
       }
     } catch {
-      // noop em navegadores sem suporte
+      // noop
     }
   };
 
@@ -32,6 +36,12 @@ export function PortalBottomNav({ activeTab, onChangeTab }: PortalBottomNavProps
     { id: "conteudos" as const, label: "Conteúdos", icon: FileHeart },
     { id: "perfil" as const, label: "Perfil", icon: User },
   ];
+
+  const handleTabClick = (tabId: PortalTabId) => {
+    soundEffects.playTabSwitch();
+    triggerHaptic();
+    onChangeTab(tabId);
+  };
 
   return (
     <nav
@@ -46,40 +56,42 @@ export function PortalBottomNav({ activeTab, onChangeTab }: PortalBottomNavProps
           <button
             key={item.id}
             id={`nav-${item.id}`}
-            onClick={() => {
-              triggerHaptic();
-              onChangeTab(item.id);
-            }}
-            className="flex flex-col items-center justify-center w-14 h-full group active:scale-95 transition-transform cursor-pointer relative"
+            onClick={() => handleTabClick(item.id)}
+            className="flex flex-col items-center justify-center w-14 h-full group active:scale-90 transition-transform cursor-pointer relative"
           >
-            {/* Ícone com microinteração de elevação */}
-            <Icon
-              className={cn(
-                "w-5 h-5 transition-all duration-200",
-                isActive
-                  ? "text-[#8D5BD1] stroke-[2.5] -translate-y-0.5 scale-110"
-                  : "text-[#77717E]/70 group-hover:text-[#8D5BD1]"
-              )}
-            />
+            {/* Ícone com microinteração de elevação e mola */}
+            <motion.div
+              animate={isActive ? { y: -2, scale: [1, 1.25, 1] } : { y: 0, scale: 1 }}
+              transition={{ type: "spring", stiffness: 450, damping: 20 }}
+            >
+              <Icon
+                className={cn(
+                  "w-5 h-5 transition-colors duration-200",
+                  isActive
+                    ? "text-[#8D5BD1] stroke-[2.6]"
+                    : "text-[#77717E]/70 group-hover:text-[#8D5BD1]"
+                )}
+              />
+            </motion.div>
 
             {/* Label com tipografia Nunito */}
             <span
               className={cn(
                 "text-[9px] tracking-tight mt-1 transition-colors leading-none",
                 isActive
-                  ? "text-[#8D5BD1] font-black"
+                  ? "text-[#8D5BD1] font-black scale-105"
                   : "text-[#77717E]/70 font-semibold group-hover:text-[#8D5BD1]"
               )}
             >
               {item.label}
             </span>
 
-            {/* Indicador Ativo com animação suave de transição */}
+            {/* Indicador Ativo com animação suave de mola */}
             {isActive && (
               <motion.div
                 layoutId="activeTabPill"
-                className="w-3.5 h-0.5 rounded-full bg-[#8D5BD1] mt-0.5 shadow-xs"
-                transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                className="w-4 h-0.5 rounded-full bg-[#8D5BD1] mt-0.5 shadow-xs"
+                transition={{ type: "spring", stiffness: 500, damping: 28 }}
               />
             )}
           </button>

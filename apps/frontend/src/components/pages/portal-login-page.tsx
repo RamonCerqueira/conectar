@@ -63,7 +63,7 @@ export function PortalLoginPage() {
 
   return (
     <div className={`min-h-screen w-full flex items-center justify-center p-4 bg-[#FAF7FD] text-[#29232F] selection:bg-[#E8DEFF] ${nunito.className}`}>
-      
+
       {/* Background Blobs Orgânicos */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
         <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-[#A88BD9]/20 blur-3xl" />
@@ -130,7 +130,7 @@ export function PortalLoginPage() {
             <div className="flex justify-between items-center">
               <label className="text-[11px] font-extrabold text-[#29232F]">Senha do Portal</label>
               <a
-                href="https://wa.me/5511988880002?text=Olá,%20esqueci%20minha%20senha%20do%20Portal%20dos%20Pais."
+                href="https://wa.me/5571999550803?text=Olá,%20esqueci%20minha%20senha%20do%20Portal%20dos%20Pais."
                 target="_blank"
                 rel="noreferrer"
                 className="text-[10px] text-[#8D5BD1] font-bold hover:underline"

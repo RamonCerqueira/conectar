@@ -17,6 +17,8 @@ import {
   Award,
 } from "lucide-react";
 import { toast } from "sonner";
+import { soundEffects } from "@/lib/sound-effects";
+import { PortalConfetti } from "@/components/portal/portal-confetti";
 
 interface PortalContentScreenProps {
   exercicios: any[];
@@ -29,6 +31,7 @@ export function PortalContentScreen({
 }: PortalContentScreenProps) {
   const [activeTab, setActiveTab] = useState<"documentos" | "psicoeducacao" | "atividades">("documentos");
   const [selectedArticle, setSelectedArticle] = useState<any | null>(null);
+  const [showConfetti, setShowConfetti] = useState(false);
 
   // Lista de Documentos e Laudos com download
   const documentos = [
@@ -285,7 +288,12 @@ export function PortalContentScreen({
 
                   {!ex.realizado ? (
                     <button
-                      onClick={() => onCompleteExercise(ex)}
+                      onClick={() => {
+                        soundEffects.playSuccess();
+                        setShowConfetti(true);
+                        setTimeout(() => setShowConfetti(false), 2000);
+                        onCompleteExercise(ex);
+                      }}
                       className="w-full py-2 rounded-[10px] bg-[#D97706] hover:bg-[#B45309] text-white font-extrabold text-[10px] flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
                     >
                       <Check className="w-3.5 h-3.5 stroke-[3]" />
@@ -294,7 +302,7 @@ export function PortalContentScreen({
                   ) : (
                     <div className="p-2 rounded-[10px] bg-[#DDF6ED]/60 text-[#10B981] text-[9.5px] font-extrabold flex items-center justify-center gap-1">
                       <CheckCircle2 className="w-3.5 h-3.5" />
-                      <span>Realizado com carinho pela família!</span>
+                      <span>Realizado com carinho pela família! 🌟</span>
                     </div>
                   )}
                 </div>
@@ -309,6 +317,9 @@ export function PortalContentScreen({
           </div>
         </motion.div>
       )}
+
+      {/* Partículas de Confetes e Celebração */}
+      <PortalConfetti active={showConfetti} onComplete={() => setShowConfetti(false)} />
     </div>
   );
 }

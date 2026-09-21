@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { Bell, User, MessageCircle } from "lucide-react";
+import { Bell, User, MessageCircle, Volume2, VolumeX } from "lucide-react";
 import { toast } from "sonner";
+import { soundEffects } from "@/lib/sound-effects";
 
 interface PortalHeaderProps {
   parentName: string;
@@ -17,9 +19,22 @@ export function PortalHeader({
   onOpenNotifications,
   onContactSupport,
 }: PortalHeaderProps) {
+  const [soundEnabled, setSoundEnabled] = useState(soundEffects.isSoundEnabled());
   const initial = parentName ? parentName.charAt(0).toUpperCase() : "F";
 
+  const handleToggleSound = () => {
+    const newState = soundEffects.toggleSound();
+    setSoundEnabled(newState);
+    if (newState) {
+      soundEffects.playPop();
+      toast.success("Efeitos sonoros ativados! 🔔");
+    } else {
+      toast.info("Efeitos sonoros silenciados. 🔕");
+    }
+  };
+
   const handleNotifications = () => {
+    soundEffects.playPop();
     if (onOpenNotifications) {
       onOpenNotifications();
     } else {
@@ -66,7 +81,22 @@ export function PortalHeader({
       </motion.div>
 
       {/* Header Actions (id: "header-actions") */}
-      <div id="header-actions" className="flex items-center gap-2">
+      <div id="header-actions" className="flex items-center gap-1.5">
+        {/* Toggle de Sons e Efeitos */}
+        <motion.button
+          whileHover={{ scale: 1.08 }}
+          whileTap={{ scale: 0.92 }}
+          onClick={handleToggleSound}
+          className={`w-8 h-8 rounded-full border border-[#EEEAF4] flex items-center justify-center transition-colors shadow-2xs cursor-pointer ${
+            soundEnabled
+              ? "bg-[#FAF8FF] text-[#8D5BD1] hover:bg-[#E8DEFF]"
+              : "bg-gray-100 text-gray-400 hover:bg-gray-200"
+          }`}
+          title={soundEnabled ? "Sons ativados (toque para silenciar)" : "Sons silenciados (toque para ativar)"}
+        >
+          {soundEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
+        </motion.button>
+
         {/* Sino de Notificações */}
         <motion.button
           id="notification"

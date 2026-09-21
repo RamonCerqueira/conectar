@@ -3,12 +3,14 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Nunito } from "next/font/google";
+import { AnimatePresence } from "framer-motion";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
 import {
   PortalHeader,
   PortalBottomNav,
   PortalMascotCompanion,
+  PortalSplashScreen,
   PortalTabId,
   PortalHomeScreen,
   PortalFamilyScreen,
@@ -42,6 +44,7 @@ export function PortalDashboardPage({
   const [pacienteId, setPacienteId] = useState<string | null>(null);
   const [parentName, setParentName] = useState<string>("Família");
   const [loading, setLoading] = useState<boolean>(true);
+  const [showSplash, setShowSplash] = useState<boolean>(true);
 
   // Dados do Paciente e Módulos Integrados
   const [pacienteData, setPacienteData] = useState<any>(null);
@@ -65,15 +68,15 @@ export function PortalDashboardPage({
   const [profissionais, setProfissionais] = useState<any[]>([]);
 
   // WhatsApp Recepção
-  const whatsNumero = "5511988880002";
+  const whatsNumero = "5571999550803";
 
   // Carregar sessão e configurar status bar nativa
   useEffect(() => {
     if (typeof window !== "undefined") {
       // Configurar status bar nativa se estiver executando via Capacitor (Android/iOS)
       if (typeof window !== "undefined" && (window as any).Capacitor?.Plugins?.StatusBar) {
-        (window as any).Capacitor.Plugins.StatusBar.setStyle({ style: "DARK" }).catch(() => {});
-        (window as any).Capacitor.Plugins.StatusBar.setBackgroundColor({ color: "#FFFFFF" }).catch(() => {});
+        (window as any).Capacitor.Plugins.StatusBar.setStyle({ style: "DARK" }).catch(() => { });
+        (window as any).Capacitor.Plugins.StatusBar.setBackgroundColor({ color: "#FFFFFF" }).catch(() => { });
       }
 
       const storedName = localStorage.getItem("parentName");
@@ -214,8 +217,18 @@ export function PortalDashboardPage({
   const childAge = pacienteData?.dataNascimento ? "7 anos" : "7 anos";
 
   return (
-    <div className={`min-h-screen w-full bg-[#FAF7FD] text-[#29232F] flex items-center justify-center p-0 md:py-8 ${nunito.className} selection:bg-[#E8DEFF]`}>
-      
+    <>
+      <AnimatePresence>
+        {showSplash && (
+          <PortalSplashScreen
+            durationSeconds={0.8}
+            onFinish={() => setShowSplash(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      <div className={`min-h-screen w-full bg-[#FAF7FD] text-[#29232F] flex items-center justify-center p-0 md:py-8 ${nunito.className} selection:bg-[#E8DEFF]`}>
+
       {/* ─── ELEMENTOS DECORATIVOS EXTERNOS (BLOBS COLORIDOS CONFORME JSON) ─── */}
       <div className="hidden lg:block fixed inset-0 pointer-events-none overflow-hidden z-0">
         <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-[#A88BD9]/25 blur-3xl" />
@@ -239,7 +252,7 @@ export function PortalDashboardPage({
 
       {/* ─── CONTAINER SMARTPHONE (VIEWPORT: 390x844 / DESKTOP MAX 430px) ─── */}
       <div className="relative w-full max-w-[430px] h-full min-h-screen md:min-h-[844px] md:h-[860px] bg-white md:rounded-[44px] shadow-2xl md:border-[8px] md:border-slate-900/90 overflow-hidden flex flex-col z-10 pt-[env(safe-area-inset-top,0px)]">
-        
+
         {/* Barra Superior Simulada no Desktop */}
         <div className="hidden md:flex w-full bg-white pt-2.5 px-6 pb-1 shrink-0 items-center justify-between text-xs font-semibold text-slate-800 select-none z-20">
           <span className="text-[12px] tracking-tight font-bold text-[#29232F]">09:41</span>
@@ -261,7 +274,7 @@ export function PortalDashboardPage({
 
         {/* ─── CORPO COM ROLAGEM (PADDING: TOP 12, LEFT 16, RIGHT 16, BOTTOM 88) ─── */}
         <div className="flex-1 overflow-y-auto px-4 pt-3 pb-[88px] scrollbar-none bg-white">
-          
+
           {/* TAB 1: INÍCIO (TELA INICIAL CONFORME JSON EXATO) */}
           {activeNavTab === "inicio" && (
             <PortalHomeScreen
@@ -407,6 +420,7 @@ export function PortalDashboardPage({
         onWhatsApp={openWhatsApp}
       />
 
-    </div>
+      </div>
+    </>
   );
 }

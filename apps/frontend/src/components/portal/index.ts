@@ -6,6 +6,8 @@ export * from "./portal-upcoming-section";
 export * from "./portal-primary-action";
 export * from "./portal-bottom-nav";
 export * from "./portal-mascot-companion";
+export * from "./portal-splash-screen";
+export * from "./portal-mood-checkin";
 export * from "./portal-modals";
 export * from "./screens/portal-home-screen";
 export * from "./screens/portal-family-screen";

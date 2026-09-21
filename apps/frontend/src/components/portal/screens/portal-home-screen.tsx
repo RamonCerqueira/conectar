@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import {
   PortalWelcomeHero,
   PortalFamilyCard,
+  PortalMoodCheckin,
   PortalQuickActions,
   PortalUpcomingSection,
   PortalPrimaryAction,
@@ -55,6 +56,9 @@ export function PortalHomeScreen({
         school={school}
         onOpenFamilyProfile={onOpenFamilyProfile}
       />
+
+      {/* 2.1 WIDGET INTERATIVO DE HUMOR / CHECK-IN DIÁRIO */}
+      <PortalMoodCheckin childName={childName} />
 
       {/* 3. QUICK ACTIONS (Grade em 3 colunas x 6 cards pastéis de 106px) */}
       <PortalQuickActions

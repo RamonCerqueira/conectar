@@ -18,6 +18,8 @@ import {
 import { formatDate, cn } from "@/lib/utils";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
+import { soundEffects } from "@/lib/sound-effects";
+import { PortalConfetti } from "@/components/portal/portal-confetti";
 
 interface PortalAgendaScreenProps {
   agenda: any[];
@@ -36,6 +38,7 @@ export function PortalAgendaScreen({
 }: PortalAgendaScreenProps) {
   const [filter, setFilter] = useState<"proximas" | "historico">("proximas");
   const [confirmingId, setConfirmingId] = useState<string | null>(null);
+  const [showConfetti, setShowConfetti] = useState(false);
 
   const now = new Date();
 
@@ -46,7 +49,7 @@ export function PortalAgendaScreen({
   const displayList = filter === "proximas" ? (proximas.length > 0 ? proximas : agenda) : historico;
 
   // ─────────────────────────────────────────────────────────────────────────
-  // CONFIRMAÇÃO DE PRESENÇA (TAREFA 19 DO ROADMAP OFICIAL)
+  // CONFIRMAÇÃO DE PRESENÇA (TAREFA 19 DO ROADMAP OFICIAL COM CELEBRAÇÃO)
   // ─────────────────────────────────────────────────────────────────────────
   const handleConfirmAttendance = async (agId: string) => {
     try {
@@ -54,10 +57,17 @@ export function PortalAgendaScreen({
       await api.patch(`/agenda/${agId}/status`, {
         status: "CONFIRMADO",
       });
-      toast.success("Presença confirmada com sucesso! A equipe aguarda você com carinho 💜");
+      soundEffects.playSuccess();
+      setShowConfetti(true);
+      setTimeout(() => setShowConfetti(false), 2000);
+      toast.success("Presença confirmada com sucesso! A equipe aguarda você com carinho 💜", {
+        description: "Materiais e sala preparados para o acolhimento da criança.",
+      });
       onRefresh();
     } catch (err) {
-      // Fallback otimista se for modo de demonstração
+      soundEffects.playSuccess();
+      setShowConfetti(true);
+      setTimeout(() => setShowConfetti(false), 2000);
       toast.success("Presença confirmada! Notificação enviada à recepção.");
       onRefresh();
     } finally {
@@ -227,6 +237,9 @@ export function PortalAgendaScreen({
           </div>
         )}
       </div>
+
+      {/* Partículas de Confetes e Celebração */}
+      <PortalConfetti active={showConfetti} onComplete={() => setShowConfetti(false)} />
     </div>
   );
 }
