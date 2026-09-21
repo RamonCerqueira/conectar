@@ -39,7 +39,7 @@ import { ChatModule } from './modules/chat/chat.module';
     // ─── Configuração ─────────────────────────────────────────
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ['.env.local', '.env'],
+      envFilePath: ['.env.local', '.env', 'apps/backend/.env', '../../.env', '../.env'],
     }),
 
     // ─── Rate Limiting ────────────────────────────────────────

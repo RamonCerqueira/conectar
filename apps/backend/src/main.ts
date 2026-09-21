@@ -6,6 +6,14 @@ import * as cookieParser from 'cookie-parser';
 import * as compression from 'compression';
 import helmet from 'helmet';
 import { join } from 'path';
+import * as dotenv from 'dotenv';
+
+// Garante carregamento do .env independente do cwd do PM2
+dotenv.config();
+dotenv.config({ path: join(__dirname, '../.env') });
+dotenv.config({ path: join(process.cwd(), '.env') });
+dotenv.config({ path: join(process.cwd(), 'apps/backend/.env') });
+
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -41,8 +49,8 @@ async function bootstrap() {
       }
     },
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin', 'Cookie', 'X-CSRF-Token'],
   });
 
   // ─── Prefixo Global ──────────────────────────────────────────
