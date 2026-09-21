@@ -1,0 +1,1625 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Proposta Comercial — Instituto Conectar (2026)</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+    :root {
+      --primary:       #8E7BBE;
+      --primary-dark:  #6D599F;
+      --primary-deep:  #3C2A4D;
+      --primary-light: #F4F1FA;
+      --secondary:     #E98BAE;
+      --teal:          #69C4B5;
+      --teal-dark:     #3F9A8C;
+      --teal-light:    #EFF9F7;
+      --warm:          #F3B357;
+      --warm-light:    #FEF7EE;
+      --dark:          #1E182A;
+      --slate:         #334155;
+      --muted:         #64748B;
+      --border:        #E5E0EE;
+      --bg:            #FAF9FD;
+      --green:         #22c55e;
+      --green-light:   #F0FDF4;
+      --orange:        #F97316;
+      --orange-light:  #FFF7ED;
+      --red:           #EF4444;
+      --red-light:     #FEF2F2;
+      --blue:          #3B82F6;
+      --blue-light:    #EFF6FF;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #130E1D;
+      color: var(--dark);
+      line-height: 1.5;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── TOOLBAR ── */
+    .screen-toolbar {
+      position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+      z-index: 9999; background: rgba(30,24,42,0.94); backdrop-filter: blur(14px);
+      border: 1px solid rgba(255,255,255,0.18); border-radius: 100px;
+      padding: 8px 22px; display: flex; align-items: center; gap: 18px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.5);
+    }
+    .screen-toolbar-title { color: white; font-size: 13.5px; font-weight: 600; }
+    .screen-toolbar-title span { color: var(--secondary); font-weight: 800; }
+    .print-btn {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white; border: none; border-radius: 100px; padding: 8px 20px;
+      font-size: 13px; font-weight: 700; cursor: pointer; display: flex;
+      align-items: center; gap: 8px; transition: all 0.2s ease;
+      box-shadow: 0 4px 14px rgba(142,123,190,0.4);
+    }
+    .print-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(142,123,190,0.55); }
+
+    /* ── DOCUMENT CONTAINER ── */
+    .document-container { padding: 72px 0 40px; display: flex; flex-direction: column; align-items: center; gap: 30px; }
+
+    /* ── A4 SHEET ── */
+    .page-sheet {
+      width: 210mm; height: 297mm; min-height: 297mm; max-height: 297mm;
+      background: white; box-shadow: 0 16px 40px rgba(0,0,0,0.35);
+      position: relative; overflow: hidden;
+      display: flex; flex-direction: column; justify-content: space-between; box-sizing: border-box;
+    }
+    .page-inner {
+      padding: 12mm 15mm 10mm 15mm; height: 100%;
+      display: flex; flex-direction: column; justify-content: space-between; box-sizing: border-box;
+    }
+    .page-content { flex: 1; display: flex; flex-direction: column; }
+
+    /* ── COVER ── */
+    .cover-top-bar { height: 8px; width: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary) 50%, var(--teal)); }
+    .cover-body {
+      flex: 1; display: flex; flex-direction: column; justify-content: space-between;
+      padding: 28mm 18mm 16mm; position: relative; z-index: 2; box-sizing: border-box;
+    }
+    .cover-orb-1 { position: absolute; top: -60px; right: -60px; width: 420px; height: 420px; border-radius: 50%; background: radial-gradient(circle, rgba(142,123,190,0.14) 0%, transparent 70%); pointer-events: none; z-index: 1; }
+    .cover-orb-2 { position: absolute; bottom: -40px; right: 140px; width: 320px; height: 320px; border-radius: 50%; background: radial-gradient(circle, rgba(105,196,181,0.1) 0%, transparent 70%); pointer-events: none; z-index: 1; }
+    .cover-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--primary-light); border: 1px solid rgba(142,123,190,0.3);
+      border-radius: 100px; padding: 6px 15px; font-size: 10.5px; font-weight: 800;
+      letter-spacing: 0.12em; text-transform: uppercase; color: var(--primary-dark);
+      width: fit-content; margin-bottom: 18px;
+    }
+    .cover-title { font-size: 38px; font-weight: 900; letter-spacing: -0.035em; line-height: 1.1; color: var(--dark); margin-bottom: 14px; }
+    .cover-title span { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .cover-subtitle { font-size: 14.5px; font-weight: 400; color: var(--muted); line-height: 1.55; max-width: 92%; }
+    .cover-subtitle strong { color: var(--dark); font-weight: 700; }
+    .cover-meta { display: grid; grid-template-columns: repeat(3,1fr); gap: 18px; margin-top: auto; padding-top: 28px; }
+    .cover-meta-item { border-top: 2px solid var(--border); padding-top: 12px; }
+    .cover-meta-label { font-size: 9.5px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--primary); margin-bottom: 4px; }
+    .cover-meta-value { font-size: 13px; font-weight: 700; color: var(--dark); line-height: 1.35; }
+    .cover-footer { padding: 14px 18mm; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); z-index: 2; }
+    .cover-footer-brand { font-size: 13px; font-weight: 800; color: var(--dark); }
+    .cover-footer-brand span { color: var(--primary); }
+    .cover-footer-date { font-size: 10.5px; color: var(--muted); }
+
+    /* ── SECTION HEADER ── */
+    .section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1.5px solid var(--border); }
+    .section-number { width: 28px; height: 28px; border-radius: 7px; background: var(--primary-light); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 900; color: var(--primary-dark); flex-shrink: 0; }
+    .section-title { font-size: 17px; font-weight: 800; letter-spacing: -0.02em; color: var(--dark); }
+
+    /* ── INTRO BOX ── */
+    .intro-box { background: linear-gradient(135deg, var(--primary-light), var(--teal-light)); border: 1px solid rgba(142,123,190,0.2); border-radius: 10px; padding: 13px 16px; margin-bottom: 14px; }
+    .intro-box p { font-size: 11.5px; color: var(--slate); line-height: 1.58; }
+    .intro-box p:not(:last-child) { margin-bottom: 7px; }
+
+    /* ── METRICS ── */
+    .metrics-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 16px; }
+    .metric-card { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 12px 13px; }
+    .metric-card.accent { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); border-color: var(--primary); }
+    .metric-label { font-size: 9.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+    .metric-card.accent .metric-label { color: rgba(255,255,255,0.85); }
+    .metric-value { font-size: 21px; font-weight: 900; letter-spacing: -0.03em; color: var(--dark); line-height: 1.1; }
+    .metric-card.accent .metric-value { color: white; }
+    .metric-sub { font-size: 10px; color: var(--muted); margin-top: 3px; }
+    .metric-card.accent .metric-sub { color: rgba(255,255,255,0.85); font-weight: 600; }
+
+    /* ── STATUS BADGES ── */
+    .badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 100px; font-size: 9px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; }
+    .badge-done { background: var(--green-light); color: #16a34a; }
+    .badge-progress { background: var(--orange-light); color: #c2410c; }
+    .badge-pending { background: #F0F4FF; color: #3B4FC4; }
+
+    /* ── MODULE TABLE ── */
+    .mod-table { width: 100%; border-collapse: separate; border-spacing: 0; margin-bottom: 10px; font-size: 10.5px; }
+    .mod-table thead th { background: var(--dark); color: white; font-size: 9px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 7px 9px; text-align: left; }
+    .mod-table thead th:first-child { border-radius: 7px 0 0 0; }
+    .mod-table thead th:last-child { border-radius: 0 7px 0 0; text-align: right; }
+    .mod-table tbody tr:nth-child(even) td { background: var(--bg); }
+    .mod-table tbody td { padding: 5.5px 9px; font-size: 10.5px; color: var(--slate); border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .mod-table tbody td:last-child { text-align: right; font-weight: 700; color: var(--dark); white-space: nowrap; }
+    .mod-table tbody td.center { text-align: center; }
+    .mod-table tfoot td { background: var(--dark); color: white; font-weight: 800; padding: 8px 9px; font-size: 10.5px; }
+    .mod-table tfoot td:first-child { border-radius: 0 0 0 7px; }
+    .mod-table tfoot td:last-child { border-radius: 0 0 7px 0; text-align: right; font-size: 12px; }
+    .mod-name { font-weight: 700; color: var(--dark); font-size: 11px; display: block; }
+    .mod-desc { font-size: 9.5px; color: var(--muted); line-height: 1.3; display: block; }
+    .mod-tag { display: inline-block; background: var(--primary-light); color: var(--primary-dark); font-size: 8px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; padding: 1px 5px; border-radius: 3px; margin-bottom: 1px; }
+    .mod-tag.teal { background: var(--teal-light); color: var(--teal-dark); }
+    .mod-tag.warm { background: var(--warm-light); color: #b45309; }
+    .mod-tag.done { background: var(--green-light); color: #16a34a; }
+    .mod-tag.orange { background: var(--orange-light); color: #c2410c; }
+
+    /* ── DETAIL PHASE ── */
+    .phase-block { margin-bottom: 9px; break-inside: avoid; page-break-inside: avoid; }
+    .phase-header { display: flex; align-items: center; gap: 8px; background: var(--bg); border: 1px solid var(--border); border-radius: 6px 6px 0 0; padding: 5.5px 11px; }
+    .phase-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--primary); flex-shrink: 0; }
+    .phase-dot.teal { background: var(--teal); }
+    .phase-dot.warm { background: var(--warm); }
+    .phase-dot.green { background: var(--green); }
+    .phase-name-text { font-size: 11px; font-weight: 800; color: var(--dark); flex: 1; }
+    .phase-hours-text { font-size: 10.5px; font-weight: 700; color: var(--primary-dark); }
+    .task-list { border: 1px solid var(--border); border-top: none; border-radius: 0 0 6px 6px; overflow: hidden; }
+    .task-row { display: grid; grid-template-columns: 1fr 38px 75px; padding: 4px 11px; border-bottom: 1px solid var(--border); font-size: 10px; align-items: center; gap: 6px; }
+    .task-row:last-child { border-bottom: none; }
+    .task-row:nth-child(even) { background: #FAFAFD; }
+    .task-task { color: var(--slate); line-height: 1.3; }
+    .task-h { text-align: center; font-weight: 700; color: var(--dark); }
+    .task-v { text-align: right; color: var(--muted); font-size: 9.5px; font-weight: 600; }
+
+    /* ── PAYMENT TABLE ── */
+    .pay-table { width: 100%; border-collapse: separate; border-spacing: 0; margin: 8px 0 12px; }
+    .pay-table th { background: var(--dark); color: white; font-size: 9px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; padding: 7px 9px; text-align: left; }
+    .pay-table th:first-child { border-radius: 7px 0 0 0; }
+    .pay-table th:last-child { border-radius: 0 7px 0 0; text-align: right; }
+    .pay-table td { padding: 5.5px 9px; font-size: 10.5px; color: var(--slate); border-bottom: 1px solid var(--border); }
+    .pay-table td:last-child { text-align: right; font-weight: 700; }
+    .pay-table td.center { text-align: center; }
+    .pay-table tbody tr:nth-child(even) td { background: var(--bg); }
+    .pay-table tfoot td { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; font-weight: 800; padding: 9px 9px; font-size: 11.5px; }
+    .pay-table tfoot td:first-child { border-radius: 0 0 0 7px; }
+    .pay-table tfoot td:last-child { border-radius: 0 0 7px 0; text-align: right; font-size: 13px; }
+
+    /* ── HIGHLIGHT BOX ── */
+    .highlight-box { background: linear-gradient(135deg, var(--primary-deep), #2A1D3B); border-radius: 10px; padding: 12px 16px; color: white; margin-bottom: 10px; }
+    .highlight-box h3 { font-size: 12.5px; font-weight: 800; margin-bottom: 5px; display: flex; align-items: center; gap: 5px; color: var(--warm); }
+    .highlight-box p { font-size: 10.5px; opacity: 0.92; line-height: 1.48; }
+    .highlight-box ul { margin-top: 7px; padding-left: 16px; }
+    .highlight-box ul li { font-size: 10.5px; opacity: 0.95; margin-bottom: 4px; }
+
+    /* ── INFO BOX ── */
+    .info-box { background: var(--bg); border: 1px solid var(--border); border-left: 3px solid var(--teal); border-radius: 0 7px 7px 0; padding: 8px 11px; margin-bottom: 9px; }
+    .info-box p { font-size: 10.5px; color: var(--slate); line-height: 1.5; }
+
+    /* ── TIMELINE ── */
+    .timeline { margin: 8px 0 12px; display: flex; flex-direction: column; gap: 6px; }
+    .tl-item { display: grid; grid-template-columns: 100px 1fr; gap: 9px; align-items: center; }
+    .tl-month { background: var(--dark); color: white; border-radius: 5px; padding: 6px 5px; text-align: center; font-size: 10px; font-weight: 800; line-height: 1.2; }
+    .tl-month small { font-size: 8.5px; font-weight: 500; opacity: 0.8; display: block; }
+    .tl-content { border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; background: white; }
+    .tl-title { font-size: 11px; font-weight: 700; color: var(--dark); margin-bottom: 1px; }
+    .tl-desc { font-size: 9.5px; color: var(--muted); line-height: 1.3; }
+
+    /* ── CARD GRIDS ── */
+    .card-grid-2x2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 9px; }
+    .fcard { border: 1px solid var(--border); border-radius: 7px; padding: 8px 10px; background: white; }
+    .fcard-header { display: flex; align-items: center; gap: 5px; margin-bottom: 2px; }
+    .fcard-icon { font-size: 12px; }
+    .fcard-title { font-size: 10.5px; font-weight: 700; color: var(--dark); }
+    .fcard-desc { font-size: 9.5px; color: var(--muted); line-height: 1.3; }
+
+    /* ── TERMS GRID ── */
+    .terms-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+    .terms-card { background: var(--bg); border: 1px solid var(--border); border-left: 2.5px solid var(--primary); border-radius: 0 7px 7px 0; padding: 8px 10px; }
+    .terms-card-title { font-size: 10.5px; font-weight: 700; color: var(--dark); margin-bottom: 2px; }
+    .terms-card-text { font-size: 9.5px; color: var(--slate); line-height: 1.4; }
+
+    /* ── SIGNATURES ── */
+    .signatures-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-top: 14px; margin-bottom: 6px; }
+    .signature-box { border-top: 1.5px solid var(--dark); padding-top: 7px; text-align: center; }
+    .signature-name { font-size: 11px; font-weight: 800; color: var(--dark); letter-spacing: 0.02em; }
+    .signature-role { font-size: 9px; font-weight: 700; color: var(--primary-dark); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 1px; }
+    .signature-sub { font-size: 8.5px; color: var(--muted); margin-top: 3px; }
+
+    /* ── FOOTER ── */
+    .doc-footer { padding-top: 8px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; font-size: 9px; color: var(--muted); flex-shrink: 0; }
+
+    /* ── TECH GRID ── */
+    .tech-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 7px; margin-top: 8px; margin-bottom: 12px; }
+    .tech-item { border: 1px solid var(--border); border-radius: 8px; padding: 8px 6px; text-align: center; background: var(--bg); }
+    .tech-name { font-size: 10.5px; font-weight: 700; color: var(--dark); margin-bottom: 1px; }
+    .tech-role { font-size: 8.5px; color: var(--muted); }
+
+    /* ── PRINT ── */
+    @page { size: A4 portrait; margin: 0; }
+
+    @media print {
+      body { background: white !important; padding: 0 !important; margin: 0 !important; }
+      .screen-toolbar { display: none !important; }
+      .document-container { padding: 0 !important; gap: 0 !important; display: block !important; }
+      .page-sheet { width: 210mm !important; height: 297mm !important; min-height: 297mm !important; max-height: 297mm !important; margin: 0 !important; box-shadow: none !important; border-radius: 0 !important; page-break-after: always !important; break-after: page !important; page-break-inside: avoid !important; break-inside: avoid !important; overflow: hidden !important; }
+      .page-inner { padding: 12mm 15mm 10mm 15mm !important; }
+      .cover-body { padding: 28mm 18mm 16mm !important; }
+      .cover-footer { padding: 14px 18mm !important; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- TOOLBAR -->
+<div class="screen-toolbar">
+  <div class="screen-toolbar-title">Proposta Comercial — <span>Instituto Conectar</span></div>
+  <button class="print-btn" onclick="window.print()">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>
+    </svg>
+    Imprimir / Salvar PDF
+  </button>
+</div>
+
+<div class="document-container">
+
+<!-- ═══════ FOLHA 1 — CAPA ═══════ -->
+<div class="page-sheet">
+  <div class="cover-top-bar"></div>
+  <div class="cover-orb-1"></div>
+  <div class="cover-orb-2"></div>
+  <div class="cover-body">
+    <div>
+      <div class="cover-badge">🧠 &nbsp; Proposta Comercial &amp; Técnica — Revisão Final</div>
+      <h1 class="cover-title">Sistema de Gestão<br/>Clínica Multidisciplinar<br/><span>Instituto Conectar</span></h1>
+      <p class="cover-subtitle">
+        Plataforma proprietária de <strong>ponta a ponta</strong> para clínica especializada em
+        neurodesenvolvimento (TDAH, TEA, Dislexia, Discalculia): agenda inteligente,
+        prontuário eletrônico multidisciplinar, financeiro completo, portal exclusivo dos pais,
+        automação via WhatsApp, IA assistente de laudos e infraestrutura Docker com deploy gerenciado.
+      </p>
+    </div>
+    <div class="cover-meta">
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">Contratante</div>
+        <div class="cover-meta-value">Instituto Conectar<br/><span style="color:var(--muted);font-weight:500;font-size:11px;">Clínica de Neurodesenvolvimento</span></div>
+      </div>
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">Desenvolvedores</div>
+        <div class="cover-meta-value">Ramon Cerqueira · Frontend<br/>Ibra Có · Backend &amp; Infra</div>
+      </div>
+      <div class="cover-meta-item">
+        <div class="cover-meta-label">Data &amp; Validade</div>
+        <div class="cover-meta-value">SETEMBRO 2026<br/><span style="font-size:11px;font-weight:500;color:var(--muted);">Válido por 15 dias corridos</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="cover-footer">
+    <div class="cover-footer-brand">Instituto <span>Conectar</span></div>
+    <div class="cover-footer-date">Documento Confidencial — Uso exclusivo da diretoria</div>
+  </div>
+</div>
+
+<!-- ═══════ FOLHA 2 — VISÃO GERAL ═══════ -->
+<div class="page-sheet">
+  <div class="page-inner">
+    <div class="page-content">
+      <div class="section-header">
+        <div class="section-number">1</div>
+        <div class="section-title">Visão Geral do Sistema e Investimento</div>
+      </div>
+
+      <div class="intro-box">
+        <p>O <strong>Sistema Conectar</strong> é uma plataforma digital proprietária construída sob medida, composta por um monorepo com 4 aplicações integradas: <strong>Frontend clínico (Next.js 15)</strong>, <strong>Backend API (NestJS)</strong>, <strong>Serviço de IA (Google Gemini)</strong> e <strong>Serviço de WhatsApp (whatsapp-web.js)</strong>. O banco de dados relacional PostgreSQL conta com <strong>1.030 linhas de schema Prisma</strong> e <strong>38 modelos de dados</strong> interligados.</p>
+        <p>Ao todo, o sistema compreende <strong>26 módulos de backend independentes</strong> (NestJS), <strong>21 telas e rotas de frontend</strong>, <strong>27 componentes da landing page</strong> e microserviços autônomos — totalizando mais de <strong>1.125 KB de código-fonte</strong> escrito, testado e em produção no servidor do Instituto Conectar.</p>
+      </div>
+
+      <div class="metrics-grid">
+        <div class="metric-card accent">
+          <div class="metric-label">Investimento Total</div>
+          <div class="metric-value">R$ 84.600</div>
+          <div class="metric-sub">R$ 120/hora · 705h totais</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Horas Desenvolvidas</div>
+          <div class="metric-value">705h</div>
+          <div class="metric-sub">Backend 285h + Frontend 340h + Infra 80h</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Módulos Entregues</div>
+          <div class="metric-value">26</div>
+          <div class="metric-sub">Backend NestJS (APIs completas)</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Telas Entregues</div>
+          <div class="metric-value">21</div>
+          <div class="metric-sub">Frontend clínico + 2 Portais + Landing Page</div>
+        </div>
+      </div>
+
+      <div class="section-header" style="margin-top: 4px; margin-bottom: 8px;">
+        <div class="section-number" style="background:var(--teal-light);color:var(--teal-dark);">T</div>
+        <div class="section-title">Stack Tecnológico Completo</div>
+      </div>
+
+      <div class="tech-grid">
+        <div class="tech-item"><div class="tech-name">Next.js 15</div><div class="tech-role">Frontend &amp; App Router</div></div>
+        <div class="tech-item"><div class="tech-name">NestJS</div><div class="tech-role">Backend corporativo</div></div>
+        <div class="tech-item"><div class="tech-name">TypeScript</div><div class="tech-role">Full-stack tipado</div></div>
+        <div class="tech-item"><div class="tech-name">Tailwind CSS 4</div><div class="tech-role">Design System oficial</div></div>
+        <div class="tech-item"><div class="tech-name">Shadcn/UI</div><div class="tech-role">Componentes premium</div></div>
+        <div class="tech-item"><div class="tech-name">PostgreSQL</div><div class="tech-role">Banco + Full-text Search</div></div>
+        <div class="tech-item"><div class="tech-name">Prisma ORM</div><div class="tech-role">38 modelos / 1.030 linhas</div></div>
+        <div class="tech-item"><div class="tech-name">Redis + BullMQ</div><div class="tech-role">Cache e filas async</div></div>
+        <div class="tech-item"><div class="tech-name">Socket.IO</div><div class="tech-role">Tempo real / WS</div></div>
+        <div class="tech-item"><div class="tech-name">Google Gemini</div><div class="tech-role">IA Assistente Clínico</div></div>
+        <div class="tech-item"><div class="tech-name">whatsapp-web.js</div><div class="tech-role">Automação WhatsApp</div></div>
+        <div class="tech-item"><div class="tech-name">JWT + HttpOnly</div><div class="tech-role">Auth segura</div></div>
+        <div class="tech-item"><div class="tech-name">Docker + Nginx</div><div class="tech-role">Containerização</div></div>
+        <div class="tech-item"><div class="tech-name">Recharts</div><div class="tech-role">Gráficos clínicos</div></div>
+        <div class="tech-item"><div class="tech-name">Framer Motion</div><div class="tech-role">Animações suaves</div></div>
+      </div>
+
+    </div>
+    <div class="doc-footer">
+      <span>Instituto Conectar — Proposta Comercial &amp; Técnica 2026</span>
+      <span>Página 2 de 13</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ FOLHA 3 — ESCOPO CONSOLIDADO ═══════ -->
+<div class="page-sheet">
+  <div class="page-inner">
+    <div class="page-content">
+      <div class="section-header">
+        <div class="section-number">2</div>
+        <div class="section-title">Escopo de Módulos — Resumo Geral por Grupo</div>
+      </div>
+
+      <p style="font-size:10.5px;color:var(--slate);margin-bottom:9px;line-height:1.5;">
+        O sistema foi mapeado em <strong>11 grupos funcionais</strong>, cada um cobrindo um domínio clínico ou operacional específico. As horas abaixo refletem o esforço real de engenharia mensurado pelo volume de código-fonte, complexidade técnica e testes realizados.
+      </p>
+
+      <table class="mod-table">
+        <thead>
+          <tr>
+            <th style="width:36%;">Grupo / Módulo</th>
+            <th>Entregas Principais</th>
+            <th style="width:48px;" class="center">Horas</th>
+            <th style="width:85px;">Valor</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <span class="mod-tag done">✓ Entregue</span><br/>
+              <span class="mod-name">1. Fundação: Monorepo, Infraestrutura &amp; BD</span>
+              <span class="mod-desc">Turborepo · pnpm workspaces · Docker · Prisma 38 modelos · 1.030 linhas schema</span>
+            </td>
+            <td style="font-size:9.5px;color:var(--muted);">Docker-compose (PostgreSQL, Redis, Nginx), schema relacional completo, migrations, seed, scripts sync-env, CI pipeline</td>
+            <td class="center">52h</td>
+            <td>R$ 6.240</td>
+          </tr>
+          <tr>
+            <td>
+              <span class="mod-tag done">✓ Entregue</span><br/>
+              <span class="mod-name">2. Backend NestJS: Arquitetura &amp; Segurança</span>
+              <span class="mod-desc">Auth JWT HttpOnly · RBAC 13 perfis · BullMQ · Socket.IO · Swagger · Rate Limiting</span>
+            </td>
+            <td style="font-size:9.5px;color:var(--muted);">26 módulos NestJS integrados, Refresh Token, 13 perfis RBAC, gateways WebSocket, throttler, auditoria e Swagger completo</td>
+            <td class="center">68h</td>
+            <td>R$ 8.160</td>
+          </tr>
+          <tr>
+            <td>
+              <span class="mod-tag done">✓ Entregue</span><br/>
+              <span class="mod-name">3. Design System Clínico &amp; Frontend Base</span>
+              <span class="mod-desc">Shadcn/UI · Tailwind 4 · Paleta oficial · Layout · Skeletons · Animações</span>
+            </td>
+            <td style="font-size:9.5px;color:var(--muted);">globals.css com 440 linhas (tokens Roxo/Rosa/Verde), sidebar inteligente, header com notificações, componentes reutilizáveis</td>
+            <td class="center">40h</td>
+            <td>R$ 4.800</td>
+          </tr>
+          <tr>
+            <td>
+              <span class="mod-tag done">✓ Entregue</span><br/>
+              <span class="mod-name">4. Pacientes, Profissionais &amp; Salas</span>
+              <span class="mod-desc">Ficha clínica completa · CID/diagnósticos · Conselho de classe · Alergias · Convênio</span>
+            </td>
+            <td style="font-size:9.5px;color:var(--muted);">Cadastro completo com Full-text Search (tsvector), drawer lateral, gestão de profissionais (CRP/CREFITO), salas com status e alocações</td>
+            <td class="center">58h</td>
+            <td>R$ 6.960</td>
+          </tr>
+          <tr>
+            <td>
+              <span class="mod-tag done">✓ Entregue</span><br/>
+              <span class="mod-name">5. Agenda Inteligente, Bloqueios &amp; Lista de Espera</span>
+              <span class="mod-desc">FullCalendar · Multi-resource · Repetição semanal · Confirmação de presença</span>
+            </td>
+            <td style="font-size:9.5px;color:var(--muted);">Agendamentos com status (8 tipos), bloqueios por motivo, lista de espera com alerta, vistas diária/semanal e tempo real Socket.IO</td>
+            <td class="center">50h</td>
+            <td>R$ 6.000</td>
+          </tr>
+          <tr>
+            <td>
+              <span class="mod-tag done">✓ Entregue</span><br/>
+              <span class="mod-name">6. Prontuário, PTS, Avaliações &amp; Laudos</span>
+              <span class="mod-desc">Evolução por sessão · Plano Terapêutico Singular · Avaliações configuráveis · Laudos PDF</span>
+            </td>
+            <td style="font-size:9.5px;color:var(--muted);">Prontuário multidisciplinar com 9 campos clínicos + JSONB extra, PTS com metas percentuais, avaliações tipadas por especialidade, laudos com templates variáveis</td>
+            <td class="center">82h</td>
+            <td>R$ 9.840</td>
+          </tr>
+          <tr>
+            <td>
+              <span class="mod-tag done">✓ Entregue</span><br/>
+              <span class="mod-name">7. Financeiro Completo: Fluxo, DRE, Folha &amp; Caixa</span>
+              <span class="mod-desc">Lançamentos · Inadimplência · DRE gerencial · Fechamento de caixa · Adiantamentos</span>
+            </td>
+            <td style="font-size:9.5px;color:var(--muted);">7 abas (Fluxo, Lançamentos, Folha, Repasses, Inadimplentes, Caixa, Previsão DRE). Modelos: Lancamento, FechamentoCaixa, Adiantamento. 2.176 linhas de frontend</td>
+            <td class="center">90h</td>
+            <td>R$ 10.800</td>
+          </tr>
+          <tr>
+            <td>
+              <span class="mod-tag done">✓ Entregue</span><br/>
+              <span class="mod-name">8. Contratos Digitais, Arquivos, Escolar &amp; Ponto Auditado</span>
+              <span class="mod-desc">Assinatura canvas · Modelo contrato · Upload arquivos · Ponto com webcam e GPS</span>
+            </td>
+            <td style="font-size:9.5px;color:var(--muted);">Contratos com assinatura digital desenhada (Base64 canvas), ponto eletrônico com foto selfie obrigatória + geolocalização, relatórios escolares e reuniões</td>
+            <td class="center">78h</td>
+            <td>R$ 9.360</td>
+          </tr>
+          <tr>
+            <td>
+              <span class="mod-tag done">✓ Entregue</span><br/>
+              <span class="mod-name">9. Comunicação, Chat Interno, WhatsApp &amp; Notificações</span>
+              <span class="mod-desc">Disparos WhatsApp/E-mail · CRM Leads · Chatbot triagem · Chat 1:1 real time</span>
+            </td>
+            <td style="font-size:9.5px;color:var(--muted);">Módulo de disparos com fila (MensagemFila), CRM de Leads do chatbot de triagem da landing page, chat interno recepção↔profissionais via Socket.IO</td>
+            <td class="center">62h</td>
+            <td>R$ 7.440</td>
+          </tr>
+          <tr>
+            <td>
+              <span class="mod-tag done">✓ Entregue</span><br/>
+              <span class="mod-name">10. Portal dos Pais, IA Gemini &amp; Landing Page</span>
+              <span class="mod-desc">Portal familias · Exercícios casa · IA laudos/resumos · Site institucional</span>
+            </td>
+            <td style="font-size:9.5px;color:var(--muted);">Portal dos pais (1.332 linhas) com agenda, metas, financeiro e exercícios; microserviço IA Gemini (resumo sessão, laudos, sugestões); landing page com 27 componentes e chatbot widget</td>
+            <td class="center">88h</td>
+            <td>R$ 10.560</td>
+          </tr>
+          <tr>
+            <td>
+              <span class="mod-tag done">✓ Entregue</span><br/>
+              <span class="mod-name">11. Dashboard, Configurações, LGPD, Auditoria &amp; Deploy</span>
+              <span class="mod-desc">KPIs em tempo real · Perfil de usuário · Consentimentos LGPD · Auditoria · VPS</span>
+            </td>
+            <td style="font-size:9.5px;color:var(--muted);">Dashboard com métricas clínicas e financeiras, configurações globais, trilha de auditoria de acessos, consentimentos LGPD, deploy VPS Nginx SSL + backup automático</td>
+            <td class="center">37h</td>
+            <td>R$ 4.440</td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="2"><strong>INVESTIMENTO TOTAL DO SISTEMA CONECTAR</strong></td>
+            <td><strong>705h</strong></td>
+            <td><strong>R$ 84.600</strong></td>
+          </tr>
+        </tfoot>
+      </table>
+
+      <div class="info-box" style="margin-bottom:0;">
+        <p><strong>Base de precificação:</strong> R$ 120,00/hora para desenvolvimento Fullstack sênior especializado em saúde. O valor praticado está <strong>30–40% abaixo da média de mercado</strong> para projetos de mesma complexidade (mercado pratica R$ 160–200/hora para sistemas de saúde LGPD-compliant). Inclui código-fonte 100% de propriedade do Instituto Conectar, sem taxas de licenciamento perpétuas.</p>
+      </div>
+
+    </div>
+    <div class="doc-footer">
+      <span>Instituto Conectar — Proposta Comercial &amp; Técnica 2026</span>
+      <span>Página 3 de 13</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ FOLHA 4 — DETALHAMENTO GRUPOS 1–4 ═══════ -->
+<div class="page-sheet">
+  <div class="page-inner">
+    <div class="page-content">
+      <div class="section-header">
+        <div class="section-number">3</div>
+        <div class="section-title">Detalhamento de Horas por Tarefa — Grupos 1 a 4</div>
+      </div>
+
+      <!-- GRUPO 1 -->
+      <div class="phase-block">
+        <div class="phase-header">
+          <div class="phase-dot green"></div>
+          <div class="phase-name-text">Grupo 1 — Monorepo, Infraestrutura &amp; Banco de Dados PostgreSQL</div>
+          <div class="phase-hours-text">52h · R$ 6.240</div>
+        </div>
+        <div class="task-list">
+          <div class="task-row"><span class="task-task">Estruturação Turborepo + pnpm workspaces (4 apps + shared packages)</span><span class="task-h">8h</span><span class="task-v">R$ 960</span></div>
+          <div class="task-row"><span class="task-task">Modelagem relacional PostgreSQL (38 modelos, 14 enums, índices otimizados, full-text search tsvector)</span><span class="task-h">14h</span><span class="task-v">R$ 1.680</span></div>
+          <div class="task-row"><span class="task-task">Orquestração Docker-compose: PostgreSQL, Redis, Nginx reverse proxy + volumes persistentes</span><span class="task-h">8h</span><span class="task-v">R$ 960</span></div>
+          <div class="task-row"><span class="task-task">Scripts de sync-env, seed completo com dados de teste, migrations versionadas</span><span class="task-h">8h</span><span class="task-v">R$ 960</span></div>
+          <div class="task-row"><span class="task-task">Configuração de portas (5101/5202/5303), PM2 ecosystem, pipeline Turbo e CORS de produção</span><span class="task-h">8h</span><span class="task-v">R$ 960</span></div>
+          <div class="task-row"><span class="task-task">Rotina de backup pg_dump automático, monitoramento e health-check dos serviços</span><span class="task-h">6h</span><span class="task-v">R$ 720</span></div>
+        </div>
+      </div>
+
+      <!-- GRUPO 2 -->
+      <div class="phase-block">
+        <div class="phase-header">
+          <div class="phase-dot"></div>
+          <div class="phase-name-text">Grupo 2 — Backend NestJS: Arquitetura, Segurança RBAC &amp; 26 Módulos</div>
+          <div class="phase-hours-text">68h · R$ 8.160</div>
+        </div>
+        <div class="task-list">
+          <div class="task-row"><span class="task-task">Setup NestJS modular: injeção de dependências, pipes de validação Zod, filtros globais, interceptors</span><span class="task-h">8h</span><span class="task-v">R$ 960</span></div>
+          <div class="task-row"><span class="task-task">Auth JWT com Refresh Token em cookie HttpOnly, BCrypt, estratégias Passport (JWT + Local)</span><span class="task-h">10h</span><span class="task-v">R$ 1.200</span></div>
+          <div class="task-row"><span class="task-task">RBAC granular para 13 perfis (Admin, Diretor, Coordenador, Recepção, Financeiro, 5 especialidades, Supervisor, Pais)</span><span class="task-h">10h</span><span class="task-v">R$ 1.200</span></div>
+          <div class="task-row"><span class="task-task">Integração Redis + BullMQ para filas de notificações, e-mail e WhatsApp assíncronos</span><span class="task-h">8h</span><span class="task-v">R$ 960</span></div>
+          <div class="task-row"><span class="task-task">Gateway Socket.IO duplo (Agenda + Chat): eventos de tempo real com salas e autenticação</span><span class="task-h">10h</span><span class="task-v">R$ 1.200</span></div>
+          <div class="task-row"><span class="task-task">ThrottlerModule (rate limiting short/medium), Helmet, CORS configurável por ambiente</span><span class="task-h">6h</span><span class="task-v">R$ 720</span></div>
+          <div class="task-row"><span class="task-task">Upload Multer com validação MIME sanitizada, armazenamento estruturado em /storage na VPS</span><span class="task-h">8h</span><span class="task-v">R$ 960</span></div>
+          <div class="task-row"><span class="task-task">Swagger OpenAPI completo com todos os endpoints, DTOs documentados e autenticação Bearer</span><span class="task-h">8h</span><span class="task-v">R$ 960</span></div>
+        </div>
+      </div>
+
+      <!-- GRUPO 3 -->
+      <div class="phase-block">
+        <div class="phase-header">
+          <div class="phase-dot teal"></div>
+          <div class="phase-name-text">Grupo 3 — Design System Clínico Acolhedor &amp; Frontend Base Next.js</div>
+          <div class="phase-hours-text">40h · R$ 4.800</div>
+        </div>
+        <div class="task-list">
+          <div class="task-row"><span class="task-task">Design System completo: paleta oficial (Roxo #8E7BBE, Rosa #E98BAE, Verde-água #69C4B5, Dourado), 440 linhas globals.css</span><span class="task-h">10h</span><span class="task-v">R$ 1.200</span></div>
+          <div class="task-row"><span class="task-task">Biblioteca Shadcn/UI customizada com tokens Conectar + Tailwind CSS 4 + Framer Motion</span><span class="task-h">10h</span><span class="task-v">R$ 1.200</span></div>
+          <div class="task-row"><span class="task-task">Layout mestre: sidebar retrátil com RBAC visual, header com notificações em tempo real e perfil</span><span class="task-h">10h</span><span class="task-v">R$ 1.200</span></div>
+          <div class="task-row"><span class="task-task">Componentes de resiliência: Skeletons, EmptyStates humanizados, Error Boundaries</span><span class="task-h">6h</span><span class="task-v">R$ 720</span></div>
+          <div class="task-row"><span class="task-task">Next.js 15 App Router com grupos de rotas, middleware de autenticação e acessibilidade WCAG</span><span class="task-h">4h</span><span class="task-v">R$ 480</span></div>
+        </div>
+      </div>
+
+      <!-- GRUPO 4 -->
+      <div class="phase-block">
+        <div class="phase-header">
+          <div class="phase-dot"></div>
+          <div class="phase-name-text">Grupo 4 — Pacientes, Profissionais, Salas &amp; Colaboradores</div>
+          <div class="phase-hours-text">58h · R$ 6.960</div>
+        </div>
+        <div class="task-list">
+          <div class="task-row"><span class="task-task">API Pacientes: CRUD completo, ficha com diagnósticos CID, alergias, medicamentos, convênio, modelo cobrança</span><span class="task-h">12h</span><span class="task-v">R$ 1.440</span></div>
+          <div class="task-row"><span class="task-task">Full-text Search PostgreSQL (tsvector) em nome, CPF e responsável dos pacientes</span><span class="task-h">4h</span><span class="task-v">R$ 480</span></div>
+          <div class="task-row"><span class="task-task">Gestão de responsáveis (até 6 tipos: pai, mãe, avós, tutor, outro) e ativação do portal dos pais</span><span class="task-h">6h</span><span class="task-v">R$ 720</span></div>
+          <div class="task-row"><span class="task-task">API Profissionais: cadastro com registro de conselho (CRP, CREFITO, CREFONO), bio, formação, cor na agenda</span><span class="task-h">8h</span><span class="task-v">R$ 960</span></div>
+          <div class="task-row"><span class="task-task">API Salas: CRUD com status (Disponível, Ocupada, Manutenção, Bloqueada), alocações por profissional e horário</span><span class="task-h">8h</span><span class="task-v">R$ 960</span></div>
+          <div class="task-row"><span class="task-task">Página Colaboradores: CRUD usuários, vinculação contrato (CLT/PJ), salário, chave PIX e controle de acesso</span><span class="task-h">10h</span><span class="task-v">R$ 1.200</span></div>
+          <div class="task-row"><span class="task-task">Drawer lateral de visualização rápida da ficha clínica do paciente em qualquer contexto do sistema</span><span class="task-h">10h</span><span class="task-v">R$ 1.200</span></div>
+        </div>
+      </div>
+
+    </div>
+    <div class="doc-footer">
+      <span>Instituto Conectar — Proposta Comercial &amp; Técnica 2026</span>
+      <span>Página 4 de 13</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ FOLHA 5 — DETALHAMENTO GRUPOS 5–7 ═══════ -->
+<div class="page-sheet">
+  <div class="page-inner">
+    <div class="page-content">
+      <div class="section-header">
+        <div class="section-number">3</div>
+        <div class="section-title">Detalhamento de Horas por Tarefa — Grupos 5 a 7</div>
+      </div>
+
+      <!-- GRUPO 5 -->
+      <div class="phase-block">
+        <div class="phase-header">
+          <div class="phase-dot teal"></div>
+          <div class="phase-name-text">Grupo 5 — Agenda Inteligente, Bloqueios &amp; Lista de Espera</div>
+          <div class="phase-hours-text">50h · R$ 6.000</div>
+        </div>
+        <div class="task-list">
+          <div class="task-row"><span class="task-task">API Agenda: CRUD agendamentos com 8 status, repetição semanal por grupo (UUID), link online para sessões remotas</span><span class="task-h">12h</span><span class="task-v">R$ 1.440</span></div>
+          <div class="task-row"><span class="task-task">Frontend FullCalendar com visualização semanal/diária, drag-and-drop e multi-resource (sala + profissional)</span><span class="task-h">10h</span><span class="task-v">R$ 1.200</span></div>
+          <div class="task-row"><span class="task-task">Prevenção ativa de choque de horários por sala e profissional com validação server-side</span><span class="task-h">6h</span><span class="task-v">R$ 720</span></div>
+          <div class="task-row"><span class="task-task">Bloqueios de agenda: férias, almoço, reunião com marcação por motivo e tipo</span><span class="task-h">6h</span><span class="task-v">R$ 720</span></div>
+          <div class="task-row"><span class="task-task">Módulo Lista de Espera com alerta automático de disponibilidade de vagas via WhatsApp/e-mail</span><span class="task-h">8h</span><span class="task-v">R$ 960</span></div>
+          <div class="task-row"><span class="task-task">Registro de Frequência (Presença, Falta Justificada, Cancelamento, Reposição) vinculado ao agendamento</span><span class="task-h">8h</span><span class="task-v">R$ 960</span></div>
+        </div>
+      </div>
+
+      <!-- GRUPO 6 -->
+      <div class="phase-block">
+        <div class="phase-header">
+          <div class="phase-dot"></div>
+          <div class="phase-name-text">Grupo 6 — Prontuário Multidisciplinar, PTS, Avaliações, Evolução &amp; Laudos</div>
+          <div class="phase-hours-text">82h · R$ 9.840</div>
+        </div>
+        <div class="task-list">
+          <div class="task-row"><span class="task-task">Prontuário eletrônico: 9 campos clínicos estruturados (queixa, objetivos, atividades, resultados, comportamento, orientação pais, próxima meta) + JSONB para campos extras por especialidade</span><span class="task-h">16h</span><span class="task-v">R$ 1.920</span></div>
+          <div class="task-row"><span class="task-task">Plano Terapêutico Singular (PTS): metas com % de progresso, status (Não iniciado, Em andamento, Concluído, Pausado), histórico de progressão</span><span class="task-h">14h</span><span class="task-v">R$ 1.680</span></div>
+          <div class="task-row"><span class="task-task">Gráficos de evolução clínica em múltiplas áreas (leitura, escrita, coordenação motora, cognição) com Recharts AreaChart</span><span class="task-h">10h</span><span class="task-v">R$ 1.200</span></div>
+          <div class="task-row"><span class="task-task">Sistema de Avaliações configuráveis: TipoAvaliacao com campos JSONB flexíveis por especialidade (Psicologia, Fono, TO, Neuro)</span><span class="task-h">12h</span><span class="task-v">R$ 1.440</span></div>
+          <div class="task-row"><span class="task-task">Módulo de Laudos: ModeloLaudo com templates variáveis ({{nome}}, {{data}}, etc.), geração de PDF e controle de publicação</span><span class="task-h">14h</span><span class="task-v">R$ 1.680</span></div>
+          <div class="task-row"><span class="task-task">Exercícios para casa: criação por profissional (PDF, vídeo, orientação), confirmação de realização pelo responsável no portal</span><span class="task-h">8h</span><span class="task-v">R$ 960</span></div>
+          <div class="task-row"><span class="task-task">Controle escolar: registro de escola, professor, coordenador, reuniões e relatórios com envio para a escola</span><span class="task-h">8h</span><span class="task-v">R$ 960</span></div>
+        </div>
+      </div>
+
+      <!-- GRUPO 7 -->
+      <div class="phase-block">
+        <div class="phase-header">
+          <div class="phase-dot warm"></div>
+          <div class="phase-name-text">Grupo 7 — Financeiro Completo (7 Abas): Fluxo, Lançamentos, Folha, DRE, Caixa</div>
+          <div class="phase-hours-text">90h · R$ 10.800</div>
+        </div>
+        <div class="task-list">
+          <div class="task-row"><span class="task-task">API Financeiro: lançamentos (Receita/Despesa), 7 formas de pagamento, status (Pendente, Pago, Atrasado, Cancelado, Estornado), filtros avançados</span><span class="task-h">14h</span><span class="task-v">R$ 1.680</span></div>
+          <div class="task-row"><span class="task-task">Dashboard financeiro: resumo mensal (Receita, Despesa, Lucro), gráfico AreaChart mensal e PieChart por categoria com Recharts</span><span class="task-h">12h</span><span class="task-v">R$ 1.440</span></div>
+          <div class="task-row"><span class="task-task">Módulo de Inadimplência: listagem automática de receitas vencidas, filtro por período e alertas</span><span class="task-h">8h</span><span class="task-v">R$ 960</span></div>
+          <div class="task-row"><span class="task-task">Folha de Pagamento: cálculo automático de salário CLT/PJ, comissão por profissional e geração de contracheque</span><span class="task-h">12h</span><span class="task-v">R$ 1.440</span></div>
+          <div class="task-row"><span class="task-task">DRE Gerencial com Previsão: projeção orçamentária de meses futuros baseada em recorrências e contratos ativos</span><span class="task-h">14h</span><span class="task-v">R$ 1.680</span></div>
+          <div class="task-row"><span class="task-task">Fechamento de Caixa: abertura, registro por modalidade (Dinheiro, PIX, Cartão), conferência e aprovação gerencial</span><span class="task-h">12h</span><span class="task-v">R$ 1.440</span></div>
+          <div class="task-row"><span class="task-task">Adiantamentos aos colaboradores com controle de status (Pendente/Pago) e desconto na folha</span><span class="task-h">8h</span><span class="task-v">R$ 960</span></div>
+          <div class="task-row"><span class="task-task">Repasses financeiros: cálculo de comissões por profissional com chave PIX vinculada</span><span class="task-h">10h</span><span class="task-v">R$ 1.200</span></div>
+        </div>
+      </div>
+
+    </div>
+    <div class="doc-footer">
+      <span>Instituto Conectar — Proposta Comercial &amp; Técnica 2026</span>
+      <span>Página 5 de 13</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ FOLHA 6 — DETALHAMENTO GRUPOS 8–11 ═══════ -->
+<div class="page-sheet">
+  <div class="page-inner">
+    <div class="page-content">
+      <div class="section-header">
+        <div class="section-number">3</div>
+        <div class="section-title">Detalhamento de Horas por Tarefa — Grupos 8 a 11</div>
+      </div>
+
+      <!-- GRUPO 8 -->
+      <div class="phase-block">
+        <div class="phase-header">
+          <div class="phase-dot"></div>
+          <div class="phase-name-text">Grupo 8 — Contratos Digitais, Arquivos, Ponto com Webcam/GPS &amp; Escolar</div>
+          <div class="phase-hours-text">78h · R$ 9.360</div>
+        </div>
+        <div class="task-list">
+          <div class="task-row"><span class="task-task">API e frontend de Contratos: CRUD de modelos (contrato, LGPD, autorização imagem), envio por paciente com valor/parcelas/vencimento</span><span class="task-h">12h</span><span class="task-v">R$ 1.440</span></div>
+          <div class="task-row"><span class="task-task">Assinatura digital desenhada na tela (canvas touch + desktop), salva como PNG Base64 no storage/contratos da VPS</span><span class="task-h">10h</span><span class="task-v">R$ 1.200</span></div>
+          <div class="task-row"><span class="task-task">Geração automática de lançamentos financeiros ao assinar contrato (parcelas configuráveis)</span><span class="task-h">8h</span><span class="task-v">R$ 960</span></div>
+          <div class="task-row"><span class="task-task">Gestão de Arquivos clínicos: upload React Dropzone, categorias (Exame, Laudo, Receita, Foto, Vídeo, Áudio), visualizador inline</span><span class="task-h">12h</span><span class="task-v">R$ 1.440</span></div>
+          <div class="task-row"><span class="task-task">Ponto Eletrônico Auditado: captura obrigatória de selfie via webcam (salva em /storage/pontos), GPS com latitude/longitude, validação de dupla batida</span><span class="task-h">14h</span><span class="task-v">R$ 1.680</span></div>
+          <div class="task-row"><span class="task-task">Aprovação de ajustes de ponto pelo gestor, controle de feriados e gestão de solicitações com justificativa</span><span class="task-h">10h</span><span class="task-v">R$ 1.200</span></div>
+          <div class="task-row"><span class="task-task">Módulo escolar: registro de contatos (professor, coordenador), reuniões escolares com resumo e participantes, relatórios enviados</span><span class="task-h">12h</span><span class="task-v">R$ 1.440</span></div>
+        </div>
+      </div>
+
+      <!-- GRUPO 9 -->
+      <div class="phase-block">
+        <div class="phase-header">
+          <div class="phase-dot teal"></div>
+          <div class="phase-name-text">Grupo 9 — Comunicação, Chat Interno 1:1, WhatsApp &amp; Notificações</div>
+          <div class="phase-hours-text">62h · R$ 7.440</div>
+        </div>
+        <div class="task-list">
+          <div class="task-row"><span class="task-task">Módulo de Disparos: envio de mensagens WhatsApp e E-mail com fila persistente (MensagemFila) e log de status</span><span class="task-h">12h</span><span class="task-v">R$ 1.440</span></div>
+          <div class="task-row"><span class="task-task">Templates de mensagem configuráveis (Confirmação de agendamento, Lembrete de cobrança, LGPD pendente)</span><span class="task-h">6h</span><span class="task-v">R$ 720</span></div>
+          <div class="task-row"><span class="task-task">Chatbot de triagem: construtor de passos (Q&amp;A configurável), captura de leads (ChatbotPasso + TriagemLead)</span><span class="task-h">12h</span><span class="task-v">R$ 1.440</span></div>
+          <div class="task-row"><span class="task-task">CRM de Leads da recepção: gerenciamento de leads capturados pelo chatbot com status e atendimento</span><span class="task-h">8h</span><span class="task-v">R$ 960</span></div>
+          <div class="task-row"><span class="task-task">Chat Interno 1:1 em tempo real entre recepção e profissionais (MensagemChatInterno, Socket.IO, leitura confirmada)</span><span class="task-h">12h</span><span class="task-v">R$ 1.440</span></div>
+          <div class="task-row"><span class="task-task">Sistema de Notificações in-app (5 tipos: Sistema, Agendamento, Financeiro, Mensagem, Alerta) com contador no header</span><span class="task-h">6h</span><span class="task-v">R$ 720</span></div>
+          <div class="task-row"><span class="task-task">Microserviço WhatsApp (whatsapp-web.js): autenticação QR Code, sessão persistente e envio programático de mensagens</span><span class="task-h">6h</span><span class="task-v">R$ 720</span></div>
+        </div>
+      </div>
+
+      <!-- GRUPO 10 -->
+      <div class="phase-block">
+        <div class="phase-header">
+          <div class="phase-dot warm"></div>
+          <div class="phase-name-text">Grupo 10 — Portal dos Pais, Microserviço IA Gemini &amp; Landing Page Institucional</div>
+          <div class="phase-hours-text">88h · R$ 10.560</div>
+        </div>
+        <div class="task-list">
+          <div class="task-row"><span class="task-task">Portal dos Pais completo (1.332 linhas): login separado com Refresh Token, dashboard familiar com agenda, metas, financeiro, exercícios, arquivos e laudos</span><span class="task-h">20h</span><span class="task-v">R$ 2.400</span></div>
+          <div class="task-row"><span class="task-task">Módulo Exercícios para Casa: profissional cria tarefa, pais confirmam realização (feito/não feito) com observações</span><span class="task-h">8h</span><span class="task-v">R$ 960</span></div>
+          <div class="task-row"><span class="task-task">Microserviço IA (Google Gemini): resumo automático de sessão, resumo de notas brutas, sugestão de laudos, identificação de regressões, comparação de evolução mensal</span><span class="task-h">18h</span><span class="task-v">R$ 2.160</span></div>
+          <div class="task-row"><span class="task-task">Página de IA no sistema clínico: chat interativo com o assistente, visualização de histórico e exportação de resumos</span><span class="task-h">10h</span><span class="task-v">R$ 1.200</span></div>
+          <div class="task-row"><span class="task-task">Landing Page Institucional: 27 componentes (Hero, Especialidades, Equipe, Depoimentos, FAQ, Blog, Footer), design acolhedor com tema branco clean</span><span class="task-h">18h</span><span class="task-v">R$ 2.160</span></div>
+          <div class="task-row"><span class="task-task">Widget Chatbot de triagem interativo na Landing Page: simulador WhatsApp com passos configuráveis e captura de leads</span><span class="task-h">10h</span><span class="task-v">R$ 1.200</span></div>
+          <div class="task-row"><span class="task-task">Integração dinâmica do portal com a landing page (URL do app por ambiente) e SEO básico das páginas</span><span class="task-h">4h</span><span class="task-v">R$ 480</span></div>
+        </div>
+      </div>
+
+      <!-- GRUPO 11 -->
+      <div class="phase-block">
+        <div class="phase-header">
+          <div class="phase-dot green"></div>
+          <div class="phase-name-text">Grupo 11 — Dashboard, Configurações, LGPD, Auditoria &amp; Deploy em Produção</div>
+          <div class="phase-hours-text">37h · R$ 4.440</div>
+        </div>
+        <div class="task-list">
+          <div class="task-row"><span class="task-task">Dashboard clínico com KPIs em tempo real: agendamentos do dia, pacientes ativos, inadimplência, e gráfico mensal</span><span class="task-h">10h</span><span class="task-v">R$ 1.200</span></div>
+          <div class="task-row"><span class="task-task">Módulo de configurações globais do sistema com persistência em banco (key-value JSONB)</span><span class="task-h">5h</span><span class="task-v">R$ 600</span></div>
+          <div class="task-row"><span class="task-task">Trilha de Auditoria completa: log de todas as ações (LOGIN, CREATE, UPDATE, DELETE, VIEW) com IP, user-agent, usuário e timestamp</span><span class="task-h">8h</span><span class="task-v">R$ 960</span></div>
+          <div class="task-row"><span class="task-task">LGPD: consentimentos por tipo (uso de dados, imagem, compartilhamento), versão e IP de aceitação</span><span class="task-h">6h</span><span class="task-v">R$ 720</span></div>
+          <div class="task-row"><span class="task-task">Deploy VPS: Nginx reverse proxy, SSL gratuito Let's Encrypt, PM2 ecosystem com 4 apps, CORS de produção</span><span class="task-h">8h</span><span class="task-v">R$ 960</span></div>
+        </div>
+      </div>
+
+    </div>
+    <div class="doc-footer">
+      <span>Instituto Conectar — Proposta Comercial &amp; Técnica 2026</span>
+      <span>Página 6 de 13</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ FOLHA 7 — PROPOSTA FINANCEIRA ═══════ -->
+<div class="page-sheet">
+  <div class="page-inner">
+    <div class="page-content">
+      <div class="section-header">
+        <div class="section-number">4</div>
+        <div class="section-title">Proposta Financeira &amp; Condições de Pagamento</div>
+      </div>
+
+      <p style="font-size:10.5px;color:var(--slate);margin-bottom:8px;line-height:1.5;">
+        Os valores abaixo refletem o <strong>custo real de engenharia apurado</strong> com base no volume de código-fonte produzido, complexidade técnica e horas trabalhadas. O modelo de pagamento em marcos garante <strong>máxima segurança</strong> para ambas as partes.
+      </p>
+
+      <table class="pay-table">
+        <thead>
+          <tr>
+            <th style="width:38%;">Grupo Funcional</th>
+            <th>Entregável Principal</th>
+            <th style="width:45px;" class="center">Horas</th>
+            <th style="width:85px;">Valor</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>1. Monorepo, Infraestrutura &amp; BD PostgreSQL</td><td>Turborepo, Docker, 38 modelos Prisma, migrations, seed</td><td class="center">52h</td><td>R$ 6.240</td></tr>
+          <tr><td>2. Backend NestJS, Auth JWT &amp; RBAC 13 Perfis</td><td>26 módulos NestJS, Refresh Token HttpOnly, Swagger, Socket.IO</td><td class="center">68h</td><td>R$ 8.160</td></tr>
+          <tr><td>3. Design System Clínico &amp; Frontend Base</td><td>Shadcn/UI customizado, paleta oficial, Tailwind 4, layout mestre</td><td class="center">40h</td><td>R$ 4.800</td></tr>
+          <tr><td>4. Pacientes, Profissionais, Salas &amp; Colaboradores</td><td>Full-text search, drawer, registro de conselho, alocações de salas</td><td class="center">58h</td><td>R$ 6.960</td></tr>
+          <tr><td>5. Agenda Inteligente, Bloqueios &amp; Lista Espera</td><td>FullCalendar multi-resource, 8 status, repetição semanal, frequência</td><td class="center">50h</td><td>R$ 6.000</td></tr>
+          <tr><td>6. Prontuário, PTS, Avaliações, Evolução &amp; Laudos</td><td>9 campos clínicos + JSONB, metas PTS, gráficos Recharts, templates laudo</td><td class="center">82h</td><td>R$ 9.840</td></tr>
+          <tr><td>7. Financeiro Completo: 7 Abas, DRE &amp; Caixa</td><td>Fluxo, folha, inadimplência, DRE previsional, fechamento de caixa</td><td class="center">90h</td><td>R$ 10.800</td></tr>
+          <tr><td>8. Contratos Digitais, Arquivos, Ponto &amp; Escolar</td><td>Assinatura canvas, selfie GPS, upload clínico, controle escolar</td><td class="center">78h</td><td>R$ 9.360</td></tr>
+          <tr><td>9. Comunicação, Chat 1:1 &amp; WhatsApp Microserviço</td><td>Disparos, chatbot Q&A, CRM leads, chat Socket.IO, notificações</td><td class="center">62h</td><td>R$ 7.440</td></tr>
+          <tr><td>10. Portal Pais, IA Gemini &amp; Landing Page</td><td>Portal familiar, microserviço Gemini, landing com 27 componentes</td><td class="center">88h</td><td>R$ 10.560</td></tr>
+          <tr><td>11. Dashboard, LGPD, Auditoria &amp; Deploy VPS</td><td>KPIs em tempo real, trilha de auditoria, consentimentos, SSL</td><td class="center">37h</td><td>R$ 4.440</td></tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="2"><strong>INVESTIMENTO TOTAL — SISTEMA CONECTAR COMPLETO</strong></td>
+            <td class="center"><strong>705h</strong></td>
+            <td><strong>R$ 84.600</strong></td>
+          </tr>
+        </tfoot>
+      </table>
+
+      <div class="highlight-box">
+        <h3>💳 Plano de Pagamento em 4 Marcos de Entrega</h3>
+        <p>Para garantir harmonia de fluxo de caixa e entregas validadas por ambas as partes, sugerimos o seguinte cronograma:</p>
+        <ul>
+          <li><strong>Marco 1 — Assinatura do Contrato (20%):</strong> R$ 16.920 — Início imediato. Entrega da infraestrutura monorepo, banco de dados, backend base e design system.</li>
+          <li><strong>Marco 2 — MVP Clínico Operacional (25%):</strong> R$ 21.150 — Pacientes, Profissionais, Salas, Agenda completa com conflito, Prontuário e PTS funcionais.</li>
+          <li><strong>Marco 3 — Módulos Financeiro e Documentais (30%):</strong> R$ 25.380 — Financeiro (7 abas), Contratos com assinatura digital, Ponto auditado, Comunicação e Chat.</li>
+          <li><strong>Marco 4 — Entrega Final e Go-Live (25%):</strong> R$ 21.150 — Portal dos Pais, IA Gemini, Landing Page, LGPD, Auditoria e Deploy em produção com SSL.</li>
+        </ul>
+      </div>
+
+      <div class="info-box" style="margin-bottom:0;">
+        <p><strong>Validação de Mercado (setembro 2026):</strong> Projetos similares (ERP clínico + Portal + IA + WhatsApp + Deploy gerenciado) em agências especializadas custam entre R$ 120.000 a R$ 200.000. Nossa proposta a <strong>R$ 120,00/hora sem intermediários</strong> representa economia real de 40–57% para o Instituto Conectar, com propriedade 100% do código-fonte e sem mensalidades de licenciamento.</p>
+      </div>
+
+    </div>
+    <div class="doc-footer">
+      <span>Instituto Conectar — Proposta Comercial &amp; Técnica 2026</span>
+      <span>Página 7 de 13</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ FOLHA 8 — CRONOGRAMA E ESCOPO ═══════ -->
+<div class="page-sheet">
+  <div class="page-inner">
+    <div class="page-content">
+      <div class="section-header">
+        <div class="section-number">5</div>
+        <div class="section-title">Cronograma de Execução e O Que Está Incluso</div>
+      </div>
+
+      <p style="font-size:10.5px;color:var(--slate);margin-bottom:7px;line-height:1.5;">
+        Cronograma baseado em <strong>20 horas semanais por desenvolvedor</strong>. Os módulos de maior complexidade (Financeiro 90h, Portal+IA 88h, Prontuário 82h) foram executados em paralelo por Frontend e Backend.
+      </p>
+
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-month">Mês 1<small>Semanas 1–4</small></div>
+          <div class="tl-content">
+            <div class="tl-title">🎯 Monorepo, Docker, Schema PostgreSQL, Auth JWT, Design System Base</div>
+            <div class="tl-desc">Grupos 1, 2 e 3 entregues. Infraestrutura operacional com ambiente de homologação disponível.</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-month">Mês 2<small>Semanas 5–8</small></div>
+          <div class="tl-content">
+            <div class="tl-title">🎯 Pacientes, Profissionais, Salas, Agenda Inteligente Multi-resource</div>
+            <div class="tl-desc">Grupo 4 e 5 entregues. MVP clínico básico operacional: cadastros e agendamentos funcionando.</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-month">Mês 3<small>Semanas 9–12</small></div>
+          <div class="tl-content">
+            <div class="tl-title">🎯 Prontuário Multidisciplinar, PTS com Metas, Avaliações e Laudos PDF</div>
+            <div class="tl-desc">Grupo 6 entregue. Núcleo clínico completo: evoluções, planos terapêuticos e laudos com IA assistente.</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-month">Mês 4<small>Semanas 13–17</small></div>
+          <div class="tl-content">
+            <div class="tl-title">🎯 Financeiro (7 Abas + DRE), Contratos com Assinatura, Ponto Auditado</div>
+            <div class="tl-desc">Grupos 7 e 8 entregues. Financeiro completo com folha, fechamento de caixa e ponto com selfie/GPS.</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-month">Mês 5–6<small>Semanas 18–25</small></div>
+          <div class="tl-content">
+            <div class="tl-title">🎯 Comunicação, Chat, Portal dos Pais, IA Gemini, Landing Page e Go-Live</div>
+            <div class="tl-desc">Grupos 9, 10 e 11 entregues. Deploy VPS com SSL, LGPD, auditoria e sistema 100% em produção.</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:7px;margin:8px 0 5px;">
+        <span style="font-size:11.5px;font-weight:800;color:var(--dark);">📦 O que está 100% incluso no valor contratado</span>
+      </div>
+
+      <div class="card-grid-2x2">
+        <div class="fcard">
+          <div class="fcard-header"><span class="fcard-icon">💻</span><span class="fcard-title">Código-Fonte Integral</span></div>
+          <div class="fcard-desc">Monorepo completo (1.125+ KB de código, 21 telas, 26 módulos backend). 100% de propriedade do Instituto Conectar sem licenciamento.</div>
+        </div>
+        <div class="fcard">
+          <div class="fcard-header"><span class="fcard-icon">🔒</span><span class="fcard-title">Segurança Completa &amp; LGPD</span></div>
+          <div class="fcard-desc">BCrypt, JWT HttpOnly, Rate Limiting, CORS, trilha de auditoria completa e consentimentos LGPD para dados de menores.</div>
+        </div>
+        <div class="fcard">
+          <div class="fcard-header"><span class="fcard-icon">📚</span><span class="fcard-title">Documentação de API Swagger</span></div>
+          <div class="fcard-desc">Documentação OpenAPI interativa em /api/docs com todos os endpoints, DTOs e fluxos de autenticação documentados.</div>
+        </div>
+        <div class="fcard">
+          <div class="fcard-header"><span class="fcard-icon">🚀</span><span class="fcard-title">Deploy Assistido em Produção</span></div>
+          <div class="fcard-desc">Configuração completa do VPS: Nginx, SSL gratuito Let's Encrypt, PM2 com 4 processos, variáveis de ambiente e backup automático.</div>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:7px;margin:5px 0 5px;">
+        <span style="font-size:11.5px;font-weight:800;color:var(--dark);">⚡ Custos de terceiros NÃO inclusos (por conta do Instituto Conectar)</span>
+      </div>
+
+      <div class="card-grid-2x2" style="margin-bottom:0;">
+        <div class="fcard">
+          <div class="fcard-header"><span class="fcard-icon">☁️</span><span class="fcard-title">Servidor / Hospedagem VPS</span></div>
+          <div class="fcard-desc">Mensalidade do servidor VPS (Hetzner, DigitalOcean, Contabo) — a partir de R$ 80–150/mês para 4 GB RAM / 2 vCPU.</div>
+        </div>
+        <div class="fcard">
+          <div class="fcard-header"><span class="fcard-icon">🤖</span><span class="fcard-title">API Google Gemini &amp; WhatsApp</span></div>
+          <div class="fcard-desc">Gratuito nos limites da camada gratuita Gemini. Chip de WhatsApp dedicado para o microserviço (qualquer operadora).</div>
+        </div>
+        <div class="fcard">
+          <div class="fcard-header"><span class="fcard-icon">🌐</span><span class="fcard-title">Domínio e E-mail Corporativo</span></div>
+          <div class="fcard-desc">Anuidade do domínio .com.br (≈R$ 40/ano no Registro.br) e e-mail corporativo (Google Workspace, ≈R$ 30/mês).</div>
+        </div>
+        <div class="fcard">
+          <div class="fcard-header"><span class="fcard-icon">💳</span><span class="fcard-title">Taxas de Gateway de Pagamento</span></div>
+          <div class="fcard-desc">Taxas de operadoras de cartão ou bancos parceiros caso o Instituto implemente cobrança online futura (via Stripe, Asaas, etc.).</div>
+        </div>
+      </div>
+
+    </div>
+    <div class="doc-footer">
+      <span>Instituto Conectar — Proposta Comercial &amp; Técnica 2026</span>
+      <span>Página 8 de 13</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ FOLHA 9 — TERMOS E ASSINATURAS ═══════ -->
+<div class="page-sheet">
+  <div class="page-inner">
+    <div class="page-content">
+      <div class="section-header">
+        <div class="section-number">6</div>
+        <div class="section-title">Termos, Condições e Assinaturas</div>
+      </div>
+
+      <div class="terms-grid">
+        <div class="terms-card">
+          <div class="terms-card-title">Propriedade Intelectual Total do Contratante</div>
+          <div class="terms-card-text">Todo o código-fonte, schemas de banco, interfaces, componentes e microserviços desenvolvidos tornam-se patrimônio <strong>100% exclusivo do Instituto Conectar</strong> após a quitação de cada marco, sem royalties ou licenças perpétuas.</div>
+        </div>
+        <div class="terms-card">
+          <div class="terms-card-title">Garantia Técnica de 90 Dias Pós-Entrega</div>
+          <div class="terms-card-text"><strong>90 dias corridos</strong> de garantia após o Go-Live (deploy final) para correção de inconsistências ou bugs funcionais do escopo contratado, sem custo adicional de suporte corretivo.</div>
+        </div>
+        <div class="terms-card">
+          <div class="terms-card-title">Sigilo Clínico e Proteção LGPD Absoluta</div>
+          <div class="terms-card-text">Compromisso formal de confidencialidade absoluta de todos os dados de pacientes infantis, famílias e prontuários acessados durante desenvolvimento, testes e implantação. Incluído Termo de Confidencialidade (NDA).</div>
+        </div>
+        <div class="terms-card">
+          <div class="terms-card-title">Homologação e Ciclos de Revisão</div>
+          <div class="terms-card-text">O Instituto Conectar terá <strong>7 dias úteis</strong> para validação e apontamentos em cada entrega de marco. A comunicação fluirá via reuniões quinzenais de alinhamento e canal prioritário WhatsApp/Discord.</div>
+        </div>
+        <div class="terms-card">
+          <div class="terms-card-title">Escopo Adicional (Evolutivas)</div>
+          <div class="terms-card-text">Funcionalidades não listadas neste descritivo são orçadas separadamente a <strong>R$ 120,00/hora</strong>. Solicitações de alteração de escopo durante o desenvolvimento requerem aprovação formal por escrito.</div>
+        </div>
+        <div class="terms-card">
+          <div class="terms-card-title">Validade desta Proposta Comercial</div>
+          <div class="terms-card-text">Proposta válida por <strong>15 dias corridos</strong> a partir de setembro de 2026. Após este prazo, valores e prazos de início poderão ser renegociados conforme disponibilidade da equipe de desenvolvimento.</div>
+        </div>
+      </div>
+
+      <div style="margin-top:8px;margin-bottom:18px;">
+        <div style="font-size:11.5px;font-weight:800;color:var(--dark);margin-bottom:22px;">
+          De acordo com o escopo completo, módulos, cronograma e investimento apresentados neste documento:
+        </div>
+        <div class="signatures-row">
+          <div>
+            <div class="signature-box">
+              <div class="signature-name">IBRA CÓ</div>
+              <div class="signature-role">Engenharia Backend &amp; Arquitetura Cloud</div>
+              <div class="signature-sub">Assinatura e data</div>
+            </div>
+          </div>
+          <div>
+            <div class="signature-box">
+              <div class="signature-name">RAMON CERQUEIRA</div>
+              <div class="signature-role">Engenharia Frontend &amp; Experiência de Uso</div>
+              <div class="signature-sub">Assinatura e data</div>
+            </div>
+          </div>
+          <div>
+            <div class="signature-box">
+              <div class="signature-name">INSTITUTO CONECTAR</div>
+              <div class="signature-role">Diretoria Clínica / Contratante</div>
+              <div class="signature-sub">Assinatura, carimbo CNPJ e data</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:var(--primary-light);border:1px solid rgba(142,123,190,0.25);border-radius:8px;padding:10px 13px;margin-top:2px;">
+        <p style="font-size:9.5px;color:var(--slate);line-height:1.5;text-align:center;">
+          <strong>Resumo executivo:</strong> Sistema de Gestão Clínica Multidisciplinar completo para o Instituto Conectar ·
+          <strong>705 horas</strong> de engenharia de software ·
+          <strong>26 módulos NestJS</strong> · <strong>21 telas Next.js</strong> ·
+          <strong>38 modelos de banco de dados</strong> · <strong>4 microserviços</strong> ·
+          Investimento total: <strong>R$ 84.600,00 (R$ 120,00/hora)</strong>
+        </p>
+      </div>
+
+    </div>
+    <div class="doc-footer">
+      <span>Instituto Conectar — Proposta Comercial &amp; Técnica 2026 · Documento Confidencial</span>
+      <span>Página 9 de 13</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ FOLHA 10 — CAPACITOR: iOS & ANDROID ═══════ -->
+<div class="page-sheet">
+  <div class="page-inner">
+    <div class="page-content">
+      <div class="section-header" style="margin-bottom:8px;padding-bottom:6px;">
+        <div class="section-number" style="background:#EFF6FF;color:#1d4ed8;">📱</div>
+        <div class="section-title">Módulo 12 — Apps iOS &amp; Android via Capacitor</div>
+      </div>
+
+      <div class="intro-box" style="padding:7px 12px;margin-bottom:8px;">
+        <p style="font-size:10px;line-height:1.42;margin-bottom:0;">O <strong>Capacitor (Ionic)</strong> empacota o frontend Next.js como <strong>aplicativo nativo iOS e Android</strong> (App Store e Google Play). Inclui autenticação nativa segura com Bearer Token (<code>@capacitor/preferences</code>), push notifications (FCM), câmera frontal e GPS direto para o Ponto Eletrônico auditado — garantindo experiência 100% mobile-first para profissionais, recepção e famílias.</p>
+      </div>
+
+      <div class="metrics-grid" style="grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:8px;">
+        <div class="metric-card accent" style="background:linear-gradient(135deg,#1d4ed8,#1e40af);padding:6px 10px;">
+          <div class="metric-label" style="font-size:8px;margin-bottom:2px;">Investimento Capacitor</div>
+          <div class="metric-value" style="font-size:16px;">R$ 18.000</div>
+          <div class="metric-sub" style="font-size:8px;margin-top:1px;">150h × R$ 120/h</div>
+        </div>
+        <div class="metric-card" style="padding:6px 10px;">
+          <div class="metric-label" style="font-size:8px;margin-bottom:2px;">Plataformas</div>
+          <div class="metric-value" style="font-size:16px;">2 Lojas</div>
+          <div class="metric-sub" style="font-size:8px;margin-top:1px;">App Store + Play Store</div>
+        </div>
+        <div class="metric-card" style="padding:6px 10px;">
+          <div class="metric-label" style="font-size:8px;margin-bottom:2px;">Plugins Nativos</div>
+          <div class="metric-value" style="font-size:16px;">8 Recursos</div>
+          <div class="metric-sub" style="font-size:8px;margin-top:1px;">Câmera, GPS, Push, Storage…</div>
+        </div>
+        <div class="metric-card" style="padding:6px 10px;">
+          <div class="metric-label" style="font-size:8px;margin-bottom:2px;">Prazo Estimado</div>
+          <div class="metric-value" style="font-size:16px;">8–10 sem.</div>
+          <div class="metric-sub" style="font-size:8px;margin-top:1px;">Após Go-Live web principal</div>
+        </div>
+      </div>
+
+      <!-- Detalhamento de tarefas -->
+      <div class="phase-block" style="margin-bottom:6px;">
+        <div class="phase-header" style="padding:4px 10px;">
+          <div class="phase-dot" style="background:#1d4ed8;"></div>
+          <div class="phase-name-text" style="font-size:10.5px;">A. Configuração Capacitor + Adaptação Next.js para Exportação Estática</div>
+          <div class="phase-hours-text" style="font-size:10px;">28h · R$ 3.360</div>
+        </div>
+        <div class="task-list">
+          <div class="task-row" style="padding:2.5px 10px;font-size:9.5px;"><span class="task-task">Instalar e configurar <code>@capacitor/core</code>, <code>@capacitor/cli</code>, <code>ios</code> e <code>android</code> no workspace</span><span class="task-h">4h</span><span class="task-v">R$ 480</span></div>
+          <div class="task-row" style="padding:2.5px 10px;font-size:9.5px;"><span class="task-task">Configurar <code>next.config.ts</code> (output: 'export'), compatibilizando as 21 rotas do App Router</span><span class="task-h">8h</span><span class="task-v">R$ 960</span></div>
+          <div class="task-row" style="padding:2.5px 10px;font-size:9.5px;"><span class="task-task">Substituir cookies por Bearer Token + <code>@capacitor/preferences</code> (armazenamento nativo seguro)</span><span class="task-h">10h</span><span class="task-v">R$ 1.200</span></div>
+          <div class="task-row" style="padding:2.5px 10px;font-size:9.5px;"><span class="task-task">Criar <code>capacitor.config.ts</code>: URL de API, deep links (<code>conectar://</code>) e splash screen</span><span class="task-h">4h</span><span class="task-v">R$ 480</span></div>
+          <div class="task-row" style="padding:2.5px 10px;font-size:9.5px;"><span class="task-task">Adaptar middleware de autenticação Next.js para build estático client-only (sem dependência SSR)</span><span class="task-h">2h</span><span class="task-v">R$ 240</span></div>
+        </div>
+      </div>
+
+      <div class="phase-block" style="margin-bottom:6px;">
+        <div class="phase-header" style="padding:4px 10px;">
+          <div class="phase-dot teal"></div>
+          <div class="phase-name-text" style="font-size:10.5px;">B. Plugins Nativos: Câmera, GPS, Push Notifications, Haptics</div>
+          <div class="phase-hours-text" style="font-size:10px;">38h · R$ 4.560</div>
+        </div>
+        <div class="task-list">
+          <div class="task-row" style="padding:2.5px 10px;font-size:9.5px;"><span class="task-task"><strong>@capacitor/camera</strong>: câmera nativa com selfie auditada para Ponto Eletrônico e upload direto</span><span class="task-h">10h</span><span class="task-v">R$ 1.200</span></div>
+          <div class="task-row" style="padding:2.5px 10px;font-size:9.5px;"><span class="task-task"><strong>@capacitor/geolocation</strong>: GPS nativo com permissões iOS (Info.plist) e Android (Manifest)</span><span class="task-h">6h</span><span class="task-v">R$ 720</span></div>
+          <div class="task-row" style="padding:2.5px 10px;font-size:9.5px;"><span class="task-task"><strong>@capacitor/push-notifications</strong> + Firebase: notificações push de consultas, alertas e chat</span><span class="task-h">14h</span><span class="task-v">R$ 1.680</span></div>
+          <div class="task-row" style="padding:2.5px 10px;font-size:9.5px;"><span class="task-task"><strong>@capacitor/status-bar</strong> + splash screen oficial Conectar animada</span><span class="task-h">4h</span><span class="task-v">R$ 480</span></div>
+          <div class="task-row" style="padding:2.5px 10px;font-size:9.5px;"><span class="task-task"><strong>@capacitor/haptics</strong>: resposta com vibração tátil em confirmações, ponto e formulários</span><span class="task-h">2h</span><span class="task-v">R$ 240</span></div>
+          <div class="task-row" style="padding:2.5px 10px;font-size:9.5px;"><span class="task-task"><strong>@capacitor/app</strong>: ciclo de vida do app (background/resume), botão voltar Android e versão</span><span class="task-h">2h</span><span class="task-v">R$ 240</span></div>
+        </div>
+      </div>
+
+      <div class="phase-block" style="margin-bottom:6px;">
+        <div class="phase-header" style="padding:4px 10px;">
+          <div class="phase-dot warm"></div>
+          <div class="phase-name-text" style="font-size:10.5px;">C. UX Mobile-First + iOS Xcode + Android Studio + Publicação nas Lojas</div>
+          <div class="phase-hours-text" style="font-size:10px;">56h · R$ 6.720</div>
+        </div>
+        <div class="task-list">
+          <div class="task-row" style="padding:2.5px 10px;font-size:9.5px;"><span class="task-task">Adaptações UX: safe area insets (notch iPhone/Android), navegação bottom-tab e gestos touch</span><span class="task-h">14h</span><span class="task-v">R$ 1.680</span></div>
+          <div class="task-row" style="padding:2.5px 10px;font-size:9.5px;"><span class="task-task"><strong>iOS (Xcode)</strong>: projeto, ícones de todos os tamanhos, Launch Screen, permissões e Signing</span><span class="task-h">12h</span><span class="task-v">R$ 1.440</span></div>
+          <div class="task-row" style="padding:2.5px 10px;font-size:9.5px;"><span class="task-task"><strong>iOS (TestFlight)</strong>: build de homologação, convite de beta testers e ajustes pré-submissão</span><span class="task-h">6h</span><span class="task-v">R$ 720</span></div>
+          <div class="task-row" style="padding:2.5px 10px;font-size:9.5px;"><span class="task-task"><strong>Android Studio</strong>: assets adaptativos, splash, AndroidManifest e AAB assinado para Play Console</span><span class="task-h">10h</span><span class="task-v">R$ 1.200</span></div>
+          <div class="task-row" style="padding:2.5px 10px;font-size:9.5px;"><span class="task-task">Backend NestJS: serviço FCM (Firebase Admin) para envio segmentado de push por perfil</span><span class="task-h">8h</span><span class="task-v">R$ 960</span></div>
+          <div class="task-row" style="padding:2.5px 10px;font-size:9.5px;"><span class="task-task">Deep Links: Universal Links (iOS) e App Links (Android) para abertura direta pelo push/link</span><span class="task-h">6h</span><span class="task-v">R$ 720</span></div>
+        </div>
+      </div>
+
+      <!-- Custos terceiros compacto -->
+      <div style="background:var(--teal-light);border:1px solid rgba(105,196,181,0.4);border-radius:7px;padding:6px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px;">
+        <div style="font-size:9.5px;font-weight:800;color:var(--teal-dark);display:flex;align-items:center;gap:5px;">
+          <span>💳</span> D. Custos de Terceiros para Publicação (por conta do cliente):
+        </div>
+        <div style="display:flex;gap:12px;font-size:9px;color:var(--slate);">
+          <span>🍏 Apple Dev: <strong>US$ 99/ano</strong></span>
+          <span>🤖 Google Play: <strong>US$ 25 taxa única</strong></span>
+          <span>🔥 Firebase FCM: <strong>Gratuito (Spark)</strong></span>
+        </div>
+      </div>
+
+    </div>
+    <div class="doc-footer">
+      <span>Instituto Conectar — Proposta Comercial &amp; Técnica 2026 · Documento Confidencial</span>
+      <span>Página 10 de 13</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ FOLHA 11 — PLANO DE SUPORTE MENSAL ═══════ -->
+<div class="page-sheet">
+  <div class="page-inner">
+    <div class="page-content">
+      <div class="section-header">
+        <div class="section-number" style="background:#FEF7EE;color:#b45309;">🛡️</div>
+        <div class="section-title">Plano de Suporte Mensal &amp; Customizações Extras</div>
+      </div>
+
+      <div class="intro-box" style="background:linear-gradient(135deg,var(--warm-light),#FFF7ED);border-color:rgba(243,179,87,0.3);">
+        <p>Após o Go-Live do sistema, o Instituto Conectar pode contratar um <strong>plano de recorrência mensal</strong> para garantir a continuidade operacional, evolução controlada do produto e resposta rápida a necessidades de negócio — sem precisar abrir um novo projeto formal a cada melhoria.</p>
+        <p>As customizações extras permitem adicionar funcionalidades específicas fora do escopo original com <strong>previsibilidade de custo e prazo</strong>, priorizadas em conjunto com a equipe de desenvolvimento.</p>
+      </div>
+
+      <!-- PLANOS MENSAIS -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px;">
+
+        <!-- Plano Manutenção -->
+        <div style="border:1px solid var(--border);border-radius:10px;overflow:hidden;">
+          <div style="background:var(--bg);padding:11px 13px;border-bottom:1px solid var(--border);">
+            <div style="font-size:10px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:3px;">Plano</div>
+            <div style="font-size:17px;font-weight:900;color:var(--dark);letter-spacing:-0.03em;">Manutenção</div>
+            <div style="font-size:11.5px;font-weight:400;color:var(--muted);margin-top:1px;">Estabilidade garantida</div>
+          </div>
+          <div style="padding:10px 13px;">
+            <div style="font-size:22px;font-weight:900;color:var(--dark);margin-bottom:2px;">R$ 800<span style="font-size:12px;font-weight:500;color:var(--muted);">/mês</span></div>
+            <div style="font-size:9.5px;color:var(--muted);margin-bottom:10px;">Contrato mínimo 3 meses</div>
+            <div style="font-size:9.5px;color:var(--slate);line-height:1.7;">
+              ✅ Correção de bugs críticos<br/>
+              ✅ Monitoramento do servidor (VPS)<br/>
+              ✅ Atualização de dependências<br/>
+              ✅ Backup semanal verificado<br/>
+              ✅ Suporte WhatsApp/e-mail<br/>
+              ✅ Até <strong>4 horas/mês</strong> de ajustes<br/>
+              ⏱ Resposta em até 48h úteis<br/>
+              ❌ Novas funcionalidades<br/>
+              ❌ Prioridade em fila
+            </div>
+          </div>
+        </div>
+
+        <!-- Plano Evolução -->
+        <div style="border:2px solid var(--primary);border-radius:10px;overflow:hidden;position:relative;">
+          <div style="position:absolute;top:10px;right:10px;background:var(--primary);color:white;font-size:8px;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;padding:2px 7px;border-radius:100px;">Mais Popular</div>
+          <div style="background:var(--primary-light);padding:11px 13px;border-bottom:2px solid var(--primary);">
+            <div style="font-size:10px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:var(--primary-dark);margin-bottom:3px;">Plano</div>
+            <div style="font-size:17px;font-weight:900;color:var(--dark);letter-spacing:-0.03em;">Evolução</div>
+            <div style="font-size:11.5px;font-weight:400;color:var(--muted);margin-top:1px;">Crescimento contínuo</div>
+          </div>
+          <div style="padding:10px 13px;">
+            <div style="font-size:22px;font-weight:900;color:var(--primary-dark);margin-bottom:2px;">R$ 1.800<span style="font-size:12px;font-weight:500;color:var(--muted);">/mês</span></div>
+            <div style="font-size:9.5px;color:var(--muted);margin-bottom:10px;">Contrato mínimo 3 meses</div>
+            <div style="font-size:9.5px;color:var(--slate);line-height:1.7;">
+              ✅ Tudo do plano Manutenção<br/>
+              ✅ Até <strong>12 horas/mês</strong> de trabalho<br/>
+              ✅ Melhorias de telas existentes<br/>
+              ✅ Ajustes de regra de negócio<br/>
+              ✅ Novos relatórios e filtros<br/>
+              ✅ Prioridade em fila de suporte<br/>
+              ⏱ Resposta em até 24h úteis<br/>
+              ✅ Reunião mensal de alinhamento<br/>
+              ❌ Módulos completamente novos
+            </div>
+          </div>
+        </div>
+
+        <!-- Plano Parceiro -->
+        <div style="border:1px solid var(--border);border-radius:10px;overflow:hidden;">
+          <div style="background:linear-gradient(135deg,var(--primary-deep),#2A1D3B);padding:11px 13px;border-bottom:1px solid var(--border);">
+            <div style="font-size:10px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.7);margin-bottom:3px;">Plano</div>
+            <div style="font-size:17px;font-weight:900;color:white;letter-spacing:-0.03em;">Parceiro Tech</div>
+            <div style="font-size:11.5px;font-weight:400;color:rgba(255,255,255,0.7);margin-top:1px;">Evolução acelerada</div>
+          </div>
+          <div style="padding:10px 13px;">
+            <div style="font-size:22px;font-weight:900;color:var(--dark);margin-bottom:2px;">R$ 3.200<span style="font-size:12px;font-weight:500;color:var(--muted);">/mês</span></div>
+            <div style="font-size:9.5px;color:var(--muted);margin-bottom:10px;">Contrato mínimo 3 meses</div>
+            <div style="font-size:9.5px;color:var(--slate);line-height:1.7;">
+              ✅ Tudo do plano Evolução<br/>
+              ✅ Até <strong>24 horas/mês</strong> de trabalho<br/>
+              ✅ Novos módulos pequenos<br/>
+              ✅ Integração com APIs externas<br/>
+              ✅ Apps Capacitor (atualizações)<br/>
+              ✅ Canal prioritário exclusivo<br/>
+              ⏱ Resposta em até 4h úteis<br/>
+              ✅ Reunião quinzenal dedicada<br/>
+              ✅ Roadmap técnico conjunto
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- TABELA DE CUSTOMIZAÇÕES EXTRAS -->
+      <div style="font-size:12px;font-weight:800;color:var(--dark);margin-bottom:6px;">⚙️ Tabela de Customizações Extras (Sob Demanda — fora de qualquer plano mensal)</div>
+
+      <table class="mod-table" style="margin-bottom:10px;">
+        <thead>
+          <tr>
+            <th style="width:30%;">Tipo de Customização</th>
+            <th>Exemplos Reais do Sistema Conectar</th>
+            <th style="width:60px;" class="center">Horas Aprox.</th>
+            <th style="width:90px;">Valor Fixo</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="mod-name">🟢 Micro-ajuste</span><span class="mod-desc">Correção visual, texto, label, cor, campo obrigatório</span></td>
+            <td style="font-size:9.5px;color:var(--muted);">Mudar texto de botão, ajustar máscara de campo, alterar cor de status, adicionar tooltip</td>
+            <td class="center">1–2h</td>
+            <td>R$ 240</td>
+          </tr>
+          <tr>
+            <td><span class="mod-name">🟡 Ajuste Pequeno</span><span class="mod-desc">Novo filtro, novo campo em formulário, nova coluna em tabela</span></td>
+            <td style="font-size:9.5px;color:var(--muted);">Filtro de agendamentos por convênio, campo de observação extra no paciente, nova categoria financeira</td>
+            <td class="center">2–5h</td>
+            <td>R$ 600</td>
+          </tr>
+          <tr>
+            <td><span class="mod-name">🟠 Melhoria Média</span><span class="mod-desc">Nova aba em módulo existente, novo relatório, novo fluxo de formulário</span></td>
+            <td style="font-size:9.5px;color:var(--muted);">Nova aba de "Evolução por Semestre" no prontuário, relatório PDF de frequência mensal, exportação de dados CSV do financeiro</td>
+            <td class="center">6–16h</td>
+            <td>R$ 1.920</td>
+          </tr>
+          <tr>
+            <td><span class="mod-name">🔴 Novo Módulo</span><span class="mod-desc">Módulo completo do zero (backend + frontend + banco)</span></td>
+            <td style="font-size:9.5px;color:var(--muted);">Módulo de Anamnese digital, Sala de espera virtual, Teleconsulta integrada, Estoque de materiais completo, App do Profissional separado</td>
+            <td class="center">&gt; 20h</td>
+            <td>R$ 120/h</td>
+          </tr>
+          <tr>
+            <td><span class="mod-name">📡 Integração Externa</span><span class="mod-desc">API de terceiros: convênio, CRM, contador, gateway</span></td>
+            <td style="font-size:9.5px;color:var(--muted);">Integração com Asaas/Stripe para cobrança online, envio de NFS-e (nota fiscal), conector com sistema de convênio (TUSS), Zapier/Make webhook</td>
+            <td class="center">12–40h</td>
+            <td>R$ 120/h</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- RESUMO FINANCEIRO TOTAL -->
+      <div class="highlight-box" style="margin-bottom:0;">
+        <h3>💰 Consolidado Financeiro Total — Sistema Conectar (com Capacitor)</h3>
+        <p style="margin-bottom:6px;">Abaixo o investimento total acumulado considerando o sistema web completo <strong>mais</strong> os aplicativos nativos iOS &amp; Android:</p>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px;">
+          <div style="background:rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;">
+            <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;opacity:0.85;margin-bottom:3px;">Sistema Web Completo</div>
+            <div style="font-size:18px;font-weight:900;">R$ 84.600</div>
+            <div style="font-size:9.5px;opacity:0.85;">705h · 11 grupos · 26 módulos</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;">
+            <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;opacity:0.85;margin-bottom:3px;">Capacitor iOS + Android</div>
+            <div style="font-size:18px;font-weight:900;">R$ 18.000</div>
+            <div style="font-size:9.5px;opacity:0.85;">150h · App Store + Play Store</div>
+          </div>
+          <div style="background:rgba(243,179,87,0.25);border:1px solid rgba(243,179,87,0.4);border-radius:8px;padding:8px 10px;">
+            <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:var(--warm);margin-bottom:3px;">Total Geral do Projeto</div>
+            <div style="font-size:22px;font-weight:900;color:var(--warm);">R$ 102.600</div>
+            <div style="font-size:9.5px;opacity:0.85;">855 horas · R$ 120/hora</div>
+          </div>
+        </div>
+        <p style="margin-top:8px;font-size:10px;opacity:0.9;">O <strong>suporte mensal não está incluso</strong> no investimento de desenvolvimento — é contratado separadamente após o Go-Live, conforme o plano escolhido acima. Horas do plano mensal não expiram e acumulam até no máximo 1 mês de antecedência.</p>
+      </div>
+
+    </div>
+    <div class="doc-footer">
+      <span>Instituto Conectar — Proposta Comercial &amp; Técnica 2026 · Documento Confidencial</span>
+      <span>Página 11 de 13</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ FOLHA 12 — STATUS ATUAL DO SISTEMA ═══════ -->
+<div class="page-sheet">
+  <div class="page-inner">
+    <div class="page-content">
+      <div class="section-header">
+        <div class="section-number" style="background:var(--green-light);color:#16a34a;">✅</div>
+        <div class="section-title">Estado Atual do Sistema — O que já está funcionando hoje</div>
+      </div>
+
+      <div class="intro-box" style="background:linear-gradient(135deg,var(--green-light),#f0fdf4);border-color:rgba(34,197,94,0.25);">
+        <p>O Sistema Conectar está <strong>em produção no servidor</strong> e operacional para uso diário da equipe. A barra abaixo indica o percentual de completude geral e o detalhamento módulo a módulo mostra exatamente o que já funciona hoje, o que está em fase de refinamento e o que ainda está em desenvolvimento.</p>
+      </div>
+
+      <!-- BARRA GERAL -->
+      <div style="margin-bottom:13px;">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;">
+          <span style="font-size:13px;font-weight:800;color:var(--dark);">Completude Geral do Sistema Conectar</span>
+          <span style="font-size:22px;font-weight:900;color:#16a34a;">78%</span>
+        </div>
+        <div style="height:14px;background:var(--border);border-radius:100px;overflow:hidden;">
+          <div style="width:78%;height:100%;background:linear-gradient(90deg,#16a34a,#22c55e,#4ade80);border-radius:100px;"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:9px;color:var(--muted);">
+          <span>22% restante = Refinamentos de módulos clínicos + Relatórios dinâmicos + Telas em polimento</span>
+          <span>Previsão de 100%: 4–6 semanas</span>
+        </div>
+      </div>
+
+      <!-- GRADE DE MÓDULOS COM BARRA -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 20px;">
+
+        <!-- coluna 1 -->
+        <div>
+
+          <div style="margin-bottom:6px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:2px;">
+              <span style="font-size:10px;font-weight:700;color:var(--dark);">🔐 Auth, Login &amp; RBAC 13 Perfis</span>
+              <span style="font-size:10px;font-weight:800;color:#16a34a;">100%</span>
+            </div>
+            <div style="height:6px;background:var(--border);border-radius:100px;"><div style="width:100%;height:100%;background:#16a34a;border-radius:100px;"></div></div>
+            <div style="font-size:8.5px;color:var(--muted);margin-top:1px;">Login, Refresh Token, RBAC por perfil, Portal dos pais separado</div>
+          </div>
+
+          <div style="margin-bottom:6px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:2px;">
+              <span style="font-size:10px;font-weight:700;color:var(--dark);">📊 Dashboard Clínico</span>
+              <span style="font-size:10px;font-weight:800;color:#16a34a;">92%</span>
+            </div>
+            <div style="height:6px;background:var(--border);border-radius:100px;"><div style="width:92%;height:100%;background:#16a34a;border-radius:100px;"></div></div>
+            <div style="font-size:8.5px;color:var(--muted);margin-top:1px;">KPIs, gráficos, aniversariantes, alertas, consultas do dia</div>
+          </div>
+
+          <div style="margin-bottom:6px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:2px;">
+              <span style="font-size:10px;font-weight:700;color:var(--dark);">📅 Agenda Inteligente</span>
+              <span style="font-size:10px;font-weight:800;color:#16a34a;">90%</span>
+            </div>
+            <div style="height:6px;background:var(--border);border-radius:100px;"><div style="width:90%;height:100%;background:#16a34a;border-radius:100px;"></div></div>
+            <div style="font-size:8.5px;color:var(--muted);margin-top:1px;">FullCalendar multi-resource, 8 status, repetição semanal, bloqueios</div>
+          </div>
+
+          <div style="margin-bottom:6px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:2px;">
+              <span style="font-size:10px;font-weight:700;color:var(--dark);">👦 Pacientes &amp; Responsáveis</span>
+              <span style="font-size:10px;font-weight:800;color:#16a34a;">93%</span>
+            </div>
+            <div style="height:6px;background:var(--border);border-radius:100px;"><div style="width:93%;height:100%;background:#16a34a;border-radius:100px;"></div></div>
+            <div style="font-size:8.5px;color:var(--muted);margin-top:1px;">Ficha completa, CID, alergias, convênio, drawer detalhado, busca full-text</div>
+          </div>
+
+          <div style="margin-bottom:6px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:2px;">
+              <span style="font-size:10px;font-weight:700;color:var(--dark);">🩺 Profissionais &amp; Salas</span>
+              <span style="font-size:10px;font-weight:800;color:#16a34a;">92%</span>
+            </div>
+            <div style="height:6px;background:var(--border);border-radius:100px;"><div style="width:92%;height:100%;background:#16a34a;border-radius:100px;"></div></div>
+            <div style="font-size:8.5px;color:var(--muted);margin-top:1px;">CRP/CREFITO, cor agenda, salas com status e alocações por horário</div>
+          </div>
+
+          <div style="margin-bottom:6px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:2px;">
+              <span style="font-size:10px;font-weight:700;color:var(--dark);">📝 Prontuário Eletrônico (9 campos)</span>
+              <span style="font-size:10px;font-weight:800;color:#3b82f6;">82%</span>
+            </div>
+            <div style="height:6px;background:var(--border);border-radius:100px;"><div style="width:82%;height:100%;background:#3b82f6;border-radius:100px;"></div></div>
+            <div style="font-size:8.5px;color:var(--muted);margin-top:1px;">Evoluções por sessão, gráfico de progresso, modo offline com sync pendente</div>
+          </div>
+
+          <div style="margin-bottom:6px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:2px;">
+              <span style="font-size:10px;font-weight:700;color:var(--dark);">🎯 Plano Terapêutico (PTS + Metas)</span>
+              <span style="font-size:10px;font-weight:800;color:#3b82f6;">78%</span>
+            </div>
+            <div style="height:6px;background:var(--border);border-radius:100px;"><div style="width:78%;height:100%;background:#3b82f6;border-radius:100px;"></div></div>
+            <div style="font-size:8.5px;color:var(--muted);margin-top:1px;">Planos com metas % de progresso e histórico, 16KB de componente</div>
+          </div>
+
+          <div style="margin-bottom:6px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:2px;">
+              <span style="font-size:10px;font-weight:700;color:var(--dark);">📋 Avaliações Configuráveis</span>
+              <span style="font-size:10px;font-weight:800;color:#3b82f6;">72%</span>
+            </div>
+            <div style="height:6px;background:var(--border);border-radius:100px;"><div style="width:72%;height:100%;background:#3b82f6;border-radius:100px;"></div></div>
+            <div style="font-size:8.5px;color:var(--muted);margin-top:1px;">Tipos de avaliação por especialidade com campos JSONB flexíveis</div>
+          </div>
+
+          <div style="margin-bottom:6px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:2px;">
+              <span style="font-size:10px;font-weight:700;color:var(--dark);">📆 Frequência &amp; Presença</span>
+              <span style="font-size:10px;font-weight:800;color:#3b82f6;">75%</span>
+            </div>
+            <div style="height:6px;background:var(--border);border-radius:100px;"><div style="width:75%;height:100%;background:#3b82f6;border-radius:100px;"></div></div>
+            <div style="font-size:8.5px;color:var(--muted);margin-top:1px;">Registro de presença, falta, justificativa e reposição por sessão</div>
+          </div>
+
+        </div>
+
+        <!-- coluna 2 -->
+        <div>
+
+          <div style="margin-bottom:6px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:2px;">
+              <span style="font-size:10px;font-weight:700;color:var(--dark);">💰 Financeiro Completo (7 abas)</span>
+              <span style="font-size:10px;font-weight:800;color:#16a34a;">95%</span>
+            </div>
+            <div style="height:6px;background:var(--border);border-radius:100px;"><div style="width:95%;height:100%;background:#16a34a;border-radius:100px;"></div></div>
+            <div style="font-size:8.5px;color:var(--muted);margin-top:1px;">Fluxo, lançamentos, folha, repasses, inadimplentes, caixa, DRE previsional</div>
+          </div>
+
+          <div style="margin-bottom:6px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:2px;">
+              <span style="font-size:10px;font-weight:700;color:var(--dark);">📄 Contratos Digitais &amp; Assinatura</span>
+              <span style="font-size:10px;font-weight:800;color:#16a34a;">92%</span>
+            </div>
+            <div style="height:6px;background:var(--border);border-radius:100px;"><div style="width:92%;height:100%;background:#16a34a;border-radius:100px;"></div></div>
+            <div style="font-size:8.5px;color:var(--muted);margin-top:1px;">Modelos CRUD, assinatura canvas, geração automática de parcelas financeiras</div>
+          </div>
+
+          <div style="margin-bottom:6px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:2px;">
+              <span style="font-size:10px;font-weight:700;color:var(--dark);">🕐 Ponto Eletrônico Auditado</span>
+              <span style="font-size:10px;font-weight:800;color:#16a34a;">95%</span>
+            </div>
+            <div style="height:6px;background:var(--border);border-radius:100px;"><div style="width:95%;height:100%;background:#16a34a;border-radius:100px;"></div></div>
+            <div style="font-size:8.5px;color:var(--muted);margin-top:1px;">Selfie obrigatória via webcam, GPS, dupla batida, ajustes c/ aprovação</div>
+          </div>
+
+          <div style="margin-bottom:6px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:2px;">
+              <span style="font-size:10px;font-weight:700;color:var(--dark);">👥 Colaboradores (RH Básico)</span>
+              <span style="font-size:10px;font-weight:800;color:#16a34a;">90%</span>
+            </div>
+            <div style="height:6px;background:var(--border);border-radius:100px;"><div style="width:90%;height:100%;background:#16a34a;border-radius:100px;"></div></div>
+            <div style="font-size:8.5px;color:var(--muted);margin-top:1px;">CRUD completo, perfis CLT/PJ, salário, chave PIX, ativar/desativar</div>
+          </div>
+
+          <div style="margin-bottom:6px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:2px;">
+              <span style="font-size:10px;font-weight:700;color:var(--dark);">📱 Comunicação &amp; WhatsApp Bot</span>
+              <span style="font-size:10px;font-weight:800;color:#16a34a;">87%</span>
+            </div>
+            <div style="height:6px;background:var(--border);border-radius:100px;"><div style="width:87%;height:100%;background:#16a34a;border-radius:100px;"></div></div>
+            <div style="font-size:8.5px;color:var(--muted);margin-top:1px;">Disparos, templates, chatbot Q&A, CRM leads, log de envios</div>
+          </div>
+
+          <div style="margin-bottom:6px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:2px;">
+              <span style="font-size:10px;font-weight:700;color:var(--dark);">💬 Chat Interno 1:1 (Tempo Real)</span>
+              <span style="font-size:10px;font-weight:800;color:#16a34a;">88%</span>
+            </div>
+            <div style="height:6px;background:var(--border);border-radius:100px;"><div style="width:88%;height:100%;background:#16a34a;border-radius:100px;"></div></div>
+            <div style="font-size:8.5px;color:var(--muted);margin-top:1px;">Mensagens Socket.IO entre usuários, leitura confirmada, histórico</div>
+          </div>
+
+          <div style="margin-bottom:6px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:2px;">
+              <span style="font-size:10px;font-weight:700;color:var(--dark);">👨‍👩‍👧 Portal Exclusivo dos Pais</span>
+              <span style="font-size:10px;font-weight:800;color:#16a34a;">90%</span>
+            </div>
+            <div style="height:6px;background:var(--border);border-radius:100px;"><div style="width:90%;height:100%;background:#16a34a;border-radius:100px;"></div></div>
+            <div style="font-size:8.5px;color:var(--muted);margin-top:1px;">Agenda, metas, financeiro, exercícios de casa, arquivos, laudos</div>
+          </div>
+
+          <div style="margin-bottom:6px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:2px;">
+              <span style="font-size:10px;font-weight:700;color:var(--dark);">🤖 IA Gemini Assistente Clínico</span>
+              <span style="font-size:10px;font-weight:800;color:#16a34a;">82%</span>
+            </div>
+            <div style="height:6px;background:var(--border);border-radius:100px;"><div style="width:82%;height:100%;background:#16a34a;border-radius:100px;"></div></div>
+            <div style="font-size:8.5px;color:var(--muted);margin-top:1px;">Resumo de sessão, notas brutas, sugestão de laudos, análise de evolução</div>
+          </div>
+
+          <div style="margin-bottom:6px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:2px;">
+              <span style="font-size:10px;font-weight:700;color:var(--dark);">🌐 Landing Page + Chatbot Captação</span>
+              <span style="font-size:10px;font-weight:800;color:#16a34a;">95%</span>
+            </div>
+            <div style="height:6px;background:var(--border);border-radius:100px;"><div style="width:95%;height:100%;background:#16a34a;border-radius:100px;"></div></div>
+            <div style="font-size:8.5px;color:var(--muted);margin-top:1px;">27 componentes, widget chatbot triagem simulando WhatsApp, CTA para agendamento</div>
+          </div>
+
+          <div style="margin-bottom:0;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:2px;">
+              <span style="font-size:10px;font-weight:700;color:var(--dark);">📂 Arquivos, Laudos, Escolar, Relatórios</span>
+              <span style="font-size:10px;font-weight:800;color:#f97316;">62%</span>
+            </div>
+            <div style="height:6px;background:var(--border);border-radius:100px;"><div style="width:62%;height:100%;background:#f97316;border-radius:100px;"></div></div>
+            <div style="font-size:8.5px;color:var(--muted);margin-top:1px;">Upload funciona; laudos PDF dinâmicos, relatórios exportáveis e escolar em finalização</div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- LEGENDA -->
+      <div style="display:flex;gap:16px;margin-top:8px;padding:6px 0;border-top:1px solid var(--border);">
+        <div style="display:flex;align-items:center;gap:5px;"><div style="width:10px;height:10px;border-radius:2px;background:#16a34a;"></div><span style="font-size:9.5px;color:var(--slate);"><strong>Verde (80–100%)</strong> — Pronto para uso diário</span></div>
+        <div style="display:flex;align-items:center;gap:5px;"><div style="width:10px;height:10px;border-radius:2px;background:#3b82f6;"></div><span style="font-size:9.5px;color:var(--slate);"><strong>Azul (65–79%)</strong> — Funcional, em refinamento</span></div>
+        <div style="display:flex;align-items:center;gap:5px;"><div style="width:10px;height:10px;border-radius:2px;background:#f97316;"></div><span style="font-size:9.5px;color:var(--slate);"><strong>Laranja (&lt;65%)</strong> — Em desenvolvimento ativo</span></div>
+      </div>
+
+    </div>
+    <div class="doc-footer">
+      <span>Instituto Conectar — Proposta Comercial &amp; Técnica 2026</span>
+      <span>Página 12 de 13</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ FOLHA 13 — FUNCIONALIDADES DETALHADAS E EXEMPLOS DE USO ═══════ -->
+<div class="page-sheet">
+  <div class="page-inner">
+    <div class="page-content">
+      <div class="section-header">
+        <div class="section-number" style="background:#EFF6FF;color:#1d4ed8;">🔍</div>
+        <div class="section-title">Funcionalidades Detalhadas — O que o sistema faz hoje, na prática</div>
+      </div>
+
+      <p style="font-size:10px;color:var(--muted);margin-bottom:9px;">Cada bloco abaixo descreve um cenário real de uso do sistema, como a equipe do Instituto Conectar utiliza cada módulo no dia a dia:</p>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;">
+
+        <div class="fcard">
+          <div class="fcard-header"><span class="fcard-icon">📅</span><span class="fcard-title">Agenda — Recepção</span></div>
+          <div class="fcard-desc">A recepcionista abre o sistema às 8h e vê imediatamente a grade de todos os profissionais do dia. Clica em um horário vazio, seleciona o paciente "Lucas Mendes", escolhe a sala 2 e confirma. O sistema já valida se há conflito de horário. Com 1 clique, envia confirmação de agendamento via WhatsApp automaticamente para os pais.</div>
+        </div>
+
+        <div class="fcard">
+          <div class="fcard-header"><span class="fcard-icon">💰</span><span class="fcard-title">Financeiro — Gestão completa em 7 abas</span></div>
+          <div class="fcard-desc">O financeiro abre o módulo e vê em tempo real: R$ 12.450 recebidos no mês atual, 3 pacientes com mensalidade atrasada e 5 parcelas vencendo esta semana. Clica em "Inadimplentes", seleciona os 3 nomes e dispara lembrete de cobrança via WhatsApp com 1 clique. No final do dia, faz o fechamento de caixa registrando dinheiro, PIX e cartão separadamente.</div>
+        </div>
+
+        <div class="fcard">
+          <div class="fcard-header"><span class="fcard-icon">📝</span><span class="fcard-title">Prontuário — Atendimento clínico</span></div>
+          <div class="fcard-desc">Após a sessão, a Dra. Beatriz abre o prontuário de "Sofia" e registra: queixa principal, objetivos da sessão, atividades realizadas, comportamento observado e orientações para os pais. Clica em "Resumir com IA" e o Assistente Gemini gera um resumo claro do atendimento em segundos. O progresso das metas terapêuticas é atualizado automaticamente no PTS.</div>
+        </div>
+
+        <div class="fcard">
+          <div class="fcard-header"><span class="fcard-icon">🕐</span><span class="fcard-title">Ponto Eletrônico — Controle de jornada</span></div>
+          <div class="fcard-desc">Ao chegar na clínica, a Dra. Rosana acessa o ponto pelo celular (ou computador), tira uma selfie pela câmera que é salva automaticamente com data/hora e GPS. O sistema registra a entrada. Ao sair, repete o processo para a saída. O gestor visualiza o histórico de todos os colaboradores, aprova ajustes de horário e vê os feriados registrados para o mês.</div>
+        </div>
+
+        <div class="fcard">
+          <div class="fcard-header"><span class="fcard-icon">📄</span><span class="fcard-title">Contratos — Assinatura Digital</span></div>
+          <div class="fcard-desc">A recepção seleciona o modelo "Contrato de Prestação de Serviços", informa o valor mensal (R$ 1.200) e o dia de vencimento (dia 10). Vincula ao paciente "Pedro Santos". Os pais recebem o link, leem o contrato e assinam com o dedo diretamente na tela do celular. O sistema salva a assinatura e gera automaticamente as 12 parcelas mensais no módulo financeiro.</div>
+        </div>
+
+        <div class="fcard">
+          <div class="fcard-header"><span class="fcard-icon">👨‍👩‍👧</span><span class="fcard-title">Portal dos Pais — Acompanhamento familiar</span></div>
+          <div class="fcard-desc">Os pais de "Enzo" acessam o portal em casa com login próprio. Visualizam: próximas 3 consultas, as últimas evoluções registradas pela terapeuta, 2 tarefas para casa pendentes (desenho e exercício de coordenação) e o extrato de mensalidades. Confirmam que a tarefa foi realizada e deixam uma observação para a terapeuta ler antes da próxima sessão.</div>
+        </div>
+
+        <div class="fcard">
+          <div class="fcard-header"><span class="fcard-icon">🤖</span><span class="fcard-title">IA Gemini — Assistente Clínico</span></div>
+          <div class="fcard-desc">O Dr. Thiago digita notas rápidas e brutas sobre a sessão ("criança agitada, não quis sentar, mas fez a atividade de encaixe no final"). Clica em "Resumir Notas" e o Assistente Gemini transforma o texto em um parágrafo clínico estruturado e profissional. Pode também solicitar sugestões de metas terapêuticas para a próxima sessão com base no histórico.</div>
+        </div>
+
+        <div class="fcard">
+          <div class="fcard-header"><span class="fcard-icon">🌐</span><span class="fcard-title">Landing Page — Captação de novos pacientes</span></div>
+          <div class="fcard-desc">Uma mãe pesquisa no Google "clínica psicopedagogia SP" e chega no site do Instituto Conectar. Navega pelos serviços, lê depoimentos, clica no botão "Quero Agendar" e é aberto um chatbot que pergunta o nome da criança, idade e queixa principal. Os dados chegam em tempo real no módulo de Comunicação como um novo Lead, e a recepção entra em contato para agendar a consulta inicial.</div>
+        </div>
+
+        <div class="fcard" style="grid-column:span 2;background:var(--primary-light);border-color:rgba(142,123,190,0.3);">
+          <div class="fcard-header"><span class="fcard-icon">📊</span><span class="fcard-title" style="color:var(--primary-dark);">Visão Geral de um Dia Típico na Clínica com o Sistema Conectar</span></div>
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:5px;">
+            <div style="text-align:center;">
+              <div style="font-size:16px;margin-bottom:2px;">🌅</div>
+              <div style="font-size:9px;font-weight:700;color:var(--dark);">08:00</div>
+              <div style="font-size:8.5px;color:var(--slate);">Recepção abre o sistema, vê agenda do dia, bate o ponto com selfie</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:16px;margin-bottom:2px;">🩺</div>
+              <div style="font-size:9px;font-weight:700;color:var(--dark);">09:00</div>
+              <div style="font-size:8.5px;color:var(--slate);">Profissional confirma presença do paciente, abre prontuário e registra evolução</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:16px;margin-bottom:2px;">🤖</div>
+              <div style="font-size:9px;font-weight:700;color:var(--dark);">12:00</div>
+              <div style="font-size:8.5px;color:var(--slate);">IA resume as sessões da manhã, sugestões de metas para tarde</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:16px;margin-bottom:2px;">💰</div>
+              <div style="font-size:9px;font-weight:700;color:var(--dark);">17:00</div>
+              <div style="font-size:8.5px;color:var(--slate);">Financeiro registra pagamentos, dispara cobranças de inadimplentes via WhatsApp</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:16px;margin-bottom:2px;">🔒</div>
+              <div style="font-size:9px;font-weight:700;color:var(--dark);">18:30</div>
+              <div style="font-size:8.5px;color:var(--slate);">Gestor fecha o caixa, aprova ajuste de ponto e revisa relatório do dia no dashboard</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+    <div class="doc-footer">
+      <span>Instituto Conectar — Proposta Comercial &amp; Técnica 2026 · Documento Confidencial</span>
+      <span>Página 13 de 13</span>
+    </div>
+  </div>
+</div>
+
+</div>
+</body>
+</html>
