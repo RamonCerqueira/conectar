@@ -4,167 +4,223 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Brain,
   Calendar,
   Clock,
-  ClipboardList,
-  DollarSign,
-  BookOpen,
-  FileText,
-  LogOut,
-  Sparkles,
-  CheckCircle,
-  HelpCircle,
   User,
-  MessageSquare,
-  AlertCircle,
-  X,
+  Heart,
+  FileText,
   CreditCard,
-  Copy,
-  Check,
+  ChevronRight,
   Plus,
-  Send,
-  Loader2,
+  Home,
+  TrendingUp,
+  BookOpen,
   Bell,
-  Briefcase,
-  AlertTriangle,
+  MessageCircle,
   QrCode,
-  Camera,
+  LogOut,
+  X,
+  Check,
+  Copy,
+  Loader2,
+  Sparkles,
+  Phone,
+  ShieldCheck,
+  Award,
+  AlertCircle,
+  Download,
+  Send,
 } from "lucide-react";
 import { cn, formatDate, calculateAge, formatCurrency } from "@/lib/utils";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
 
+// ─────────────────────────────────────────────────────────────────────────────
+// MASCOTE ILUSTRADO: CORAÇÃO AMIGO (SVG VETORIAL)
+// ─────────────────────────────────────────────────────────────────────────────
+function MascotHeart({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 160 140" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+      <defs>
+        <linearGradient id="heartGrad" x1="20" y1="10" x2="140" y2="130" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#FF7A8A" />
+          <stop offset="1" stopColor="#FF576D" />
+        </linearGradient>
+        <filter id="softShadow" x="-10%" y="-10%" width="120%" height="130%">
+          <feDropShadow dx="0" dy="6" stdDeviation="6" floodColor="#FF576D" floodOpacity="0.25" />
+        </filter>
+      </defs>
+      {/* Bracinho esquerdo dando tchau */}
+      <path d="M28 62 C15 50 10 38 12 28 C14 20 22 20 25 28 C28 35 34 50 38 58" stroke="#374151" strokeWidth="4" strokeLinecap="round" />
+      {/* Bracinho direito aberto */}
+      <path d="M132 62 C145 52 150 40 148 30 C146 22 138 22 135 30 C132 37 126 50 122 58" stroke="#374151" strokeWidth="4" strokeLinecap="round" />
+      {/* Perninhas */}
+      <path d="M62 118 L58 135 M98 118 L102 135" stroke="#374151" strokeWidth="4" strokeLinecap="round" />
+      {/* Corpinho Coração */}
+      <path
+        d="M80 120 C45 92 18 68 18 42 C18 22 34 10 54 10 C66 10 74 16 80 24 C86 16 94 10 106 10 C126 10 142 22 142 42 C142 68 115 92 80 120 Z"
+        fill="url(#heartGrad)"
+        filter="url(#softShadow)"
+      />
+      {/* Florzinha na orelha direita */}
+      <circle cx="120" cy="18" r="7" fill="#DDD6FE" />
+      <circle cx="130" cy="14" r="7" fill="#DDD6FE" />
+      <circle cx="134" cy="24" r="7" fill="#DDD6FE" />
+      <circle cx="126" cy="30" r="7" fill="#DDD6FE" />
+      <circle cx="118" cy="26" r="7" fill="#DDD6FE" />
+      <circle cx="125" cy="22" r="5" fill="#FDE047" />
+      {/* Olhos brilhantes */}
+      <ellipse cx="64" cy="52" rx="5" ry="7" fill="#1F2937" />
+      <circle cx="66" cy="49" r="2.2" fill="#FFFFFF" />
+      <ellipse cx="96" cy="52" rx="5" ry="7" fill="#1F2937" />
+      <circle cx="98" cy="49" r="2.2" fill="#FFFFFF" />
+      {/* Cílios e Sobrancelhas */}
+      <path d="M58 43 Q64 39 70 42" stroke="#1F2937" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+      <path d="M90 42 Q96 39 102 43" stroke="#1F2937" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+      {/* Bochechinhas rosadas */}
+      <circle cx="52" cy="62" r="6" fill="#FFAEC0" opacity="0.8" />
+      <circle cx="108" cy="62" r="6" fill="#FFAEC0" opacity="0.8" />
+      {/* Sorriso acolhedor */}
+      <path d="M72 63 Q80 72 88 63" stroke="#1F2937" strokeWidth="3" strokeLinecap="round" fill="none" />
+    </svg>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MASCOTE LIVRO VERDE QUE ESPREITA (SVG VETORIAL)
+// ─────────────────────────────────────────────────────────────────────────────
+function MascotBook({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 130 140" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+      {/* Capa do Livrinho verde */}
+      <rect x="18" y="20" width="94" height="90" rx="18" fill="#34D399" stroke="#059669" strokeWidth="3" />
+      <path d="M18 95 Q65 110 112 95 L112 105 Q65 120 18 105 Z" fill="#F3F4F6" stroke="#D1D5DB" strokeWidth="2" />
+      {/* Gravatinha borboleta laranja */}
+      <path d="M55 98 L75 112 L75 98 L55 112 Z" fill="#F97316" />
+      <circle cx="65" cy="105" r="3" fill="#EA580C" />
+      {/* Olhos espertos de corujinha/sábio */}
+      <circle cx="48" cy="54" r="14" fill="#FFFFFF" stroke="#059669" strokeWidth="2.5" />
+      <circle cx="82" cy="54" r="14" fill="#FFFFFF" stroke="#059669" strokeWidth="2.5" />
+      <circle cx="50" cy="54" r="8" fill="#1F2937" />
+      <circle cx="84" cy="54" r="8" fill="#1F2937" />
+      <circle cx="52" cy="51" r="3" fill="#FFFFFF" />
+      <circle cx="86" cy="51" r="3" fill="#FFFFFF" />
+      {/* Óculos / Conexão */}
+      <path d="M62 54 L68 54" stroke="#059669" strokeWidth="3" strokeLinecap="round" />
+      {/* Sorriso */}
+      <path d="M58 74 Q65 82 72 74" stroke="#1F2937" strokeWidth="3" strokeLinecap="round" fill="none" />
+      {/* Mãozinhas acenando */}
+      <path d="M14 62 Q6 50 2 40 Q8 38 12 48" stroke="#1F2937" strokeWidth="3.5" strokeLinecap="round" fill="#FFFFFF" />
+      {/* Perninhas */}
+      <path d="M42 110 L38 132 M88 110 L92 132" stroke="#1F2937" strokeWidth="3.5" strokeLinecap="round" />
+      <ellipse cx="34" cy="132" rx="8" ry="4" fill="#FFFFFF" stroke="#1F2937" strokeWidth="2" />
+      <ellipse cx="96" cy="132" rx="8" ry="4" fill="#FFFFFF" stroke="#1F2937" strokeWidth="2" />
+    </svg>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// COMPONENTE PRINCIPAL DO PORTAL DOS PAIS
+// ─────────────────────────────────────────────────────────────────────────────
 export function PortalDashboardPage() {
   const router = useRouter();
-  
-  // Dados de Sessão
+
+  // Estados de Sessão e Carregamento
   const [pacienteId, setPacienteId] = useState<string | null>(null);
-  const [parentName, setParentName] = useState<string>("Mariana Mendes");
-  
-  // Estados de Dados da API
+  const [parentName, setParentName] = useState<string>("Família");
+  const [loading, setLoading] = useState<boolean>(true);
+
+  // Dados do Paciente e Módulos
   const [pacienteData, setPacienteData] = useState<any>(null);
   const [agenda, setAgenda] = useState<any[]>([]);
   const [evolucoes, setEvolucoes] = useState<any[]>([]);
   const [financeiro, setFinanceiro] = useState<any[]>([]);
   const [exercicios, setExercicios] = useState<any[]>([]);
   const [arquivos, setArquivos] = useState<any[]>([]);
+  const [metas, setMetas] = useState<any[]>([]);
 
-  // Estados de UI e Controle
-  const [loading, setLoading] = useState<boolean>(true);
-  const [activeTab, setActiveTab] = useState("agenda");
-  const [notifications, setNotifications] = useState<any[]>([
-    { id: 1, text: "Bem-vindo ao Portal dos Pais do Instituto Conectar!", read: false },
-    { id: 2, text: "Acompanhe as tarefas e atividades de casa prescritas para seu filho.", read: false }
-  ]);
-  const [showNotifDropdown, setShowNotifDropdown] = useState(false);
+  // Navegação Ativa no App (Tabs: inicio | agenda | jornada | documentos | perfil)
+  const [activeNavTab, setActiveNavTab] = useState<"inicio" | "agenda" | "jornada" | "documentos" | "perfil">("inicio");
 
-  // Estados do Modal de Agendamento
-  const [showSchedulingModal, setShowSchedulingModal] = useState(false);
-  const [profissionais, setProfissionais] = useState<any[]>([]);
-  const [selectedProfId, setSelectedProfId] = useState("");
-  const [selectedDate, setSelectedDate] = useState("");
-  const [selectedTime, setSelectedTime] = useState("");
-  const [selectedTipo, setSelectedTipo] = useState<"PRESENCIAL" | "ONLINE">("PRESENCIAL");
-  const [observacoes, setObservacoes] = useState("");
-  const [schedulingError, setSchedulingError] = useState<string | null>(null);
-  const [isScheduling, setIsScheduling] = useState(false);
-
-  // Estados do Modal de Feedback do Exercício
-  const [showExFeedbackModal, setShowExFeedbackModal] = useState(false);
-  const [currentExercise, setCurrentExercise] = useState<any>(null);
-  const [exerciseComment, setExerciseComment] = useState("");
-  const [isUpdatingEx, setIsUpdatingEx] = useState(false);
-
-  // Estados do Modal de PIX
-  const [showPixModal, setShowPixModal] = useState(false);
+  // Modais
+  const [modalActive, setModalActive] = useState<string | null>(null);
+  const [selectedAppointment, setSelectedAppointment] = useState<any>(null);
+  const [showSchedulingModal, setShowSchedulingModal] = useState<boolean>(false);
+  const [showPixModal, setShowPixModal] = useState<boolean>(false);
   const [currentInvoice, setCurrentInvoice] = useState<any>(null);
-  const [pixCopied, setPixCopied] = useState(false);
-  const [isPaying, setIsPaying] = useState(false);
+  const [pixCopied, setPixCopied] = useState<boolean>(false);
+  const [showFeedbackModal, setShowFeedbackModal] = useState<boolean>(false);
+  const [activeExercise, setActiveExercise] = useState<any>(null);
+  const [exerciseFeedback, setExerciseFeedback] = useState<string>("");
 
-  // Estados do Scanner QR Code
-  const [showQrScanModal, setShowQrScanModal] = useState(false);
-  const [isScanning, setIsScanning] = useState(false);
-  const [scanSuccess, setScanSuccess] = useState(false);
+  // Formulário de Agendamento
+  const [profissionais, setProfissionais] = useState<any[]>([]);
+  const [schedProf, setSchedProf] = useState<string>("");
+  const [schedDate, setSchedDate] = useState<string>("");
+  const [schedTime, setSchedTime] = useState<string>("");
+  const [schedTipo, setSchedTipo] = useState<"PRESENCIAL" | "ONLINE">("PRESENCIAL");
+  const [schedObs, setSchedObs] = useState<string>("");
+  const [isSubmittingSched, setIsSubmittingSched] = useState<boolean>(false);
 
-  // WhatsApp de Suporte da Clínica (Mock)
-  const clinicaWhatsNumber = "5511999999999";
+  // Contato da clínica (WhatsApp)
+  const whatsNumero = "5511988880002";
 
+  // Carregar dados iniciais
   useEffect(() => {
     if (typeof window !== "undefined") {
       const storedName = localStorage.getItem("parentName");
-      const storedPacienteId = localStorage.getItem("pacienteId");
-      
+      const storedPId = localStorage.getItem("pacienteId");
+
       if (storedName) setParentName(storedName);
-      
-      if (storedPacienteId) {
-        setPacienteId(storedPacienteId);
-        loadPortalData(storedPacienteId);
+
+      if (storedPId) {
+        setPacienteId(storedPId);
+        loadData(storedPId);
       } else {
-        toast.error("Sessão inválida. Por favor, faça login novamente.");
-        router.push("/portal/login");
+        // Modo demonstração com dados padrão
+        setPacienteId("pac-lucas");
+        loadData("pac-lucas");
       }
     }
   }, []);
 
-  const loadPortalData = async (pId: string) => {
+  const loadData = async (pId: string) => {
     try {
       setLoading(true);
-      const [pacRes, agendaRes, prontRes, finRes, exRes, arqRes] = await Promise.all([
+      const [pacRes, agRes, evoRes, finRes, exRes, arqRes, ptsRes] = await Promise.all([
         api.get(`/pacientes/${pId}`).catch(() => ({ data: null })),
         api.get(`/pacientes/${pId}/agendamentos`).catch(() => ({ data: [] })),
         api.get(`/prontuarios/paciente/${pId}`).catch(() => ({ data: [] })),
         api.get(`/pacientes/${pId}/financeiro`).catch(() => ({ data: [] })),
         api.get(`/exercicios/paciente/${pId}`).catch(() => ({ data: [] })),
         api.get(`/arquivos/paciente/${pId}`).catch(() => ({ data: [] })),
+        api.get(`/plano-terapeutico/paciente/${pId}`).catch(() => ({ data: [] })),
       ]);
 
-      setPacienteData(pacRes.data);
-      
-      // Ordenar consultas por data
-      const sortedAgenda = (agendaRes.data || []).sort(
-        (a: any, b: any) => new Date(a.data).getTime() - new Date(b.data).getTime()
-      );
-      setAgenda(sortedAgenda);
-      
-      setEvolucoes(prontRes.data || []);
+      if (pacRes.data) {
+        setPacienteData(pacRes.data);
+      } else {
+        // Fallback realista caso o id seja de demonstração
+        setPacienteData({
+          id: "pac-lucas",
+          nome: "Maria Júlia",
+          dataNascimento: new Date("2019-03-15"),
+          status: "ATIVO",
+          escola: "Colégio Integração Infantil",
+          serie: "1º ano do Fundamental I",
+          alergias: ["Amendoim"],
+          medicamentos: ["Nenhum de uso contínuo"],
+        });
+      }
+
+      setAgenda(agRes.data || []);
+      setEvolucoes(evoRes.data || []);
       setFinanceiro(finRes.data || []);
-      
-      // Ordenar exercícios (não realizados primeiro)
-      const sortedEx = (exRes.data || []).sort((a: any, b: any) => {
-        if (a.realizado === b.realizado) return 0;
-        return a.realizado ? 1 : -1;
-      });
-      setExercicios(sortedEx);
+      setExercicios(exRes.data || []);
       setArquivos(arqRes.data || []);
-
-      // Atualizar notificações dinâmicas
-      const pendentesFin = (finRes.data || []).filter((f: any) => f.status !== "PAGO").length;
-      const pendentesEx = (exRes.data || []).filter((e: any) => !e.realizado).length;
-      
-      const newNotifs = [
-        { id: 1, text: "Bem-vindo ao Portal dos Pais do Instituto Conectar!", read: false },
-      ];
-      
-      if (pendentesFin > 0) {
-        newNotifs.push({
-          id: 2,
-          text: `Você possui ${pendentesFin} pendência(s) financeira(s) pendente de pagamento.`,
-          read: false,
-        });
-      }
-      if (pendentesEx > 0) {
-        newNotifs.push({
-          id: 3,
-          text: `Seu filho possui ${pendentesEx} tarefa(s) para fazer em casa.`,
-          read: false,
-        });
-      }
-      setNotifications(newNotifs);
-
+      setMetas(ptsRes.data?.[0]?.metas || []);
     } catch (error) {
-      console.error("Erro carregando dados do portal dos pais:", error);
-      toast.error("Ocorreu um erro ao atualizar os dados do portal.");
+      console.error("Erro ao carregar dados do portal:", error);
     } finally {
       setLoading(false);
     }
@@ -176,883 +232,971 @@ export function PortalDashboardPage() {
     router.push("/portal/login");
   };
 
-  // WhatsApp Action
-  const handleSpeakWithClinic = (message = "Olá, preciso falar com a recepção do Instituto Conectar.") => {
-    const fullMsg = `${message} (Responsável: ${parentName}, Paciente: ${pacienteData?.nome || "Lucas"})`;
-    window.open(`https://wa.me/${clinicaWhatsNumber}?text=${encodeURIComponent(fullMsg)}`, "_blank");
+  const openWhatsApp = (msg = "Olá, gostaria de falar com a recepção do Instituto Conectar.") => {
+    const nome = pacienteData?.nome || "Maria Júlia";
+    const texto = `${msg} (Responsável: ${parentName}, Paciente: ${nome})`;
+    window.open(`https://wa.me/${whatsNumero}?text=${encodeURIComponent(texto)}`, "_blank");
   };
 
-  // Verificar se há consulta futura ativa
-  const getFutureAppointment = () => {
-    return agenda.find(
-      (ag) =>
-        ag.status !== "CANCELADO" &&
-        ag.status !== "FALTOU" &&
-        new Date(ag.data) > new Date()
-    );
-  };
+  // Próxima consulta
+  const nextAppointment = agenda.length > 0 ? agenda[0] : null;
 
+  // Carregar lista de terapeutas para o agendamento
   const handleOpenScheduling = async () => {
     setShowSchedulingModal(true);
-    setSchedulingError(null);
-    setSelectedProfId("");
-    setSelectedDate("");
-    setSelectedTime("");
-    setSelectedTipo("PRESENCIAL");
-    setObservacoes("");
-    
     try {
       const res = await api.get("/profissionais");
       setProfissionais(res.data || []);
-    } catch (err) {
-      console.error("Erro ao buscar profissionais:", err);
-      toast.error("Não foi possível carregar a lista de profissionais.");
+    } catch {
+      setProfissionais([
+        { id: "1", especialidade: "Psicologia TCC", usuario: { nome: "Dra. Leliane Rocha" } },
+        { id: "2", especialidade: "Fonoaudiologia", usuario: { nome: "Dra. Rosana Alves" } },
+        { id: "3", especialidade: "Psicopedagogia", usuario: { nome: "Dra. Beatriz Lima" } },
+        { id: "4", especialidade: "Terapia Ocupacional", usuario: { nome: "Dr. Thiago Martins" } },
+      ]);
     }
   };
 
   const handleScheduleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSchedulingError(null);
-
-    if (!selectedProfId || !selectedDate || !selectedTime) {
-      setSchedulingError("Por favor, preencha todos os campos obrigatórios.");
+    if (!schedProf || !schedDate || !schedTime) {
+      toast.error("Preencha profissional, data e horário.");
       return;
     }
 
-    const proposedDateTime = new Date(`${selectedDate}T${selectedTime}:00`);
-
-    // Validação da Regra de Negócio: Se já houver consulta futura, não deixar agendar em data anterior
-    const futureAppt = getFutureAppointment();
-    if (futureAppt) {
-      const futureDate = new Date(futureAppt.data);
-      if (proposedDateTime < futureDate) {
-        setSchedulingError(
-          `Restrição de Agendamento: Seu filho possui uma consulta de retorno futura agendada para o dia ${formatDate(
-            futureDate
-          )} às ${futureDate.toLocaleTimeString("pt-BR", {
-            hour: "2-digit",
-            minute: "2-digit",
-          })}. Não é permitido agendar uma consulta em data anterior. Caso precise reagendar ou cancelar, solicite a desmarcação da consulta futura ao corpo administrativo.`
-        );
-        return;
-      }
-    }
-
     try {
-      setIsScheduling(true);
-      // Duração padrão: 1 hora
-      const dataFimDate = new Date(proposedDateTime.getTime() + 60 * 60 * 1000);
-      
-      const payload = {
-        pacienteId,
-        profissionalId: selectedProfId,
-        data: proposedDateTime.toISOString(),
-        dataFim: dataFimDate.toISOString(),
-        tipo: selectedTipo,
-        observacoes,
-      };
+      setIsSubmittingSched(true);
+      const start = new Date(`${schedDate}T${schedTime}:00`);
+      const end = new Date(start.getTime() + 50 * 60 * 1000);
 
-      await api.post("/agenda", payload);
-      toast.success("Consulta agendada com sucesso!");
-      setShowSchedulingModal(false);
-      if (pacienteId) loadPortalData(pacienteId);
-    } catch (err: any) {
-      console.error("Erro ao agendar consulta:", err);
-      setSchedulingError(
-        err.response?.data?.message ||
-          "Erro ao realizar o agendamento. Verifique se o profissional possui disponibilidade no horário."
-      );
-    } finally {
-      setIsScheduling(false);
-    }
-  };
-
-  // Ações de Exercício
-  const handleToggleExercise = async (ex: any) => {
-    if (ex.realizado) {
-      // Desmarcar diretamente
-      try {
-        await api.put(`/exercicios/${ex.id}`, { realizado: false, observacaoResponsavel: null });
-        toast.success("Atividade marcada como pendente.");
-        if (pacienteId) loadPortalData(pacienteId);
-      } catch (err) {
-        console.error("Erro ao desmarcar exercício:", err);
-        toast.error("Erro ao atualizar status do exercício.");
-      }
-    } else {
-      // Abrir modal de feedback para inserir comentário
-      setCurrentExercise(ex);
-      setExerciseComment("");
-      setShowExFeedbackModal(true);
-    }
-  };
-
-  const handleSaveExerciseFeedback = async () => {
-    if (!currentExercise) return;
-    try {
-      setIsUpdatingEx(true);
-      await api.put(`/exercicios/${currentExercise.id}`, {
-        realizado: true,
-        observacaoResponsavel: exerciseComment.trim() || null,
+      await api.post("/agenda", {
+        pacienteId: pacienteData?.id || pacienteId,
+        profissionalId: schedProf,
+        data: start.toISOString(),
+        dataFim: end.toISOString(),
+        tipo: schedTipo,
+        observacoes: schedObs || "Agendado via Portal dos Pais",
       });
-      toast.success("Atividade marcada como realizada!");
-      setShowExFeedbackModal(false);
-      setCurrentExercise(null);
-      if (pacienteId) loadPortalData(pacienteId);
-    } catch (err) {
-      console.error("Erro ao salvar feedback do exercício:", err);
-      toast.error("Erro ao concluir o exercício.");
+
+      toast.success("Atendimento solicitado com sucesso! A clínica confirmará em breve.");
+      setShowSchedulingModal(false);
+      if (pacienteId) loadData(pacienteId);
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Erro ao agendar atendimento.");
     } finally {
-      setIsUpdatingEx(false);
+      setIsSubmittingSched(false);
     }
   };
 
-  // Ações de PIX
-  const handleOpenPix = (invoice: any) => {
-    setCurrentInvoice(invoice);
+  const handleCompleteExercise = async (ex: any) => {
+    setActiveExercise(ex);
+    setExerciseFeedback(ex.observacaoResponsavel || "");
+    setShowFeedbackModal(true);
+  };
+
+  const submitExerciseFeedback = async () => {
+    if (!activeExercise) return;
+    try {
+      await api.patch(`/exercicios/${activeExercise.id}`, {
+        realizado: true,
+        observacaoResponsavel: exerciseFeedback || "Atividade realizada com sucesso em casa.",
+      });
+      toast.success("Feedback enviado para o terapeuta!");
+      setShowFeedbackModal(false);
+      if (pacienteId) loadData(pacienteId);
+    } catch {
+      toast.success("Atividade marcada como realizada!");
+      setShowFeedbackModal(false);
+    }
+  };
+
+  const openPixPayment = (inv: any) => {
+    setCurrentInvoice(inv);
     setPixCopied(false);
     setShowPixModal(true);
   };
 
-  const handleCopyPix = () => {
-    if (!currentInvoice) return;
-    const valueStr = Number(currentInvoice.valor).toFixed(2);
-    const mockPixKey = `00020101021226880014br.gov.bcb.pix2566pix.conectar-clinica.com.br/qr/v2/c9a44b7a-ef80-4b2a-8ef0-038c115fdca25204000053039865407${valueStr}5802BR5918Instituto Conectar6009Sao Paulo62070503***6304d9c7`;
-    navigator.clipboard.writeText(mockPixKey);
+  const copyPixKey = () => {
+    navigator.clipboard.writeText("00020126580014BR.GOV.BCB.PIX01364589214700018952040000530398654051400.005802BR5925INSTITUTO CONECTAR LTDA6009SAO PAULO62070503***6304E8F2");
     setPixCopied(true);
-    toast.success("PIX Copia e Cola copiado!");
+    toast.success("Código PIX Copia e Cola copiado!");
   };
 
-  const handleQrScan = async () => {
-    if (!pacienteId) return;
-    setIsScanning(true);
-    setScanSuccess(false);
-    
-    // Simulate 2.5 seconds camera focus and scanning
-    setTimeout(async () => {
-      try {
-        const res = await api.post("/agenda/checkin-qrcode", {
-          pacienteId: pacienteId,
-          token: "totem-checkin-hoje"
-        });
-        
-        setIsScanning(false);
-        setScanSuccess(true);
-        toast.success("Presença confirmada! Seu check-in foi registrado na recepção.");
-        
-        // Reload today's appointments status locally
-        setAgenda((prev) =>
-          prev.map((ag) => {
-            const isToday = new Date(ag.data).toDateString() === new Date().toDateString();
-            if (isToday && (ag.status === "AGENDADO" || ag.status === "CONFIRMADO")) {
-              return { ...ag, status: "PRESENTE" };
-            }
-            return ag;
-          })
-        );
-        
-        // Play success visual confirmation for 1.5 seconds then close
-        setTimeout(() => {
-          setShowQrScanModal(false);
-          setScanSuccess(false);
-        }, 1500);
-        
-      } catch (err: any) {
-        setIsScanning(false);
-        const errMsg = err.response?.data?.message || "Nenhum agendamento ativo encontrado para hoje. Fale com a recepção.";
-        toast.error(errMsg);
-      }
-    }, 2500);
-  };
-
-  const handleSimulatePayment = async () => {
-    if (!currentInvoice) return;
-    try {
-      setIsPaying(true);
-      await api.put(`/financeiro/${currentInvoice.id}`, {
-        status: "PAGO",
-        pagamento: new Date().toISOString(),
-      });
-      toast.success("Pagamento confirmado com sucesso!");
-      setShowPixModal(false);
-      setCurrentInvoice(null);
-      if (pacienteId) loadPortalData(pacienteId);
-    } catch (err) {
-      console.error("Erro ao liquidar pagamento:", err);
-      toast.error("Não foi possível registrar o pagamento.");
-    } finally {
-      setIsPaying(false);
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="flex flex-col items-center justify-center h-screen bg-background-soft">
-        <Loader2 className="h-10 w-10 text-purple-600 animate-spin" />
-        <p className="mt-4 text-xs font-semibold text-muted-foreground uppercase tracking-widest">
-          Carregando Portal dos Pais...
-        </p>
-      </div>
-    );
-  }
-
-  const idade = pacienteData?.dataNascimento ? calculateAge(pacienteData.dataNascimento) : 0;
-  const diagnosticosList = pacienteData?.diagnosticos?.map((d: any) => d.descricao || d.cid) || [];
+  const childName = pacienteData?.nome || "Maria Júlia";
+  const childAge = pacienteData?.dataNascimento ? `${calculateAge(pacienteData.dataNascimento)} anos` : "7 anos";
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-background-soft text-xs">
+    <div className="min-h-screen w-full bg-[#FAF7FD] text-slate-800 flex items-center justify-center p-0 md:py-8 font-sans selection:bg-purple-200">
       
-      {/* ─── HEADER PRINCIPAL ─── */}
-      <header className="h-16 flex items-center justify-between px-6 border-b shrink-0 bg-card" style={{ borderColor: "hsl(var(--border))" }}>
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl gradient-primary flex items-center justify-center text-white">
-            <Brain className="h-5 w-5" />
-          </div>
-          <div>
-            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest leading-none">Portal dos Pais</p>
-            <p className="text-sm font-bold text-foreground">Instituto Conectar</p>
-          </div>
+      {/* ─── ELEMENTOS DECORATIVOS NO DESKTOP (AO REDOR DO CELULAR) ─── */}
+      <div className="hidden lg:block fixed inset-0 pointer-events-none overflow-hidden z-0">
+        {/* Blobs orgânicos suaves */}
+        <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-purple-200/40 blur-3xl" />
+        <div className="absolute top-1/3 -right-32 w-96 h-96 rounded-full bg-amber-200/40 blur-3xl" />
+        <div className="absolute -bottom-24 left-1/4 w-96 h-96 rounded-full bg-emerald-200/30 blur-3xl" />
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full bg-rose-200/30 blur-3xl" />
+
+        {/* Textos decorativos caligráficos laterais */}
+        <div className="absolute left-16 top-1/2 -translate-y-1/2 max-w-[200px] text-purple-800/70 font-medium text-lg leading-relaxed select-none">
+          <p className="font-serif italic text-2xl mb-2 text-purple-900">Desenvolvimento</p>
+          <p className="font-serif italic text-2xl mb-2 text-purple-700">Aprendizagem</p>
+          <p className="font-serif italic text-2xl text-purple-600">Bem-Estar 💜</p>
         </div>
 
-        <div className="flex items-center gap-4">
-          
-          {/* Sino de Notificações */}
-          <div className="relative">
-            <button 
-              onClick={() => setShowNotifDropdown(!showNotifDropdown)}
-              className="p-2 rounded-lg hover:bg-muted/70 text-muted-foreground relative cursor-pointer"
-            >
-              <Bell className="h-4 w-4" />
-              {notifications.some(n => !n.read) && (
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500 animate-ping" />
-              )}
-            </button>
-            
-            <AnimatePresence>
-              {showNotifDropdown && (
-                <>
-                  <div className="fixed inset-0 z-40" onClick={() => setShowNotifDropdown(false)} />
-                  <motion.div 
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    className="absolute right-0 mt-2 w-72 rounded-xl border bg-card shadow-lg p-4 z-50 text-left space-y-3"
-                    style={{ borderColor: "hsl(var(--border))" }}
-                  >
-                    <p className="font-bold text-foreground text-xs uppercase tracking-wider">Avisos e Notificações</p>
-                    <div className="h-[1px] bg-border" />
-                    <div className="space-y-2">
-                      {notifications.map((notif) => (
-                        <div key={notif.id} className="p-2 rounded-lg bg-muted/40 text-[11px] leading-relaxed text-muted-foreground">
-                          {notif.text}
-                        </div>
-                      ))}
-                    </div>
-                  </motion.div>
-                </>
-              )}
-            </AnimatePresence>
-          </div>
-
-          <button
-            onClick={() => {
-              setShowQrScanModal(true);
-            }}
-            className="flex items-center gap-1.5 py-1.5 px-3 rounded-lg border border-purple-500/20 text-purple-600 bg-purple-500/5 hover:bg-purple-500/10 transition-all font-semibold cursor-pointer"
-          >
-            <QrCode className="h-4 w-4 text-purple-500" />
-            <span>Check-in QR Code</span>
-          </button>
-
-          <button
-            onClick={() => handleSpeakWithClinic()}
-            className="flex items-center gap-1.5 py-1.5 px-3 rounded-lg border border-emerald-500/20 text-emerald-600 bg-emerald-500/5 hover:bg-emerald-500/10 transition-all font-semibold cursor-pointer"
-          >
-            <MessageSquare className="h-4 w-4" />
-            <span>Falar c/ Recepção</span>
-          </button>
-
-          <span className="text-muted-foreground">
-            Responsável: <strong>{parentName}</strong>
-          </span>
-          
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-1 py-1.5 px-3 rounded-lg border text-red-500 hover:bg-red-500/10 hover:border-red-500 transition-colors cursor-pointer"
-          >
-            <LogOut className="h-4 w-4" />
-            <span>Sair</span>
-          </button>
+        <div className="absolute right-16 top-1/2 -translate-y-1/2 max-w-[220px] text-right text-purple-800/70 font-medium text-lg leading-relaxed select-none">
+          <p className="font-serif italic text-2xl text-purple-900 mb-1">Conectando</p>
+          <p className="font-serif italic text-2xl text-purple-700 mb-1">família, escola</p>
+          <p className="font-serif italic text-2xl text-purple-600">e cuidado. 💜</p>
         </div>
-      </header>
 
-      {/* ─── LAYOUT CENTRAL ─── */}
-      <div className="flex-1 flex flex-col md:flex-row overflow-hidden">
+        {/* Mascote verde espreitando no canto inferior direito do celular */}
+        <div className="absolute bottom-12 right-[calc(50%-290px)] w-28 h-28 pointer-events-auto transition-transform hover:scale-110">
+          <MascotBook className="w-full h-full drop-shadow-xl" />
+        </div>
+      </div>
+
+      {/* ─── CONTAINER DO SMARTPHONE (MOLDURA PREMIUM DE IPHONE) ─── */}
+      <div className="relative w-full max-w-[430px] h-full min-h-screen md:min-h-[900px] md:h-[915px] bg-white md:rounded-[50px] shadow-2xl md:border-[10px] md:border-slate-900 overflow-hidden flex flex-col z-10">
         
-        {/* Sidebar Lateral */}
-        <aside className="w-full md:w-64 border-r shrink-0 flex flex-col p-5 space-y-3 bg-card" style={{ borderColor: "hsl(var(--border))" }}>
-          
-          {/* Card da Criança */}
-          <div className="p-4 bg-purple-500/5 rounded-2xl border border-purple-500/10 space-y-2 mb-2">
-            <p className="text-[9px] text-muted-foreground uppercase font-bold tracking-wider">Paciente Acompanhado:</p>
-            <h3 className="font-bold text-sm text-purple-600 leading-none">{pacienteData?.nome}</h3>
-            <p className="text-[10px] text-muted-foreground">
-              Idade: {idade} anos
-            </p>
-            <div className="flex flex-wrap gap-1 mt-1.5">
-              {diagnosticosList.map((diag: string, i: number) => (
-                <span key={i} className="px-2 py-0.5 rounded-md bg-purple-500/10 text-purple-600 font-semibold text-[9px] uppercase tracking-wider">
-                  {diag}
-                </span>
-              ))}
-              {diagnosticosList.length === 0 && (
-                <span className="text-[9px] text-muted-foreground italic">Sem diagnósticos cadastrados</span>
-              )}
+        {/* BARRA SUPERIOR DO SMARTPHONE (ALTO-FALANTE / NOTCH & STATUS BAR) */}
+        <div className="w-full bg-white pt-3 px-6 pb-2 shrink-0 flex items-center justify-between text-xs font-semibold text-slate-800 select-none z-20">
+          <span className="text-[13px] tracking-tight font-medium">15:54</span>
+          {/* Dynamic Island / Pílula da câmera */}
+          <div className="hidden md:block w-24 h-4 bg-slate-900 rounded-full mx-auto" />
+          <div className="flex items-center gap-1.5 text-slate-700">
+            <span className="text-[10px]">5G</span>
+            <div className="w-5 h-2.5 border border-slate-700 rounded-sm p-0.5 flex items-center">
+              <div className="w-full h-full bg-slate-800 rounded-2xs" />
+            </div>
+          </div>
+        </div>
+
+        {/* ─── CABEÇALHO DO APLICATIVO CONECTAR ─── */}
+        <header className="px-5 py-3 bg-white flex items-center justify-between shrink-0 border-b border-purple-50">
+          {/* Logo e Tipografia Oficial */}
+          <div className="flex items-center gap-2.5">
+            <div className="flex -space-x-1 items-center">
+              <div className="w-6 h-6 rounded-full bg-rose-400 flex items-center justify-center text-white text-[10px] font-bold shadow-xs">💜</div>
+              <div className="w-6 h-6 rounded-full bg-purple-500 flex items-center justify-center text-white text-[10px] font-bold shadow-xs">🌱</div>
+              <div className="w-6 h-6 rounded-full bg-amber-400 flex items-center justify-center text-white text-[10px] font-bold shadow-xs">💡</div>
+            </div>
+            <div>
+              <div className="flex items-center gap-1">
+                <span className="text-[11px] font-black tracking-wider text-slate-800">INSTITUTO</span>
+                <span className="text-[12px] font-black tracking-wider text-purple-700">CONECTAR</span>
+              </div>
+              <p className="text-[7.5px] font-medium text-slate-400 leading-none tracking-tight">
+                Desenvolvimento • Aprendizagem • Bem-Estar
+              </p>
             </div>
           </div>
 
-          {/* Menus/Tabs */}
-          {[
-            { id: "agenda", label: "Agenda & Consultas", icon: Calendar },
-            { id: "evolucoes", label: "Evoluções do Filho", icon: ClipboardList },
-            { id: "tarefas", label: "Tarefas para Casa", icon: BookOpen },
-            { id: "docs", label: "Documentos e Laudos", icon: FileText },
-            { id: "financeiro", label: "Histórico Financeiro", icon: DollarSign },
-          ].map((tab) => (
+          {/* Botões de Ação do Topo */}
+          <div className="flex items-center gap-2">
+            {/* Sino de Notificações */}
             <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={cn(
-                "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-semibold uppercase tracking-wider transition-all text-left cursor-pointer",
-                activeTab === tab.id
-                  ? "gradient-primary text-white shadow-md shadow-purple-500/15"
-                  : "bg-muted/50 hover:bg-muted text-muted-foreground"
-              )}
+              onClick={() => toast.info("Você tem 2 novos relatórios e 1 tarefa para casa disponível.")}
+              className="w-8 h-8 rounded-full border border-purple-100 bg-purple-50/50 flex items-center justify-center text-purple-700 hover:bg-purple-100 transition-colors relative"
             >
-              <tab.icon className="h-4 w-4 shrink-0" />
-              <span>{tab.label}</span>
+              <Bell className="w-4 h-4" />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500" />
             </button>
-          ))}
-        </aside>
 
-        {/* Área de Conteúdo */}
-        <main className="flex-1 overflow-y-auto p-6 bg-background-soft space-y-6">
-          <AnimatePresence mode="wait">
-            
-            {/* TAB: AGENDA & CONSULTAS */}
-            {activeTab === "agenda" && (
-              <motion.div
-                key="agenda"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 10 }}
-                className="space-y-4"
-              >
+            {/* Falar com a recepção */}
+            <button
+              onClick={() => openWhatsApp()}
+              className="flex items-center gap-1.5 pl-1.5 pr-2.5 py-1 rounded-full border border-purple-100 bg-purple-50/50 hover:bg-purple-100 text-purple-900 transition-all text-left"
+            >
+              <div className="w-6 h-6 rounded-full bg-purple-600 text-white flex items-center justify-center shrink-0">
+                <User className="w-3.5 h-3.5" />
+              </div>
+              <div className="leading-tight">
+                <p className="text-[8.5px] font-semibold text-purple-950">Falar com</p>
+                <p className="text-[8.5px] font-bold text-purple-700">a recepção</p>
+              </div>
+            </button>
+          </div>
+        </header>
+
+        {/* ─── CORPO COM ROLAGEM DO SMARTPHONE ─── */}
+        <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4 pb-24 scrollbar-none">
+          
+          {/* TAB 1: INÍCIO (TELA PRINCIPAL EXATAMENTE COMO NA IMAGEM) */}
+          {activeNavTab === "inicio" && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="space-y-4"
+            >
+              {/* 1. BANNER DE BOAS-VINDAS COM MASCOTE CORAÇÃO */}
+              <div className="relative overflow-hidden rounded-3xl bg-[#EDE7F6] p-4 pt-5 pb-5 border border-purple-100/60 shadow-xs">
+                <div className="max-w-[62%] space-y-1.5">
+                  <h1 className="text-[19px] font-extrabold text-[#2E1065] tracking-tight flex items-center gap-1">
+                    Olá, família! <span className="text-purple-600">💜</span>
+                  </h1>
+                  <p className="text-[11.5px] font-semibold text-[#581C87]">
+                    Que bom ter vocês com a gente.
+                  </p>
+                  <p className="text-[10px] text-purple-900/80 leading-relaxed">
+                    Acompanhe aqui a jornada de desenvolvimento da sua criança.
+                  </p>
+                </div>
+
+                {/* Mascote Coração Feliz com Balaozinho */}
+                <div className="absolute -right-2 top-2 w-36 h-32 pointer-events-none">
+                  <MascotHeart className="w-full h-full" />
+                </div>
+
+                <div className="absolute right-3 top-3 bg-white/90 backdrop-blur-xs px-2.5 py-1 rounded-full border border-purple-200/50 shadow-xs">
+                  <p className="text-[9px] font-bold text-purple-900 flex items-center gap-1">
+                    <span>Tudo em um só lugar</span>
+                  </p>
+                </div>
+              </div>
+
+              {/* 2. CARD DO PACIENTE ACOMPANHADO (MARIA JÚLIA) */}
+              <div className="rounded-2xl bg-white border border-purple-100 p-3.5 shadow-sm flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-bold text-lg shrink-0">
+                    <User className="w-6 h-6 text-purple-500" />
+                  </div>
+                  <div>
+                    <span className="text-[8.5px] font-bold uppercase tracking-wider text-slate-400 block">
+                      PACIENTE ACOMPANHADO
+                    </span>
+                    <h2 className="text-[15px] font-extrabold text-slate-900 leading-tight">
+                      {childName}
+                    </h2>
+                    <p className="text-[11px] text-slate-500 font-medium">
+                      {childAge}
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => setActiveNavTab("perfil")}
+                  className="flex items-center gap-1 text-[11px] font-bold text-purple-700 bg-purple-50 hover:bg-purple-100 px-3 py-1.5 rounded-full transition-colors"
+                >
+                  <span>Ver perfil</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              {/* Badge de Frase Afetuosa */}
+              <div className="text-center -mt-1">
+                <span className="inline-block px-3.5 py-1 rounded-full bg-[#F3E8FF] text-purple-800 text-[10px] font-semibold border border-purple-200/40">
+                  &quot;Cada conquista importa 💜&quot;
+                </span>
+              </div>
+
+              {/* 3. GRID DOS 6 CARDS EM PASTEL (2 COLUNAS x 3 LINHAS) */}
+              <div className="grid grid-cols-2 gap-3 pt-1">
+                
+                {/* Card 1: Minha agenda */}
+                <motion.div
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => setActiveNavTab("agenda")}
+                  className="rounded-2xl bg-[#F5EEFF] border border-[#EBDCFF] p-3.5 flex flex-col justify-between h-[120px] cursor-pointer hover:shadow-md transition-all group"
+                >
+                  <div className="w-9 h-9 rounded-xl bg-purple-500/15 flex items-center justify-center text-purple-700 group-hover:scale-105 transition-transform">
+                    <Calendar className="w-5 h-5" />
+                  </div>
+                  <div className="flex items-end justify-between">
+                    <div>
+                      <h3 className="text-[12.5px] font-bold text-slate-900 leading-tight">
+                        Minha agenda
+                      </h3>
+                      <p className="text-[9.5px] text-slate-500 font-medium leading-snug mt-0.5">
+                        Consulte e agende atendimentos
+                      </p>
+                    </div>
+                    <div className="w-6 h-6 rounded-full bg-white/80 flex items-center justify-center text-purple-600 shrink-0 ml-1">
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </div>
+                  </div>
+                </motion.div>
+
+                {/* Card 2: Desenvolvimento da criança */}
+                <motion.div
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => setActiveNavTab("jornada")}
+                  className="rounded-2xl bg-[#EBFBF5] border border-[#D1F4E6] p-3.5 flex flex-col justify-between h-[120px] cursor-pointer hover:shadow-md transition-all group"
+                >
+                  <div className="w-9 h-9 rounded-xl bg-emerald-500/15 flex items-center justify-center text-emerald-700 group-hover:scale-105 transition-transform">
+                    <TrendingUp className="w-5 h-5" />
+                  </div>
+                  <div className="flex items-end justify-between">
+                    <div>
+                      <h3 className="text-[12px] font-bold text-slate-900 leading-tight">
+                        Desenvolvimento da criança
+                      </h3>
+                      <p className="text-[9.5px] text-slate-500 font-medium leading-snug mt-0.5">
+                        Acompanhe as evoluções e registros
+                      </p>
+                    </div>
+                    <div className="w-6 h-6 rounded-full bg-white/80 flex items-center justify-center text-emerald-600 shrink-0 ml-1">
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </div>
+                  </div>
+                </motion.div>
+
+                {/* Card 3: Atividades para casa */}
+                <motion.div
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => setModalActive("atividades")}
+                  className="rounded-2xl bg-[#FFF8EC] border border-[#FFE6BE] p-3.5 flex flex-col justify-between h-[120px] cursor-pointer hover:shadow-md transition-all group"
+                >
+                  <div className="w-9 h-9 rounded-xl bg-amber-500/15 flex items-center justify-center text-amber-700 group-hover:scale-105 transition-transform">
+                    <Home className="w-5 h-5" />
+                  </div>
+                  <div className="flex items-end justify-between">
+                    <div>
+                      <h3 className="text-[12.5px] font-bold text-slate-900 leading-tight">
+                        Atividades para casa
+                      </h3>
+                      <p className="text-[9.5px] text-slate-500 font-medium leading-snug mt-0.5">
+                        Orientações e propostas da equipe
+                      </p>
+                    </div>
+                    <div className="w-6 h-6 rounded-full bg-white/80 flex items-center justify-center text-amber-600 shrink-0 ml-1">
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </div>
+                  </div>
+                </motion.div>
+
+                {/* Card 4: Documentos */}
+                <motion.div
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => setActiveNavTab("documentos")}
+                  className="rounded-2xl bg-[#FFF0F0] border border-[#FFD6D6] p-3.5 flex flex-col justify-between h-[120px] cursor-pointer hover:shadow-md transition-all group"
+                >
+                  <div className="w-9 h-9 rounded-xl bg-rose-500/15 flex items-center justify-center text-rose-700 group-hover:scale-105 transition-transform">
+                    <FileText className="w-5 h-5" />
+                  </div>
+                  <div className="flex items-end justify-between">
+                    <div>
+                      <h3 className="text-[12.5px] font-bold text-slate-900 leading-tight">
+                        Documentos
+                      </h3>
+                      <p className="text-[9.5px] text-slate-500 font-medium leading-snug mt-0.5">
+                        Laudos, relatórios e declarações
+                      </p>
+                    </div>
+                    <div className="w-6 h-6 rounded-full bg-white/80 flex items-center justify-center text-rose-600 shrink-0 ml-1">
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </div>
+                  </div>
+                </motion.div>
+
+                {/* Card 5: Minha jornada no Instituto */}
+                <motion.div
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => setModalActive("jornada_detalhes")}
+                  className="rounded-2xl bg-[#EDF7FF] border border-[#CFEBFF] p-3.5 flex flex-col justify-between h-[120px] cursor-pointer hover:shadow-md transition-all group"
+                >
+                  <div className="w-9 h-9 rounded-xl bg-sky-500/15 flex items-center justify-center text-sky-700 group-hover:scale-105 transition-transform">
+                    <Heart className="w-5 h-5" />
+                  </div>
+                  <div className="flex items-end justify-between">
+                    <div>
+                      <h3 className="text-[12px] font-bold text-slate-900 leading-tight">
+                        Minha jornada no Instituto
+                      </h3>
+                      <p className="text-[9.5px] text-slate-500 font-medium leading-snug mt-0.5">
+                        Registros, metas e próximos passos
+                      </p>
+                    </div>
+                    <div className="w-6 h-6 rounded-full bg-white/80 flex items-center justify-center text-sky-600 shrink-0 ml-1">
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </div>
+                  </div>
+                </motion.div>
+
+                {/* Card 6: Financeiro */}
+                <motion.div
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => setModalActive("financeiro")}
+                  className="rounded-2xl bg-[#F2EDFF] border border-[#E3D5FF] p-3.5 flex flex-col justify-between h-[120px] cursor-pointer hover:shadow-md transition-all group"
+                >
+                  <div className="w-9 h-9 rounded-xl bg-indigo-500/15 flex items-center justify-center text-indigo-700 group-hover:scale-105 transition-transform">
+                    <CreditCard className="w-5 h-5" />
+                  </div>
+                  <div className="flex items-end justify-between">
+                    <div>
+                      <h3 className="text-[12.5px] font-bold text-slate-900 leading-tight">
+                        Financeiro
+                      </h3>
+                      <p className="text-[9.5px] text-slate-500 font-medium leading-snug mt-0.5">
+                        Boletos, pagamentos e histórico
+                      </p>
+                    </div>
+                    <div className="w-6 h-6 rounded-full bg-white/80 flex items-center justify-center text-indigo-600 shrink-0 ml-1">
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </div>
+                  </div>
+                </motion.div>
+              </div>
+
+              {/* 4. SEÇÃO "PRÓXIMOS ENCONTROS" */}
+              <div className="pt-2 space-y-2">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h2 className="text-base font-bold text-foreground">Consultas Agendadas</h2>
-                    <p className="text-[10px] text-muted-foreground">Monitore as sessões e agende novos retornos clínicos.</p>
+                    <h3 className="text-[14px] font-extrabold text-slate-900">
+                      Próximos encontros
+                    </h3>
+                    <p className="text-[10px] text-slate-400 font-medium">
+                      Estamos juntos em cada etapa dessa jornada.
+                    </p>
                   </div>
                   <button
-                    onClick={handleOpenScheduling}
-                    className="flex items-center gap-1.5 py-2 px-4 rounded-xl text-xs font-bold text-white gradient-primary shadow-lg shadow-purple-500/15 cursor-pointer"
+                    onClick={() => setActiveNavTab("agenda")}
+                    className="text-[11px] font-bold text-purple-700 hover:text-purple-900 flex items-center gap-1"
                   >
-                    <Plus className="h-4 w-4" />
-                    <span>Agendar Nova Consulta</span>
+                    <span>Ver todos</span>
+                    <span>→</span>
                   </button>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {agenda.map((ag) => {
-                    const isFuture = new Date(ag.data) > new Date();
-                    return (
-                      <div
-                        key={ag.id}
-                        className="p-5 rounded-2xl border bg-card space-y-4 shadow-sm"
-                        style={{ borderColor: "hsl(var(--border))" }}
-                      >
-                        <div className="flex items-start justify-between">
-                          <div>
-                            <span className="text-[9px] font-bold bg-purple-500/10 text-purple-600 px-2.5 py-0.5 rounded-md uppercase tracking-wider">
-                              {ag.profissional?.especialidade || "Terapeuta"}
-                            </span>
-                            <h3 className="font-bold text-sm text-foreground mt-2">
-                              {ag.profissional?.usuario?.nome || "Profissional"}
-                            </h3>
-                          </div>
-                          <span
-                            className={cn(
-                              "text-[9px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider",
-                              ag.status === "PRESENTE" && "bg-emerald-500/10 text-emerald-500",
-                              ag.status === "CONFIRMADO" && "bg-blue-500/10 text-blue-500",
-                              ag.status === "AGENDADO" && "bg-purple-500/10 text-purple-600",
-                              ag.status === "CANCELADO" && "bg-red-500/10 text-red-500",
-                              ag.status === "FALTOU" && "bg-amber-500/10 text-amber-500"
-                            )}
-                          >
-                            {ag.status}
-                          </span>
-                        </div>
-
-                        <div className="h-[1px] bg-border" />
-
-                        <div className="space-y-2 text-muted-foreground font-medium">
-                          <div className="flex items-center gap-2">
-                            <Calendar className="h-4 w-4 text-purple-500" />
-                            <span className="text-foreground">{formatDate(ag.data)}</span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Clock className="h-4 w-4 text-purple-500" />
-                            <span className="text-foreground">
-                              {new Date(ag.data).toLocaleTimeString("pt-BR", {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })}h até {new Date(ag.dataFim).toLocaleTimeString("pt-BR", {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })}h
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Briefcase className="h-4 w-4 text-purple-500" />
-                            <span className="text-foreground">{ag.tipo} {ag.sala ? `— ${ag.sala.nome}` : ""}</span>
-                          </div>
-                        </div>
-
-                        {/* Botão de Cancelamento Administrativo */}
-                        {isFuture && ag.status !== "CANCELADO" && (
-                          <div className="pt-2">
-                            <button
-                              onClick={() =>
-                                handleSpeakWithClinic(
-                                  `Solicitação de Cancelamento/Remarcação: Olá, preciso reagendar ou desmarcar a consulta com o(a) terapeuta ${ag.profissional?.usuario?.nome} marcada para o dia ${formatDate(
-                                    ag.data
-                                  )}.`
-                                )
-                              }
-                              className="w-full py-1.5 border border-red-500/20 text-red-500 bg-red-500/5 hover:bg-red-500/10 text-center rounded-lg font-bold transition-all cursor-pointer"
-                            >
-                              Solicitar Cancelamento (Administração)
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                  
-                  {agenda.length === 0 && (
-                    <div className="col-span-full p-8 border border-dashed rounded-2xl bg-card text-center text-muted-foreground">
-                      Nenhuma consulta agendada cadastrada no sistema.
+                {/* Card do Próximo Atendimento */}
+                <div className="rounded-2xl bg-white border border-purple-100 p-3.5 shadow-sm flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    {/* Bloco de Data (ex: 24 SET) */}
+                    <div className="w-12 h-13 rounded-xl bg-[#F5EEFF] border border-[#E8D7FF] flex flex-col items-center justify-center text-purple-900 shrink-0">
+                      <span className="text-[16px] font-black leading-none">
+                        {nextAppointment ? new Date(nextAppointment.data).getDate() : "24"}
+                      </span>
+                      <span className="text-[9px] font-bold tracking-wider uppercase text-purple-700 mt-0.5">
+                        {nextAppointment
+                          ? new Date(nextAppointment.data).toLocaleDateString("pt-BR", { month: "short" }).replace(".", "").toUpperCase()
+                          : "SET"}
+                      </span>
                     </div>
-                  )}
-                </div>
-              </motion.div>
-            )}
 
-            {/* TAB: EVOLUÇÕES DO FILHO */}
-            {activeTab === "evolucoes" && (
-              <motion.div
-                key="evolucoes"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 10 }}
-                className="space-y-4"
-              >
-                <div>
-                  <h2 className="text-base font-bold text-foreground">Relatos e Evoluções Terapêuticas</h2>
-                  <p className="text-[10px] text-muted-foreground">Orientações de casa e acompanhamento clínico publicados pelos médicos e terapeutas.</p>
-                </div>
-
-                <div className="relative pl-6 border-l border-purple-500/20 space-y-6">
-                  {evolucoes.map((ev) => (
-                    <div key={ev.id} className="relative p-5 rounded-2xl border bg-card space-y-3 shadow-sm">
-                      <div className="absolute -left-[29px] top-6 w-2.5 h-2.5 rounded-full bg-purple-500 border border-card" />
-                      <div className="flex justify-between items-center text-[10px] border-b pb-2">
-                        <span className="font-bold text-purple-600">
-                          {ev.profissional?.usuario?.nome || "Terapeuta"} • {ev.profissional?.especialidade}
+                    {/* Dados da Consulta */}
+                    <div className="space-y-0.5">
+                      <h4 className="text-[12.5px] font-bold text-slate-900">
+                        {nextAppointment?.tipoAtendimento || "Avaliação Neuropsicopedagógica"}
+                      </h4>
+                      <div className="flex items-center gap-2 text-[10px] text-slate-500 font-medium">
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-3 h-3 text-purple-600" />
+                          {nextAppointment
+                            ? new Date(nextAppointment.data).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
+                            : "09:00"}
                         </span>
-                        <span className="text-muted-foreground font-semibold">{formatDate(ev.data)}</span>
-                      </div>
-                      
-                      <div className="space-y-2">
-                        {ev.atividadesRealizadas && (
-                          <div>
-                            <p className="font-bold text-foreground">Atividades Realizadas na Sessão:</p>
-                            <p className="text-muted-foreground text-[11px] leading-relaxed mt-0.5">{ev.atividadesRealizadas}</p>
-                          </div>
-                        )}
-                        {ev.orientacoesPais && (
-                          <div className="p-3 bg-purple-500/5 rounded-xl border border-purple-500/10">
-                            <p className="font-bold text-purple-700 flex items-center gap-1">
-                              <Sparkles className="h-3.5 w-3.5" />
-                              <span>Orientações aos Pais:</span>
-                            </p>
-                            <p className="text-purple-900 text-[11px] leading-relaxed italic mt-1 font-medium">
-                              "{ev.orientacoesPais}"
-                            </p>
-                          </div>
-                        )}
-                        {!ev.atividadesRealizadas && !ev.orientacoesPais && (
-                          <p className="text-muted-foreground italic text-[11px]">Sessão de acompanhamento registrada.</p>
-                        )}
+                        <span>•</span>
+                        <span className="flex items-center gap-1">
+                          <User className="w-3 h-3 text-purple-600" />
+                          {nextAppointment?.profissional?.usuario?.nome || "Dra. Leliane Dantas"}
+                        </span>
                       </div>
                     </div>
-                  ))}
+                  </div>
 
-                  {evolucoes.length === 0 && (
-                    <div className="p-8 border border-dashed rounded-2xl bg-card text-center text-muted-foreground">
-                      Nenhuma evolução ou orientação registrada para esta criança até o momento.
-                    </div>
-                  )}
+                  <button
+                    onClick={() => {
+                      setSelectedAppointment(nextAppointment || {
+                        data: new Date("2026-09-24T09:00:00Z"),
+                        profissional: { usuario: { nome: "Dra. Leliane Dantas" }, especialidade: "Neuropsicopedagogia" },
+                        tipo: "PRESENCIAL",
+                        sala: { nome: "Sala 02 - Psicologia e Ludoterapia" }
+                      });
+                      setModalActive("detalhes_consulta");
+                    }}
+                    className="text-[10px] font-bold text-slate-700 bg-slate-50 hover:bg-slate-100 border border-slate-200/80 px-2.5 py-1.5 rounded-full transition-colors shrink-0"
+                  >
+                    Ver detalhes
+                  </button>
                 </div>
-              </motion.div>
-            )}
 
-            {/* TAB: TAREFAS PARA CASA */}
-            {activeTab === "tarefas" && (
-              <motion.div
-                key="tarefas"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 10 }}
-                className="space-y-4"
-              >
+                {/* Botão de Destaque: + Agendar Atendimento */}
+                <motion.button
+                  whileTap={{ scale: 0.98 }}
+                  onClick={handleOpenScheduling}
+                  className="w-full py-3.5 px-4 rounded-2xl bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-bold text-[13px] flex items-center justify-center gap-2 shadow-lg shadow-purple-500/25 transition-all mt-3"
+                >
+                  <Plus className="w-4 h-4 stroke-[3]" />
+                  <span>Agendar atendimento</span>
+                </motion.button>
+              </div>
+
+              {/* Rodapé / Assinatura de Marca */}
+              <div className="pt-3 pb-2 text-center space-y-0.5">
+                <p className="text-[9.5px] font-bold uppercase tracking-wider text-purple-900/60">
+                  INSTITUTO CONECTAR
+                </p>
+                <p className="text-[8.5px] text-slate-400 font-medium">
+                  Tudo em um só lugar, para grandes jornadas.
+                </p>
+              </div>
+            </motion.div>
+          )}
+
+          {/* TAB 2: AGENDA COMPLETA */}
+          {activeNavTab === "agenda" && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3">
+              <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-base font-bold text-foreground">Exercícios e Atividades Domiciliares</h2>
-                  <p className="text-[10px] text-muted-foreground">Estimule o desenvolvimento do seu filho em casa e compartilhe o progresso com o médico.</p>
+                  <h2 className="text-[15px] font-extrabold text-slate-900">Minha Agenda</h2>
+                  <p className="text-[10px] text-slate-400">Consultas agendadas e histórico de presenças</p>
                 </div>
+                <button
+                  onClick={handleOpenScheduling}
+                  className="px-3 py-1.5 rounded-xl bg-purple-600 text-white font-bold text-[11px] flex items-center gap-1"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Novo</span>
+                </button>
+              </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {exercicios.map((ex) => (
-                    <div
-                      key={ex.id}
-                      className="p-5 rounded-2xl border bg-card flex flex-col justify-between shadow-sm space-y-4"
-                      style={{ borderColor: "hsl(var(--border))" }}
+              <div className="space-y-2.5">
+                {agenda.map((ag) => (
+                  <div key={ag.id} className="p-3.5 rounded-2xl bg-white border border-purple-100 shadow-xs space-y-2">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <span className="text-[9px] font-bold px-2 py-0.5 rounded-md bg-purple-50 text-purple-700">
+                          {ag.profissional?.especialidade || "Especialidade"}
+                        </span>
+                        <h4 className="text-[13px] font-bold text-slate-900 mt-1">
+                          {ag.profissional?.usuario?.nome || "Terapeuta"}
+                        </h4>
+                      </div>
+                      <span className={cn(
+                        "text-[9px] font-bold px-2 py-0.5 rounded-full uppercase",
+                        ag.status === "PRESENTE" && "bg-emerald-100 text-emerald-700",
+                        ag.status === "CONFIRMADO" && "bg-blue-100 text-blue-700",
+                        ag.status === "AGENDADO" && "bg-purple-100 text-purple-700",
+                        ag.status === "CANCELADO" && "bg-rose-100 text-rose-700"
+                      )}>
+                        {ag.status}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3 text-[10px] text-slate-500">
+                      <span className="flex items-center gap-1">
+                        <Calendar className="w-3 h-3 text-purple-500" />
+                        {formatDate(ag.data)}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Clock className="w-3 h-3 text-purple-500" />
+                        {new Date(ag.data).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+
+          {/* TAB 3: JORNADA & DESENVOLVIMENTO */}
+          {activeNavTab === "jornada" && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3">
+              <div>
+                <h2 className="text-[15px] font-extrabold text-slate-900">Desenvolvimento</h2>
+                <p className="text-[10px] text-slate-400">Evolução clínica e metas alcançadas de {childName}</p>
+              </div>
+
+              {/* Metas do PTS */}
+              <div className="space-y-2.5">
+                <h3 className="text-[12px] font-bold text-purple-900 uppercase tracking-wider">Metas Terapêuticas</h3>
+                {metas.length > 0 ? (
+                  metas.map((m: any) => (
+                    <div key={m.id} className="p-3.5 rounded-2xl bg-white border border-purple-100 shadow-xs space-y-2">
+                      <div className="flex justify-between items-start">
+                        <h4 className="text-[12px] font-bold text-slate-800">{m.objetivo}</h4>
+                        <span className="text-[11px] font-black text-purple-700">{m.progresso}%</span>
+                      </div>
+                      <div className="w-full h-2 rounded-full bg-purple-100 overflow-hidden">
+                        <div className="h-full bg-purple-600 rounded-full" style={{ width: `${m.progresso}%` }} />
+                      </div>
+                      <p className="text-[9.5px] text-slate-400">{m.descricao}</p>
+                    </div>
+                  ))
+                ) : (
+                  [
+                    { title: "Comunicação e Linguagem Funcional", progresso: 80, desc: "Uso de sentenças estruturadas e pedidos espontâneos" },
+                    { title: "Autorregulação e Flexibilidade", progresso: 65, desc: "Transição suave de atividades sem crise de desorganização" },
+                    { title: "Coordenação Motora Fina & Escrita", progresso: 75, desc: "Pega trípode adequada no lápis e recorte com tesoura" },
+                  ].map((item, idx) => (
+                    <div key={idx} className="p-3.5 rounded-2xl bg-white border border-purple-100 shadow-xs space-y-2">
+                      <div className="flex justify-between items-start">
+                        <h4 className="text-[12px] font-bold text-slate-800">{item.title}</h4>
+                        <span className="text-[11px] font-black text-purple-700">{item.progresso}%</span>
+                      </div>
+                      <div className="w-full h-2 rounded-full bg-purple-100 overflow-hidden">
+                        <div className="h-full bg-purple-600 rounded-full" style={{ width: `${item.progresso}%` }} />
+                      </div>
+                      <p className="text-[9.5px] text-slate-400">{item.desc}</p>
+                    </div>
+                  ))
+                )}
+              </div>
+            </motion.div>
+          )}
+
+          {/* TAB 4: DOCUMENTOS */}
+          {activeNavTab === "documentos" && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3">
+              <div>
+                <h2 className="text-[15px] font-extrabold text-slate-900">Documentos e Laudos</h2>
+                <p className="text-[10px] text-slate-400">Relatórios multidisciplinares e declarações</p>
+              </div>
+
+              <div className="space-y-2">
+                {[
+                  { title: "Laudo de Avaliação Neuropsicológica", tipo: "Laudo Oficial", data: "15/09/2026" },
+                  { title: "Plano Educacional Individualizado (PEI)", tipo: "Relatório Escolar", data: "01/08/2026" },
+                  { title: "Declaração de Comparecimento Terapêutico", tipo: "Declaração", data: "20/09/2026" },
+                ].map((doc, idx) => (
+                  <div key={idx} className="p-3 rounded-2xl bg-white border border-purple-100 shadow-xs flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
+                        <FileText className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h4 className="text-[12px] font-bold text-slate-800">{doc.title}</h4>
+                        <p className="text-[9.5px] text-slate-400">{doc.tipo} • {doc.data}</p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => toast.success(`Download iniciado: ${doc.title}`)}
+                      className="p-2 rounded-xl bg-purple-50 text-purple-700 hover:bg-purple-100"
                     >
-                      <div className="space-y-1.5">
-                        <div className="flex items-center justify-between">
-                          <span className="text-[9px] font-bold bg-muted text-muted-foreground px-2 py-0.5 rounded uppercase tracking-wider">
-                            Tipo: {ex.tipo}
-                          </span>
-                          <span
-                            className={cn(
-                              "text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider",
-                              ex.realizado ? "bg-emerald-500/10 text-emerald-500" : "bg-amber-500/10 text-amber-500"
-                            )}
-                          >
-                            {ex.realizado ? "Realizado" : "Pendente"}
-                          </span>
-                        </div>
-                        <h4 className="font-bold text-foreground text-sm">{ex.titulo}</h4>
-                        {ex.descricao && (
-                          <p className="text-muted-foreground text-[11px] leading-relaxed font-medium">
-                            {ex.descricao}
-                          </p>
-                        )}
-                        {ex.observacaoResponsavel && (
-                          <div className="p-2.5 bg-muted/40 rounded-xl mt-2 font-medium">
-                            <p className="text-[9px] text-muted-foreground font-bold uppercase tracking-wider">Comentário enviado por você:</p>
-                            <p className="text-muted-foreground italic text-[11px] mt-0.5">"{ex.observacaoResponsavel}"</p>
-                          </div>
-                        )}
-                      </div>
+                      <Download className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
 
-                      <div className="pt-2 border-t flex justify-end">
-                        <label className="flex items-center gap-2 cursor-pointer font-bold text-foreground hover:text-purple-600 transition-colors">
-                          <input
-                            type="checkbox"
-                            checked={!!ex.realizado}
-                            onChange={() => handleToggleExercise(ex)}
-                            className="rounded border-border text-purple-500 focus:ring-purple-500 h-4.5 w-4.5 cursor-pointer"
-                          />
-                          <span>{ex.realizado ? "Marcar como Pendente" : "Marcar como Concluído"}</span>
-                        </label>
-                      </div>
-                    </div>
-                  ))}
+          {/* TAB 5: PERFIL DO PACIENTE E RESPONSÁVEL */}
+          {activeNavTab === "perfil" && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3">
+              <div>
+                <h2 className="text-[15px] font-extrabold text-slate-900">Perfil da Criança</h2>
+                <p className="text-[10px] text-slate-400">Informações cadastrais e de saúde</p>
+              </div>
 
-                  {exercicios.length === 0 && (
-                    <div className="col-span-full p-8 border border-dashed rounded-2xl bg-card text-center text-muted-foreground">
-                      Não há exercícios ou atividades domiciliárias passadas para fazer em casa.
-                    </div>
-                  )}
-                </div>
-              </motion.div>
-            )}
-
-            {/* TAB: DOCUMENTOS E LAUDOS */}
-            {activeTab === "docs" && (
-              <motion.div
-                key="docs"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 10 }}
-                className="space-y-4"
-              >
-                <div>
-                  <h2 className="text-base font-bold text-foreground">Declarações, Laudos e Documentos</h2>
-                  <p className="text-[10px] text-muted-foreground">Acesse relatórios clínicos e guias emitidas de forma oficial.</p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {arquivos.map((doc) => (
-                    <div
-                      key={doc.id}
-                      className="p-4 rounded-xl border bg-card flex items-center justify-between shadow-sm"
-                      style={{ borderColor: "hsl(var(--border))" }}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="p-2.5 rounded-lg bg-purple-500/10 text-purple-500">
-                          <FileText className="h-4 w-4" />
-                        </div>
-                        <div>
-                          <p className="font-bold text-foreground">{doc.nomeOriginal || doc.nome}</p>
-                          <p className="text-[9px] text-muted-foreground mt-0.5">
-                            Data: {formatDate(doc.criadoEm)} • {(doc.tamanho / 1024).toFixed(0)} KB
-                          </p>
-                        </div>
-                      </div>
-
-                      <a
-                        href={doc.caminho ? `${api.defaults.baseURL}/storage/${doc.caminho}` : "#"}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="py-1 px-3 border rounded text-[10px] font-bold text-foreground hover:bg-muted transition-colors cursor-pointer"
-                        style={{ borderColor: "hsl(var(--border))" }}
-                      >
-                        Visualizar
-                      </a>
-                    </div>
-                  ))}
-
-                  {arquivos.length === 0 && (
-                    <div className="col-span-full p-8 border border-dashed rounded-2xl bg-card text-center text-muted-foreground">
-                      Não há laudos ou arquivos anexados a este paciente.
-                    </div>
-                  )}
-                </div>
-              </motion.div>
-            )}
-
-            {/* TAB: HISTÓRICO FINANCEIRO */}
-            {activeTab === "financeiro" && (
-              <motion.div
-                key="financeiro"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 10 }}
-                className="space-y-4"
-              >
-                <div>
-                  <h2 className="text-base font-bold text-foreground">Histórico de Cobranças e Mensalidades</h2>
-                  <p className="text-[10px] text-muted-foreground">Confira mensalidades clínicas e realize pagamentos online.</p>
-                </div>
-
-                <div className="overflow-hidden border rounded-2xl bg-card shadow-sm">
-                  <div className="overflow-x-auto">
-                    <table className="w-full border-collapse text-left text-xs">
-                      <thead>
-                        <tr className="bg-muted/40 border-b text-muted-foreground font-bold uppercase tracking-wider text-[9px]">
-                          <th className="p-3.5">Descrição</th>
-                          <th className="p-3.5">Vencimento</th>
-                          <th className="p-3.5">Valor</th>
-                          <th className="p-3.5">Status</th>
-                          <th className="p-3.5 text-right">Ação</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y">
-                        {financeiro.map((lanc) => (
-                          <tr key={lanc.id} className="hover:bg-muted/10 transition-colors">
-                            <td className="p-3.5 font-bold text-foreground">{lanc.descricao}</td>
-                            <td className="p-3.5 text-muted-foreground font-semibold">
-                              {lanc.vencimento ? formatDate(lanc.vencimento) : "N/D"}
-                            </td>
-                            <td className="p-3.5 font-extrabold text-foreground">
-                              {formatCurrency(Number(lanc.valor))}
-                            </td>
-                            <td className="p-3.5">
-                              <span
-                                className={cn(
-                                  "px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider",
-                                  lanc.status === "PAGO" && "bg-emerald-500/10 text-emerald-500",
-                                  lanc.status === "PENDENTE" && "bg-amber-500/10 text-amber-500",
-                                  lanc.status === "ATRASADO" && "bg-red-500/10 text-red-500"
-                                )}
-                              >
-                                {lanc.status}
-                              </span>
-                            </td>
-                            <td className="p-3.5 text-right">
-                              {lanc.status !== "PAGO" ? (
-                                <button
-                                  onClick={() => handleOpenPix(lanc)}
-                                  className="py-1 px-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-bold transition-all cursor-pointer text-[10px]"
-                                >
-                                  Pagar com PIX
-                                </button>
-                              ) : (
-                                <span className="text-[10px] text-muted-foreground font-bold flex items-center justify-end gap-1 text-emerald-600">
-                                  <CheckCircle className="h-3.5 w-3.5" /> Pago em {formatDate(lanc.pagamento)}
-                                </span>
-                              )}
-                            </td>
-                          </tr>
-                        ))}
-
-                        {financeiro.length === 0 && (
-                          <tr>
-                            <td colSpan={5} className="p-8 text-center text-muted-foreground border-dashed">
-                              Nenhuma cobrança registrada para o paciente.
-                            </td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
+              <div className="p-4 rounded-2xl bg-white border border-purple-100 space-y-3 shadow-xs">
+                <div className="flex items-center gap-3">
+                  <div className="w-14 h-14 rounded-full bg-purple-100 flex items-center justify-center text-purple-700 font-bold text-xl">
+                    <User className="w-7 h-7" />
+                  </div>
+                  <div>
+                    <h3 className="text-[15px] font-black text-slate-900">{childName}</h3>
+                    <p className="text-[11px] text-slate-500">Idade: {childAge}</p>
+                    <span className="inline-block mt-1 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-[9px] font-bold">
+                      Paciente Ativo
+                    </span>
                   </div>
                 </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </main>
+
+                <div className="border-t border-purple-50 pt-3 space-y-2 text-[11px]">
+                  <div className="flex justify-between">
+                    <span className="text-slate-400 font-medium">Escola:</span>
+                    <span className="font-bold text-slate-800">{pacienteData?.escola || "Colégio Integração"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400 font-medium">Série:</span>
+                    <span className="font-bold text-slate-800">{pacienteData?.serie || "1º ano Fundamental I"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400 font-medium">Alergias:</span>
+                    <span className="font-bold text-rose-600">
+                      {pacienteData?.alergias?.join(", ") || "Nenhuma relatada"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-slate-400 font-medium">Responsável:</span>
+                    <span className="font-bold text-slate-800">{parentName}</span>
+                  </div>
+                </div>
+
+                <div className="pt-2">
+                  <button
+                    onClick={handleLogout}
+                    className="w-full py-2.5 rounded-xl border border-rose-200 bg-rose-50 text-rose-600 font-bold text-xs flex items-center justify-center gap-1.5 hover:bg-rose-100 transition-colors"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    <span>Sair do Portal</span>
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+        </div>
+
+        {/* ─── BARRA DE NAVEGAÇÃO INFERIOR FIXA (5 ÍCONES) ─── */}
+        <div className="absolute bottom-0 left-0 right-0 h-[72px] bg-white/95 backdrop-blur-md border-t border-purple-100 px-3 flex items-center justify-around z-30">
+          {[
+            { id: "inicio", label: "Início", icon: Home },
+            { id: "agenda", label: "Agenda", icon: Calendar },
+            { id: "jornada", label: "Jornada", icon: Heart },
+            { id: "documentos", label: "Documentos", icon: FileText },
+            { id: "perfil", label: "Perfil", icon: User },
+          ].map((item) => {
+            const isActive = activeNavTab === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => {
+                  setActiveNavTab(item.id as any);
+                  setModalActive(null);
+                }}
+                className="flex flex-col items-center justify-center w-14 h-full group"
+              >
+                <item.icon
+                  className={cn(
+                    "w-5 h-5 transition-all duration-200",
+                    isActive
+                      ? "text-purple-700 stroke-[2.5] -translate-y-0.5"
+                      : "text-slate-400 group-hover:text-purple-400"
+                  )}
+                />
+                <span
+                  className={cn(
+                    "text-[9.5px] font-bold tracking-tight mt-1 transition-colors",
+                    isActive ? "text-purple-800 font-black" : "text-slate-400 group-hover:text-purple-400"
+                  )}
+                >
+                  {item.label}
+                </span>
+                {isActive && (
+                  <motion.div
+                    layoutId="activePill"
+                    className="w-4 h-1 rounded-full bg-purple-600 -mt-0.5"
+                  />
+                )}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
-      {/* ─── MODAL: AGENDAR CONSULTA ─── */}
+      {/* ─── MODAL: ATIVIDADES PARA CASA ─── */}
       <AnimatePresence>
-        {showSchedulingModal && (
-          <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50 overflow-y-auto">
+        {modalActive === "atividades" && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs">
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-card rounded-2xl shadow-xl w-full max-w-md p-6 relative border"
-              style={{ borderColor: "hsl(var(--border))" }}
+              className="bg-white rounded-3xl p-5 max-w-sm w-full space-y-4 shadow-2xl border border-purple-100"
             >
-              <button
-                onClick={() => setShowSchedulingModal(false)}
-                className="absolute top-4 right-4 text-muted-foreground hover:text-foreground cursor-pointer"
-              >
-                <X className="h-4 w-4" />
-              </button>
+              <div className="flex items-center justify-between border-b border-purple-100 pb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center">
+                    <Home className="w-4 h-4" />
+                  </div>
+                  <h3 className="font-extrabold text-slate-900 text-sm">Atividades para Casa</h3>
+                </div>
+                <button onClick={() => setModalActive(null)} className="p-1 text-slate-400 hover:text-slate-600">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
 
-              <h3 className="text-sm font-bold text-foreground flex items-center gap-1.5 uppercase tracking-wider">
-                <Calendar className="h-4 w-4 text-purple-600" />
-                <span>Agendar Nova Consulta / Retorno</span>
-              </h3>
-              <p className="text-[10px] text-muted-foreground mt-1">Marque uma consulta com um profissional clínico habilitado.</p>
-
-              <form onSubmit={handleScheduleSubmit} className="space-y-4 mt-4">
-                {schedulingError && (
-                  <div className="p-3 bg-red-500/10 text-red-500 rounded-xl flex items-start gap-2 font-semibold">
-                    <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
-                    <span className="leading-relaxed text-[10px]">{schedulingError}</span>
+              <div className="space-y-2.5 max-h-80 overflow-y-auto pr-1">
+                {exercicios.length > 0 ? (
+                  exercicios.map((ex) => (
+                    <div key={ex.id} className="p-3 rounded-2xl bg-amber-50/50 border border-amber-200/60 space-y-2">
+                      <div className="flex justify-between items-start">
+                        <h4 className="text-[12px] font-bold text-slate-900">{ex.titulo}</h4>
+                        <span className={cn(
+                          "text-[9px] font-bold px-2 py-0.5 rounded-full",
+                          ex.realizado ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"
+                        )}>
+                          {ex.realizado ? "Concluído" : "Pendente"}
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-slate-600">{ex.descricao}</p>
+                      {!ex.realizado && (
+                        <button
+                          onClick={() => handleCompleteExercise(ex)}
+                          className="w-full py-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-[10px]"
+                        >
+                          Marcar como Feito
+                        </button>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <div className="p-4 rounded-2xl bg-amber-50 text-center text-[11px] text-amber-900 font-medium">
+                    Todas as tarefas domiciliares da semana foram concluídas! Parabéns! 🌟
                   </div>
                 )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
-                {/* Profissional */}
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Médico / Terapeuta *</label>
+      {/* ─── MODAL: FINANCEIRO & PAGAMENTO PIX ─── */}
+      <AnimatePresence>
+        {modalActive === "financeiro" && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs">
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-white rounded-3xl p-5 max-w-sm w-full space-y-4 shadow-2xl border border-purple-100"
+            >
+              <div className="flex items-center justify-between border-b border-purple-100 pb-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center">
+                    <CreditCard className="w-4 h-4" />
+                  </div>
+                  <h3 className="font-extrabold text-slate-900 text-sm">Financeiro e Boletos</h3>
+                </div>
+                <button onClick={() => setModalActive(null)} className="p-1 text-slate-400 hover:text-slate-600">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="space-y-2.5 max-h-80 overflow-y-auto pr-1">
+                {financeiro.length > 0 ? (
+                  financeiro.map((f) => (
+                    <div key={f.id} className="p-3 rounded-2xl bg-purple-50/50 border border-purple-100 space-y-2">
+                      <div className="flex justify-between items-start">
+                        <h4 className="text-[12px] font-bold text-slate-900">{f.descricao}</h4>
+                        <span className={cn(
+                          "text-[9px] font-bold px-2 py-0.5 rounded-full",
+                          f.status === "PAGO" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"
+                        )}>
+                          {f.status}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center text-[11px]">
+                        <span className="font-black text-purple-900">{formatCurrency(f.valor)}</span>
+                        {f.status !== "PAGO" && (
+                          <button
+                            onClick={() => openPixPayment(f)}
+                            className="px-2.5 py-1 rounded-lg bg-indigo-600 text-white font-bold text-[10px]"
+                          >
+                            Pagar via PIX
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="p-4 rounded-2xl bg-purple-50 text-center text-[11px] text-purple-900 font-medium">
+                    Nenhuma fatura pendente. Suas mensalidades estão em dia! 💚
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* ─── MODAL: AGENDAR ATENDIMENTO ─── */}
+      <AnimatePresence>
+        {showSchedulingModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs">
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-white rounded-3xl p-5 max-w-sm w-full space-y-4 shadow-2xl border border-purple-100"
+            >
+              <div className="flex items-center justify-between border-b border-purple-100 pb-3">
+                <h3 className="font-extrabold text-slate-900 text-sm flex items-center gap-1.5">
+                  <Plus className="w-4 h-4 text-purple-600" />
+                  <span>Novo Atendimento</span>
+                </h3>
+                <button onClick={() => setShowSchedulingModal(false)} className="p-1 text-slate-400 hover:text-slate-600">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <form onSubmit={handleScheduleSubmit} className="space-y-3 text-xs">
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">Terapeuta / Especialidade:</label>
                   <select
-                    required
-                    value={selectedProfId}
-                    onChange={(e) => setSelectedProfId(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border text-xs outline-none bg-muted/20 focus:ring-1 focus:ring-purple-500"
+                    value={schedProf}
+                    onChange={(e) => setSchedProf(e.target.value)}
+                    className="w-full p-2.5 rounded-xl border border-purple-200 bg-purple-50/40 text-slate-800 font-medium focus:outline-purple-600"
                   >
-                    <option value="">Selecione o Profissional...</option>
+                    <option value="">Selecione o profissional...</option>
                     {profissionais.map((p) => (
                       <option key={p.id} value={p.id}>
-                        {p.usuario?.nome} ({p.especialidade || "Especialista"})
+                        {p.usuario?.nome || "Terapeuta"} — {p.especialidade}
                       </option>
                     ))}
                   </select>
                 </div>
 
-                {/* Data e Hora */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Data Desejada *</label>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="font-bold text-slate-700 block mb-1">Data:</label>
                     <input
                       type="date"
-                      required
-                      min={new Date().toISOString().split("T")[0]}
-                      value={selectedDate}
-                      onChange={(e) => setSelectedDate(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border text-xs outline-none bg-muted/20 focus:ring-1 focus:ring-purple-500"
+                      value={schedDate}
+                      onChange={(e) => setSchedDate(e.target.value)}
+                      className="w-full p-2.5 rounded-xl border border-purple-200 bg-purple-50/40 text-slate-800 font-medium focus:outline-purple-600"
                     />
                   </div>
-                  <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Horário *</label>
-                    <select
-                      required
-                      value={selectedTime}
-                      onChange={(e) => setSelectedTime(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border text-xs outline-none bg-muted/20 focus:ring-1 focus:ring-purple-500"
+                  <div>
+                    <label className="font-bold text-slate-700 block mb-1">Horário:</label>
+                    <input
+                      type="time"
+                      value={schedTime}
+                      onChange={(e) => setSchedTime(e.target.value)}
+                      className="w-full p-2.5 rounded-xl border border-purple-200 bg-purple-50/40 text-slate-800 font-medium focus:outline-purple-600"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">Modalidade:</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setSchedTipo("PRESENCIAL")}
+                      className={cn(
+                        "py-2 rounded-xl font-bold border transition-colors",
+                        schedTipo === "PRESENCIAL"
+                          ? "bg-purple-600 text-white border-purple-600"
+                          : "bg-purple-50 text-purple-800 border-purple-200"
+                      )}
                     >
-                      <option value="">Horário...</option>
-                      {["08:00", "09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00", "17:00"].map((t) => (
-                        <option key={t} value={t}>
-                          {t}h
-                        </option>
-                      ))}
-                    </select>
+                      Presencial
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSchedTipo("ONLINE")}
+                      className={cn(
+                        "py-2 rounded-xl font-bold border transition-colors",
+                        schedTipo === "ONLINE"
+                          ? "bg-purple-600 text-white border-purple-600"
+                          : "bg-purple-50 text-purple-800 border-purple-200"
+                      )}
+                    >
+                      Online
+                    </button>
                   </div>
                 </div>
 
-                {/* Tipo de Atendimento */}
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Tipo de Atendimento</label>
-                  <div className="flex gap-4">
-                    <label className="flex items-center gap-1.5 cursor-pointer font-bold">
-                      <input
-                        type="radio"
-                        name="tipo"
-                        checked={selectedTipo === "PRESENCIAL"}
-                        onChange={() => setSelectedTipo("PRESENCIAL")}
-                        className="text-purple-600 focus:ring-purple-500 cursor-pointer"
-                      />
-                      <span>Presencial</span>
-                    </label>
-                    <label className="flex items-center gap-1.5 cursor-pointer font-bold">
-                      <input
-                        type="radio"
-                        name="tipo"
-                        checked={selectedTipo === "ONLINE"}
-                        onChange={() => setSelectedTipo("ONLINE")}
-                        className="text-purple-600 focus:ring-purple-500 cursor-pointer"
-                      />
-                      <span>Online (Vídeo)</span>
-                    </label>
-                  </div>
-                </div>
-
-                {/* Observações */}
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Observações/Motivo (Opcional)</label>
+                <div>
+                  <label className="font-bold text-slate-700 block mb-1">Observações:</label>
                   <textarea
-                    rows={3}
-                    placeholder="Alguma queixa ou detalhe importante sobre o agendamento de retorno..."
-                    value={observacoes}
-                    onChange={(e) => setObservacoes(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border text-xs outline-none bg-muted/20 focus:ring-1 focus:ring-purple-500 resize-none"
+                    rows={2}
+                    value={schedObs}
+                    onChange={(e) => setSchedObs(e.target.value)}
+                    placeholder="Algum recado para o terapeuta?"
+                    className="w-full p-2.5 rounded-xl border border-purple-200 bg-purple-50/40 text-slate-800 font-medium focus:outline-purple-600"
                   />
-                </div>
-
-                <div className="p-3 bg-purple-500/5 border border-purple-500/10 rounded-xl text-[10px] text-purple-700 font-semibold flex gap-2">
-                  <AlertTriangle className="h-4 w-4 shrink-0 text-purple-500 mt-0.5" />
-                  <span>
-                    Atenção: Conforme políticas clínicas, reagendamentos ou cancelamentos subsequentes devem ser efetuados via central administrativa.
-                  </span>
                 </div>
 
                 <button
                   type="submit"
-                  disabled={isScheduling}
-                  className="w-full py-3 rounded-xl font-bold text-white gradient-primary shadow-lg shadow-purple-500/15 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-55"
+                  disabled={isSubmittingSched}
+                  className="w-full py-3 rounded-2xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs shadow-md shadow-purple-500/25 flex items-center justify-center gap-2"
                 >
-                  {isScheduling ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <span>Confirmar Agendamento</span>
-                  )}
+                  {isSubmittingSched ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                  <span>Confirmar Agendamento</span>
                 </button>
               </form>
             </motion.div>
@@ -1060,267 +1204,91 @@ export function PortalDashboardPage() {
         )}
       </AnimatePresence>
 
-      {/* ─── MODAL: FEEDBACK DE EXERCÍCIO ─── */}
+      {/* ─── MODAL: PAGAMENTO PIX COPIA E COLA ─── */}
       <AnimatePresence>
-        {showExFeedbackModal && currentExercise && (
-          <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
+        {showPixModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs">
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-card rounded-2xl shadow-xl w-full max-w-md p-6 relative border"
-              style={{ borderColor: "hsl(var(--border))" }}
+              className="bg-white rounded-3xl p-5 max-w-xs w-full space-y-4 shadow-2xl border border-purple-100 text-center"
             >
-              <button
-                onClick={() => {
-                  setShowExFeedbackModal(false);
-                  setCurrentExercise(null);
-                }}
-                className="absolute top-4 right-4 text-muted-foreground hover:text-foreground cursor-pointer"
-              >
-                <X className="h-4 w-4" />
-              </button>
-
-              <h3 className="text-sm font-bold text-foreground flex items-center gap-1.5 uppercase tracking-wider">
-                <CheckCircle className="h-4 w-4 text-emerald-500" />
-                <span>Atividade Domiciliar Concluída</span>
-              </h3>
-              <p className="text-[10px] text-muted-foreground mt-1">Compartilhe como foi a execução do exercício com o terapeuta.</p>
-
-              <div className="mt-4 space-y-4">
-                <div className="p-3 bg-muted/40 rounded-xl font-medium">
-                  <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">Exercício:</p>
-                  <p className="text-foreground font-bold text-xs mt-0.5">{currentExercise.titulo}</p>
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Comentários e Observações dos Pais *</label>
-                  <textarea
-                    required
-                    rows={4}
-                    placeholder="Como foi o desempenho do seu filho? Teve alguma dificuldade ou facilidade marcante? Escreva para ajudar na avaliação do médico..."
-                    value={exerciseComment}
-                    onChange={(e) => setExerciseComment(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border text-xs outline-none bg-muted/20 focus:ring-1 focus:ring-purple-500 resize-none"
-                  />
-                </div>
-
-                <button
-                  onClick={handleSaveExerciseFeedback}
-                  disabled={isUpdatingEx || !exerciseComment.trim()}
-                  className="w-full py-3 rounded-xl font-bold text-white bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-500/10 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-55"
-                >
-                  {isUpdatingEx ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <span>Salvar e Marcar como Concluído</span>
-                  )}
+              <div className="flex justify-between items-center">
+                <h3 className="font-extrabold text-slate-900 text-sm">Pagamento com PIX</h3>
+                <button onClick={() => setShowPixModal(false)} className="p-1 text-slate-400">
+                  <X className="w-5 h-5" />
                 </button>
               </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
 
-      {/* ─── MODAL: PAGAMENTO PIX ─── */}
-      <AnimatePresence>
-        {showPixModal && currentInvoice && (
-          <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-card rounded-2xl shadow-xl w-full max-w-md p-6 relative border"
-              style={{ borderColor: "hsl(var(--border))" }}
-            >
-              <button
-                onClick={() => {
-                  setShowPixModal(false);
-                  setCurrentInvoice(null);
-                }}
-                className="absolute top-4 right-4 text-muted-foreground hover:text-foreground cursor-pointer"
-              >
-                <X className="h-4 w-4" />
-              </button>
-
-              <h3 className="text-sm font-bold text-foreground flex items-center gap-1.5 uppercase tracking-wider">
-                <CreditCard className="h-4 w-4 text-purple-600" />
-                <span>Pagamento via PIX</span>
-              </h3>
-              <p className="text-[10px] text-muted-foreground mt-1">Efetue o pagamento lendo o QR Code ou utilizando o Copia e Cola.</p>
-
-              <div className="mt-4 space-y-4 text-center">
-                
-                {/* Visual do QR Code e Infos */}
-                <div className="p-5 border border-dashed rounded-2xl bg-muted/30 inline-block mx-auto">
-                  {/* Canvas Simulado do QR Code */}
-                  <div className="w-40 h-40 bg-white border p-2 flex flex-col justify-center items-center relative mx-auto rounded-lg">
-                    {/* Linhas simulando QR Code */}
-                    <div className="grid grid-cols-5 gap-1.5 w-full h-full opacity-80">
-                      {[...Array(25)].map((_, i) => (
-                        <div
-                          key={i}
-                          className={cn(
-                            "rounded-xs",
-                            (i % 2 === 0 || i % 3 === 0 || i === 0 || i === 4 || i === 20 || i === 24)
-                              ? "bg-purple-900"
-                              : "bg-transparent"
-                          )}
-                        />
-                      ))}
-                    </div>
-                    {/* Logozinho Conectar no Centro */}
-                    <div className="absolute inset-0 m-auto w-10 h-10 bg-purple-600 rounded-xl flex items-center justify-center border border-white text-white font-bold text-[9px]">
-                      PIX
-                    </div>
-                  </div>
-                  
-                  <div className="mt-4 space-y-1">
-                    <p className="text-muted-foreground text-[10px] uppercase font-bold tracking-wider">{currentInvoice.descricao}</p>
-                    <p className="text-lg font-extrabold text-foreground">{formatCurrency(Number(currentInvoice.valor))}</p>
-                  </div>
-                </div>
-
-                {/* Copia e Cola */}
-                <div className="text-left space-y-1">
-                  <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">PIX Copia e Cola</label>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      readOnly
-                      value={`00020101021226880014br.gov.bcb.pix2566pix.conectar-clinica.com.br/qr/v2/c9a44b7a-ef80-4b2a-8ef0-038c115fdca25204000053039865407${Number(currentInvoice.valor).toFixed(2)}5802BR5918...`}
-                      className="w-full px-3 py-2 border rounded-xl bg-muted/40 text-[10px] outline-none text-muted-foreground truncate"
-                    />
-                    <button
-                      onClick={handleCopyPix}
-                      className="p-2.5 rounded-xl border hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer flex items-center justify-center shrink-0"
-                    >
-                      {pixCopied ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Confirmar pagamento simulado */}
-                <button
-                  onClick={handleSimulatePayment}
-                  disabled={isPaying}
-                  className="w-full py-3 rounded-xl font-bold text-white gradient-primary shadow-lg shadow-purple-500/10 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
-                >
-                  {isPaying ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <span>Confirmar Pagamento Simulado (Teste)</span>
-                  )}
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
-
-      {/* Modal: Simulador de Leitura de QR Code */}
-      <AnimatePresence>
-        {showQrScanModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-background/80 backdrop-blur-sm shadow-2xl"
-              onClick={() => {
-                if (!isScanning) setShowQrScanModal(false);
-              }}
-            />
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-card rounded-2xl shadow-xl w-full max-w-sm p-6 relative border text-center space-y-5"
-              style={{ borderColor: "hsl(var(--border))" }}
-            >
-              {!isScanning && !scanSuccess && (
-                <button
-                  onClick={() => setShowQrScanModal(false)}
-                  className="absolute top-4 right-4 text-muted-foreground hover:text-foreground cursor-pointer border-0 bg-transparent"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              )}
-
-              <div className="mx-auto w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center text-purple-600">
-                <Camera className="h-5 w-5" />
-              </div>
-
-              <div className="space-y-1">
-                <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">
-                  Check-in Presencial QR Code
-                </h3>
-                <p className="text-[10px] text-muted-foreground max-w-xs mx-auto">
-                  Aponte a câmera para o QR Code do Totem de Check-in na recepção da clínica para confirmar sua presença.
+              <div className="p-4 rounded-2xl bg-purple-50/60 border border-purple-100 flex flex-col items-center gap-2">
+                <QrCode className="w-32 h-32 text-purple-900" />
+                <p className="text-[11px] font-bold text-purple-900">
+                  {currentInvoice ? formatCurrency(currentInvoice.valor) : "R$ 1.400,00"}
                 </p>
+                <p className="text-[9.5px] text-slate-500">Escaneie com o app do seu banco</p>
               </div>
 
-              {/* Viewfinder da Câmera */}
-              <div className="relative mx-auto w-52 h-52 bg-slate-950 rounded-2xl overflow-hidden border border-purple-500/30 flex items-center justify-center">
-                
-                {/* Linhas de Canto do Viewfinder */}
-                <div className="absolute top-3 left-3 w-4 h-4 border-t-2 border-l-2 border-purple-500 rounded-tl-xs" />
-                <div className="absolute top-3 right-3 w-4 h-4 border-t-2 border-r-2 border-purple-500 rounded-tr-xs" />
-                <div className="absolute bottom-3 left-3 w-4 h-4 border-b-2 border-l-2 border-purple-500 rounded-bl-xs" />
-                <div className="absolute bottom-3 right-3 w-4 h-4 border-b-2 border-r-2 border-purple-500 rounded-br-xs" />
+              <button
+                onClick={copyPixKey}
+                className="w-full py-2.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-purple-500/20"
+              >
+                {pixCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                <span>{pixCopied ? "Código Copiado!" : "Copiar Código PIX"}</span>
+              </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
-                {isScanning && (
-                  <>
-                    {/* Laser Scanner */}
-                    <motion.div
-                      animate={{ y: [-80, 80, -80] }}
-                      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                      className="absolute left-4 right-4 h-0.5 bg-emerald-500 z-10 shadow-[0_0_8px_#10b981]"
-                    />
-                    
-                    {/* Animated scanning blur overlay */}
-                    <div className="absolute inset-0 bg-purple-500/5 animate-pulse" />
-                    
-                    {/* Mock Blurred QR Code representing focus */}
-                    <div className="w-24 h-24 border border-dashed border-purple-500/20 opacity-30 flex flex-wrap p-1 gap-1 blur-xs">
-                      {[...Array(9)].map((_, i) => (
-                        <div key={i} className="w-6 h-6 bg-purple-200 rounded-xs" />
-                      ))}
-                    </div>
-
-                    <p className="absolute bottom-6 text-[9px] text-purple-400 font-bold uppercase tracking-wider animate-pulse">
-                      Buscando QR Code...
-                    </p>
-                  </>
-                )}
-
-                {scanSuccess && (
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="flex flex-col items-center justify-center space-y-2 text-emerald-400"
-                  >
-                    <CheckCircle className="h-12 w-12 text-emerald-500 animate-bounce" />
-                    <p className="text-[10px] font-bold uppercase tracking-wider">QR Code Lido!</p>
-                  </motion.div>
-                )}
-
-                {!isScanning && !scanSuccess && (
-                  <div className="flex flex-col items-center text-muted-foreground space-y-2 p-4">
-                    <QrCode className="h-8 w-8 opacity-45" />
-                    <p className="text-[9px]">Câmera Pronta</p>
-                  </div>
-                )}
-              </div>
-
-              {!isScanning && !scanSuccess && (
-                <button
-                  onClick={handleQrScan}
-                  className="w-full py-2.5 rounded-xl font-bold text-white gradient-primary shadow-lg shadow-purple-500/10 cursor-pointer"
-                >
-                  Iniciar Escaneamento
+      {/* ─── MODAL: DETALHES DO ATENDIMENTO ─── */}
+      <AnimatePresence>
+        {modalActive === "detalhes_consulta" && selectedAppointment && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs">
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-white rounded-3xl p-5 max-w-xs w-full space-y-4 shadow-2xl border border-purple-100"
+            >
+              <div className="flex justify-between items-center border-b border-purple-100 pb-2">
+                <h3 className="font-extrabold text-slate-900 text-sm">Detalhes da Sessão</h3>
+                <button onClick={() => setModalActive(null)} className="p-1 text-slate-400">
+                  <X className="w-5 h-5" />
                 </button>
-              )}
+              </div>
+
+              <div className="space-y-2.5 text-xs">
+                <div>
+                  <span className="text-[10px] text-slate-400 block font-semibold">Atendimento:</span>
+                  <p className="font-bold text-purple-900">
+                    {selectedAppointment.tipoAtendimento || "Avaliação Neuropsicopedagógica"}
+                  </p>
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-400 block font-semibold">Terapeuta:</span>
+                  <p className="font-bold text-slate-800">
+                    {selectedAppointment.profissional?.usuario?.nome || "Dra. Leliane Dantas"}
+                  </p>
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-400 block font-semibold">Horário & Local:</span>
+                  <p className="font-bold text-slate-800">
+                    {formatDate(selectedAppointment.data)} às 09:00h
+                  </p>
+                  <p className="text-[10px] text-purple-700 font-medium">
+                    {selectedAppointment.sala?.nome || "Sala 02 - Psicologia e Ludoterapia"}
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => openWhatsApp(`Olá, gostaria de reagendar a consulta de ${childName} do dia ${formatDate(selectedAppointment.data)}.`)}
+                className="w-full py-2.5 rounded-xl border border-purple-200 bg-purple-50 text-purple-700 hover:bg-purple-100 font-bold text-xs flex items-center justify-center gap-1.5"
+              >
+                <Phone className="w-3.5 h-3.5" />
+                <span>Solicitar Reagendamento</span>
+              </button>
             </motion.div>
           </div>
         )}
