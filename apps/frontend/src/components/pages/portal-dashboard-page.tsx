@@ -165,9 +165,27 @@ export function PortalDashboardPage() {
   // Contato da clínica (WhatsApp)
   const whatsNumero = "5511988880002";
 
-  // Carregar dados iniciais
+  // Suporte a Haptic Feedback nativo no mobile (iOS & Android)
+  const triggerHaptic = async (style: "light" | "medium" = "light") => {
+    try {
+      const { Haptics, ImpactStyle } = await import("@capacitor/haptics");
+      await Haptics.impact({ style: style === "light" ? ImpactStyle.Light : ImpactStyle.Medium });
+    } catch {
+      // noop em navegadores sem suporte
+    }
+  };
+
+  // Carregar dados iniciais e configurar StatusBar nativa
   useEffect(() => {
     if (typeof window !== "undefined") {
+      // Configurar status bar no Capacitor
+      import("@capacitor/status-bar")
+        .then(({ StatusBar, Style }) => {
+          StatusBar.setStyle({ style: Style.Dark }).catch(() => {});
+          StatusBar.setBackgroundColor({ color: "#FFFFFF" }).catch(() => {});
+        })
+        .catch(() => {});
+
       const storedName = localStorage.getItem("parentName");
       const storedPId = localStorage.getItem("pacienteId");
 
@@ -355,14 +373,14 @@ export function PortalDashboardPage() {
         </div>
       </div>
 
-      {/* ─── CONTAINER DO SMARTPHONE (MOLDURA PREMIUM DE IPHONE) ─── */}
-      <div className="relative w-full max-w-[430px] h-full min-h-screen md:min-h-[900px] md:h-[915px] bg-white md:rounded-[50px] shadow-2xl md:border-[10px] md:border-slate-900 overflow-hidden flex flex-col z-10">
+      {/* ─── CONTAINER DO SMARTPHONE (MOLDURA PREMIUM DE IPHONE / NATIVO NO MOBILE) ─── */}
+      <div className="relative w-full max-w-[430px] h-full min-h-screen md:min-h-[900px] md:h-[915px] bg-white md:rounded-[50px] shadow-2xl md:border-[10px] md:border-slate-900 overflow-hidden flex flex-col z-10 pt-[env(safe-area-inset-top,0px)]">
         
-        {/* BARRA SUPERIOR DO SMARTPHONE (ALTO-FALANTE / NOTCH & STATUS BAR) */}
-        <div className="w-full bg-white pt-3 px-6 pb-2 shrink-0 flex items-center justify-between text-xs font-semibold text-slate-800 select-none z-20">
+        {/* BARRA SUPERIOR SIMULADA APENAS NO DESKTOP */}
+        <div className="hidden md:flex w-full bg-white pt-3 px-6 pb-2 shrink-0 items-center justify-between text-xs font-semibold text-slate-800 select-none z-20">
           <span className="text-[13px] tracking-tight font-medium">15:54</span>
           {/* Dynamic Island / Pílula da câmera */}
-          <div className="hidden md:block w-24 h-4 bg-slate-900 rounded-full mx-auto" />
+          <div className="w-24 h-4 bg-slate-900 rounded-full mx-auto" />
           <div className="flex items-center gap-1.5 text-slate-700">
             <span className="text-[10px]">5G</span>
             <div className="w-5 h-2.5 border border-slate-700 rounded-sm p-0.5 flex items-center">
@@ -419,7 +437,7 @@ export function PortalDashboardPage() {
         </header>
 
         {/* ─── CORPO COM ROLAGEM DO SMARTPHONE ─── */}
-        <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4 pb-24 scrollbar-none">
+        <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4 pb-[calc(80px+env(safe-area-inset-bottom,0px))] scrollbar-none">
           
           {/* TAB 1: INÍCIO (TELA PRINCIPAL EXATAMENTE COMO NA IMAGEM) */}
           {activeNavTab === "inicio" && (
@@ -928,8 +946,8 @@ export function PortalDashboardPage() {
 
         </div>
 
-        {/* ─── BARRA DE NAVEGAÇÃO INFERIOR FIXA (5 ÍCONES) ─── */}
-        <div className="absolute bottom-0 left-0 right-0 h-[72px] bg-white/95 backdrop-blur-md border-t border-purple-100 px-3 flex items-center justify-around z-30">
+        {/* ─── BARRA DE NAVEGAÇÃO INFERIOR FIXA (5 ÍCONES COM SAFE-AREA & HAPTICS) ─── */}
+        <div className="absolute bottom-0 left-0 right-0 h-[calc(64px+env(safe-area-inset-bottom,0px))] pb-[env(safe-area-inset-bottom,0px)] bg-white/95 backdrop-blur-md border-t border-purple-100 px-3 flex items-center justify-around z-30">
           {[
             { id: "inicio", label: "Início", icon: Home },
             { id: "agenda", label: "Agenda", icon: Calendar },
@@ -942,10 +960,11 @@ export function PortalDashboardPage() {
               <button
                 key={item.id}
                 onClick={() => {
+                  triggerHaptic("light");
                   setActiveNavTab(item.id as any);
                   setModalActive(null);
                 }}
-                className="flex flex-col items-center justify-center w-14 h-full group"
+                className="flex flex-col items-center justify-center w-14 h-full group active:scale-95 transition-transform"
               >
                 <item.icon
                   className={cn(

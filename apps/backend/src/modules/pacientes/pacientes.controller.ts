@@ -9,7 +9,6 @@ import {
   Query,
   UseInterceptors,
   UploadedFile,
-  ParseUUIDPipe,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
@@ -42,14 +41,14 @@ export class PacientesController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Buscar paciente por ID' })
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
+  findOne(@Param('id') id: string) {
     return this.pacientesService.findOne(id);
   }
 
   @Put(':id')
   @ApiOperation({ summary: 'Atualizar paciente' })
   update(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id') id: string,
     @Body() dto: UpdatePacienteDto,
   ) {
     return this.pacientesService.update(id, dto);
@@ -58,7 +57,7 @@ export class PacientesController {
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Inativar paciente' })
-  remove(@Param('id', ParseUUIDPipe) id: string) {
+  remove(@Param('id') id: string) {
     return this.pacientesService.remove(id);
   }
 
@@ -84,7 +83,7 @@ export class PacientesController {
     }),
   )
   uploadFoto(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id') id: string,
     @UploadedFile() file: Express.Multer.File,
   ) {
     return this.pacientesService.updateFoto(id, file.path);
@@ -93,31 +92,31 @@ export class PacientesController {
   // ─── Sub-recursos ─────────────────────────────────────────────
   @Get(':id/prontuarios')
   @ApiOperation({ summary: 'Histórico de prontuários do paciente' })
-  getProntuarios(@Param('id', ParseUUIDPipe) id: string) {
+  getProntuarios(@Param('id') id: string) {
     return this.pacientesService.getProntuarios(id);
   }
 
   @Get(':id/agendamentos')
   @ApiOperation({ summary: 'Agendamentos do paciente' })
-  getAgendamentos(@Param('id', ParseUUIDPipe) id: string) {
+  getAgendamentos(@Param('id') id: string) {
     return this.pacientesService.getAgendamentos(id);
   }
 
   @Get(':id/evolucao')
   @ApiOperation({ summary: 'Linha do tempo de evolução' })
-  getEvolucao(@Param('id', ParseUUIDPipe) id: string) {
+  getEvolucao(@Param('id') id: string) {
     return this.pacientesService.getEvolucao(id);
   }
 
   @Get(':id/financeiro')
   @ApiOperation({ summary: 'Histórico financeiro do paciente' })
-  getFinanceiro(@Param('id', ParseUUIDPipe) id: string) {
+  getFinanceiro(@Param('id') id: string) {
     return this.pacientesService.getFinanceiro(id);
   }
 
   @Get(':id/timeline')
   @ApiOperation({ summary: 'Timeline completa do paciente' })
-  getTimeline(@Param('id', ParseUUIDPipe) id: string) {
+  getTimeline(@Param('id') id: string) {
     return this.pacientesService.getTimeline(id);
   }
 }

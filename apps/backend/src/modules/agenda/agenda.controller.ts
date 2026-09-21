@@ -1,6 +1,6 @@
 import {
   Controller, Get, Post, Put, Patch, Delete,
-  Body, Param, Query, HttpCode, HttpStatus, ParseUUIDPipe,
+  Body, Param, Query, HttpCode, HttpStatus,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { AgendaService } from './agenda.service';
@@ -34,14 +34,14 @@ export class AgendaController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Buscar agendamento por ID' })
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
+  findOne(@Param('id') id: string) {
     return this.agendaService.findOne(id);
   }
 
   @Put(':id')
   @ApiOperation({ summary: 'Atualizar agendamento (remarcar)' })
   update(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id') id: string,
     @Body() dto: UpdateAgendamentoDto,
   ) {
     return this.agendaService.update(id, dto);
@@ -50,7 +50,7 @@ export class AgendaController {
   @Patch(':id/status')
   @ApiOperation({ summary: 'Atualizar status do agendamento (confirmar/cancelar/presente)' })
   updateStatus(
-    @Param('id', ParseUUIDPipe) id: string,
+    @Param('id') id: string,
     @Body() body: { status: string; justificativa?: string },
   ) {
     return this.agendaService.updateStatus(id, body.status, body.justificativa);
@@ -67,7 +67,7 @@ export class AgendaController {
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Cancelar agendamento' })
-  remove(@Param('id', ParseUUIDPipe) id: string) {
+  remove(@Param('id') id: string) {
     return this.agendaService.cancelar(id);
   }
 
@@ -87,7 +87,7 @@ export class AgendaController {
   // ─── Bloqueios ─────────────────────────────────────────────────
   @Get('bloqueios/:profissionalId')
   @ApiOperation({ summary: 'Listar bloqueios de um profissional' })
-  getBloqueios(@Param('profissionalId', ParseUUIDPipe) profissionalId: string) {
+  getBloqueios(@Param('profissionalId') profissionalId: string) {
     return this.agendaService.getBloqueios(profissionalId);
   }
 
@@ -100,7 +100,7 @@ export class AgendaController {
   @Delete('bloqueios/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Remover bloqueio' })
-  removeBloqueio(@Param('id', ParseUUIDPipe) id: string) {
+  removeBloqueio(@Param('id') id: string) {
     return this.agendaService.removeBloqueio(id);
   }
 }
