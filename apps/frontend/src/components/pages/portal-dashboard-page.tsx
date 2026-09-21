@@ -70,12 +70,11 @@ export function PortalDashboardPage({
   // Carregar sessão e configurar status bar nativa
   useEffect(() => {
     if (typeof window !== "undefined") {
-      import("@capacitor/status-bar")
-        .then(({ StatusBar, Style }) => {
-          StatusBar.setStyle({ style: Style.Dark }).catch(() => {});
-          StatusBar.setBackgroundColor({ color: "#FFFFFF" }).catch(() => {});
-        })
-        .catch(() => {});
+      // Configurar status bar nativa se estiver executando via Capacitor (Android/iOS)
+      if (typeof window !== "undefined" && (window as any).Capacitor?.Plugins?.StatusBar) {
+        (window as any).Capacitor.Plugins.StatusBar.setStyle({ style: "DARK" }).catch(() => {});
+        (window as any).Capacitor.Plugins.StatusBar.setBackgroundColor({ color: "#FFFFFF" }).catch(() => {});
+      }
 
       const storedName = localStorage.getItem("parentName");
       const storedPId = localStorage.getItem("pacienteId");

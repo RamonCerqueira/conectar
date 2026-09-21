@@ -12,13 +12,16 @@ interface PortalBottomNavProps {
 }
 
 export function PortalBottomNav({ activeTab, onChangeTab }: PortalBottomNavProps) {
-  // Suporte a Haptic Feedback no mobile (Capacitor)
-  const triggerHaptic = async () => {
+  // Suporte a Haptic Feedback no mobile (Capacitor nativo ou Web Vibration API)
+  const triggerHaptic = () => {
     try {
-      const { Haptics, ImpactStyle } = await import("@capacitor/haptics");
-      await Haptics.impact({ style: ImpactStyle.Light });
+      if (typeof window !== "undefined" && (window as any).Capacitor?.Plugins?.Haptics) {
+        (window as any).Capacitor.Plugins.Haptics.impact({ style: "LIGHT" }).catch(() => {});
+      } else if (typeof navigator !== "undefined" && navigator.vibrate) {
+        navigator.vibrate(10);
+      }
     } catch {
-      // noop em browsers desktop
+      // noop em navegadores sem suporte
     }
   };
 
