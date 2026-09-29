@@ -329,7 +329,7 @@ export function AppSidebar() {
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl overflow-hidden border border-border shadow-lg bg-white flex items-center justify-center shrink-0">
               <Image
-                src="/logo.jpeg"
+                src="/logo.png"
                 alt="Logo Conectar"
                 width={36}
                 height={36}

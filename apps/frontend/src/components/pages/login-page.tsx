@@ -37,11 +37,11 @@ export function LoginPage() {
       const res = await api.post("/auth/login", data);
       const { accessToken, usuario } = res.data;
       setAccessToken(accessToken);
-      
+
       localStorage.setItem("userName", usuario.nome);
       localStorage.setItem("userRole", usuario.perfil);
       localStorage.setItem("userEmail", usuario.email);
-      
+
       toast.success(`Bem-vindo, ${usuario.nome}!`);
       router.push("/dashboard");
     } catch (err: any) {
@@ -79,7 +79,7 @@ export function LoginPage() {
           className="relative z-10 flex items-center gap-3"
         >
           <div className="w-10 h-10 rounded-2xl overflow-hidden shadow-md border border-rose-100 bg-white flex items-center justify-center">
-            <img src="/logo.jpeg" alt="Logo Conectar" className="object-cover w-full h-full" />
+            <img src="/logo.png" alt="Logo Conectar" className="object-cover w-full h-full" />
           </div>
           <div>
             <p className="text-[10px] font-bold text-rose-500 uppercase tracking-widest leading-none">
@@ -187,7 +187,7 @@ export function LoginPage() {
           {/* Logo mobile */}
           <div className="lg:hidden flex items-center gap-3 mb-6">
             <div className="w-9 h-9 rounded-xl overflow-hidden shadow-lg border border-rose-100 bg-white flex items-center justify-center">
-              <img src="/logo.jpeg" alt="Logo Conectar" className="object-cover w-full h-full" />
+              <img src="/logo.png" alt="Logo Conectar" className="object-cover w-full h-full" />
             </div>
             <div>
               <p className="text-[10px] text-rose-500 uppercase tracking-widest leading-none">Instituto</p>
