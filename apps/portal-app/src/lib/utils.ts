@@ -6,4 +6,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 // Configuração da API do Backend Conectar
-export const API_BASE_URL = import.meta.env.VITE_API_URL || "https://api.institutoconectar.net.br/api";
+export const API_BASE_URL = 
+  (typeof import.meta !== "undefined" && (import.meta as any).env?.VITE_API_URL) || 
+  "https://api.institutoconectar.net.br/api";
+
