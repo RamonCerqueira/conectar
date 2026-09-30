@@ -13,6 +13,8 @@
     "frontend": "turbo run dev --filter=frontend",
     "backend": "turbo run dev --filter=backend",
     "landingpage": "turbo run dev --filter=landingpage",
+    "portal-app": "turbo run dev --filter=portal-app",
+    "portal-app:build": "turbo run build --filter=portal-app",
     "ai-service": "turbo run dev --filter=ai-service",
     "whatsapp-service": "turbo run dev --filter=whatsapp-service",
     "sync-env": "node scripts/sync-env.js",
