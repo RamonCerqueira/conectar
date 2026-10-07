@@ -341,15 +341,42 @@ export default function ReferenceLanding({ onChat }: { onChat: () => void }) {
           </div>
         </section>
       </main>
-      <footer className="site-footer shell">
-        <Image
-          src="/brand/conectar.png"
-          alt="Instituto Conectar"
-          width={240}
-          height={82}
-        />
-        <p>Desenvolvimento · aprendizagem · bem-estar</p>
-        <a href="#inicio">Voltar ao início ↑</a>
+      <footer className="site-footer" aria-label="Informações do Instituto Conectar">
+        <div className="shell footer-main">
+          <div className="footer-brand">
+            <a href="#inicio" aria-label="Instituto Conectar — início">
+              <Image src="/brand/conectar.png" alt="Instituto Conectar" width={240} height={82} />
+            </a>
+            <p className="footer-tagline">Desenvolvimento · aprendizagem · bem-estar</p>
+            <p>Conectamos crianças, famílias, escola e profissionais para acolher cada história e desenvolver potencialidades.</p>
+            {contact("Converse com nossa equipe", "footer-whatsapp")}
+          </div>
+          <nav className="footer-column" aria-label="Navegação do rodapé">
+            <h2>Conheça o Instituto</h2>
+            <a href="#sobre">Quem somos</a>
+            <a href="#ajuda">Como podemos ajudar</a>
+            <a href="#espaco">Nosso espaço</a>
+            <a href="#equipe">Nossa fundadora</a>
+            <a href="#conteudos">Conteúdos</a>
+            <a href="#contato">Fale conosco</a>
+          </nav>
+          <div className="footer-column footer-contact">
+            <h2>Estamos aqui para acolher</h2>
+            <a href={`https://wa.me/${number}`} target="_blank" rel="noopener noreferrer" className="footer-phone">
+              <MessageCircle size={19} aria-hidden="true" /> (71) 99955-0803
+            </a>
+            <address>{address}</address>
+            <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`} target="_blank" rel="noopener noreferrer" className="footer-map">
+              <MapPin size={18} aria-hidden="true" /> Ver no mapa e como chegar
+            </a>
+            <a href={process.env.NEXT_PUBLIC_APP_URL || "https://app.institutoconectar.net.br"} className="footer-system">Acessar o sistema do Instituto <ArrowRight size={16} aria-hidden="true" /></a>
+          </div>
+        </div>
+        <div className="shell footer-bottom">
+          <p>© {new Date().getFullYear()} Instituto Conectar. Todos os direitos reservados.</p>
+          <p className="developer-credit">Desenvolvido por <a href="https://github.com/RamonCerqueira" target="_blank" rel="noopener noreferrer">Ramon Cerqueira <ArrowRight size={13} aria-hidden="true" /></a></p>
+          <a href="#inicio" className="footer-top">Voltar ao início ↑</a>
+        </div>
       </footer>
     </div>
   );
