@@ -116,7 +116,7 @@ export function PerfilPage() {
     }
 
     try {
-      await api.put(`/usuarios/${user.id}/senha`, { novaSenha });
+      await api.put(`/usuarios/${user.id}/senha`, { novaSenha, senhaAtual });
       toast.success("Senha alterada com sucesso!");
       setSenhaAtual("");
       setNovaSenha("");

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Clock,
@@ -13,60 +13,48 @@ import {
   Layers,
   Sparkles,
 } from "lucide-react";
+import { api } from "@/lib/api";
+import { toast } from "sonner";
+import { getApiErrorMessage } from "@/lib/api-errors";
 import { cn } from "@/lib/utils";
 import { formatDate } from "@/lib/utils";
 
-// ─── DADOS MOCKADOS COMPLETOS ───────────────────────────────────────────────
-const waitList = [
-  { id: "w-1", nome: "Arthur Neves", telefone: "11988887777", especialidade: "Fonoaudiologia", desde: "15 dias", observacoes: "Aguardando horário vespertino." },
-  { id: "w-2", nome: "Valentina Lima", telefone: "11977776666", especialidade: "Psicopedagogia", desde: "10 dias", observacoes: "Preferência para terças ou quintas pela manhã." },
-  { id: "w-3", nome: "Bernardo Silva", telefone: "11966665555", especialidade: "Terapia Ocupacional", desde: "7 dias", observacoes: "Necessita de Integração Sensorial." },
-];
-
 export function ListaEsperaPage() {
-  const [list, setList] = useState(waitList);
+  const [list, setList] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+  const [saving, setSaving] = useState(false);
+  async function loadList() { setLoading(true); setLoadError(false); try { const {data} = await api.get("/agenda/lista-espera"); setList(data); } catch { setLoadError(true); } finally { setLoading(false); } }
+  useEffect(()=>{ loadList(); }, []);
   // Form states
   const [nome, setNome] = useState("");
   const [telefone, setTelefone] = useState("");
   const [especialidade, setEspecialidade] = useState("Psicopedagogia");
   const [obs, setObs] = useState("");
 
-  const handleCreateWait = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!nome) return;
-
-    const newWait = {
-      id: `w-${Date.now()}`,
-      nome: nome,
-      telefone: telefone,
-      especialidade: especialidade,
-      desde: "Hoje",
-      observacoes: obs,
-    };
-
-    setList([...list, newWait]);
-    setIsModalOpen(false);
-
-    // Reset
-    setNome("");
-    setTelefone("");
-    setObs("");
+  const handleCreateWait = async (e: React.FormEvent) => {
+    e.preventDefault(); if (saving) return; setSaving(true);
+    try { const {data} = await api.post("/agenda/lista-espera", { nome, telefone, especialidade, observacoes: obs }); setList(previous=>[...previous,data]); setIsModalOpen(false); setNome(""); setTelefone(""); setObs(""); toast.success("Pessoa cadastrada na lista de espera."); }
+    catch(error) { toast.error(getApiErrorMessage(error,"Não foi possível cadastrar.")); }
+    finally { setSaving(false); }
   };
-
-  const handleRemove = (id: string) => {
-    setList(list.filter((item) => item.id !== id));
+  const handleRemove = async (id:string) => {
+    try { await api.delete(`/agenda/lista-espera/${id}`); setList(previous=>previous.filter(item=>item.id !== id)); toast.success("Pessoa retirada da fila de espera."); }
+    catch(error) { toast.error(getApiErrorMessage(error,"Não foi possível atualizar a fila.")); }
   };
 
   const filteredList = list.filter((item) =>
     item.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.especialidade.toLowerCase().includes(searchTerm.toLowerCase())
+    (item.especialidade || "").toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
     <div className="space-y-6">
+      {loading && <p role="status">Carregando fila…</p>}
+      {loadError && <div role="alert">Não foi possível carregar a fila. <button onClick={loadList} className="underline">Tentar novamente</button></div>}
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -123,7 +111,7 @@ export function ListaEsperaPage() {
                 </div>
                 <div>
                   <h3 className="font-bold text-sm text-foreground">{wait.nome}</h3>
-                  <p className="text-[10px] text-muted-foreground mt-0.5">Aguardando desde: {wait.desde}</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5">Aguardando desde: {formatDate(wait.criadoEm)}</p>
                 </div>
               </div>
 
@@ -160,7 +148,7 @@ export function ListaEsperaPage() {
           </motion.div>
         ))}
 
-        {filteredList.length === 0 && (
+        {!loading && !loadError && filteredList.length === 0 && (
           <div className="col-span-full py-12 text-center text-xs text-muted-foreground">
             Fila de espera vazia.
           </div>
@@ -256,7 +244,7 @@ export function ListaEsperaPage() {
                     Cancelar
                   </button>
                   <button
-                    type="submit"
+                    type="submit" disabled={saving}
                     className="px-4 py-2.5 rounded-xl text-xs font-semibold text-white gradient-primary shadow-lg shadow-purple-500/10 cursor-pointer"
                   >
                     Registrar na Fila

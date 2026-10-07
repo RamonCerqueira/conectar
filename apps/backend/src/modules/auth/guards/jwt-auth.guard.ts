@@ -19,7 +19,18 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     if (isPublic) return true;
     const allowed = await super.canActivate(context);
     const req = context.switchToHttp().getRequest();
-    if (req.user?.perfil !== 'PAIS') return Boolean(allowed);
+    if (req.user?.perfil !== 'PAIS') {
+      const path = (req.path as string).replace(/^\/api/, '').replace(/\/$/, '');
+      if (path.startsWith('/usuarios') && !['ADMINISTRADOR', 'DIRETOR'].includes(req.user.perfil)) {
+        const own = path === `/usuarios/${req.user.id}`;
+        const ownPassword = path === `/usuarios/${req.user.id}/senha`;
+        if (own && req.method === 'GET') return true;
+        if (own && req.method === 'PUT' && Object.keys(req.body || {}).every(key => ['nome', 'foto'].includes(key))) return true;
+        if (ownPassword && req.method === 'PUT') return true;
+        throw new ForbiddenException('Somente a administração pode gerenciar outras contas.');
+      }
+      return Boolean(allowed);
+    }
     const parent = await this.prisma.responsavel.findUnique({ where: { id: req.user.id }, select: { pacienteId: true, ativoPortal: true } });
     if (!parent?.ativoPortal) throw new ForbiddenException('Acesso ao portal desativado.');
     const path = (req.path as string).replace(/^\/api/, '').replace(/\/$/, '');

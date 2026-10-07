@@ -8,7 +8,7 @@ export class AuditService {
   async findAll() {
     return this.prisma.auditLog.findMany({
       orderBy: { criadoEm: 'desc' },
-      include: { usuario: true },
+      include: { usuario: { select: { id: true, nome: true, email: true, foto: true } } },
     });
   }
 

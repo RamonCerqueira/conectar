@@ -46,14 +46,9 @@ export class FinanceiroService {
     });
   }
 
-  async findMyContracheques(userName: string) {
-    return this.prisma.lancamento.findMany({
-      where: {
-        tipo: 'DESPESA',
-        descricao: { contains: userName },
-      },
-      orderBy: { vencimento: 'desc' },
-    });
+  async findMyContracheques(_userName: string) {
+    // Legacy entries have no employee foreign key. A name match cannot establish ownership.
+    return [];
   }
 
   // ─── FECHAMENTO DE CAIXA ──────────────────────────────────────────────────

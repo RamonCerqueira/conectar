@@ -5,6 +5,7 @@ import {
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { AgendaService } from './agenda.service';
 import { CreateAgendamentoDto } from './dto/create-agendamento.dto';
+import { CreateListaEsperaDto } from './dto/create-lista-espera.dto';
 import { UpdateAgendamentoDto } from './dto/update-agendamento.dto';
 import { AgendaQueryDto } from './dto/agenda-query.dto';
 
@@ -30,12 +31,6 @@ export class AgendaController {
   @ApiOperation({ summary: 'Verificar disponibilidade de horário' })
   verificarDisponibilidade(@Query() query: any) {
     return this.agendaService.verificarDisponibilidade(query);
-  }
-
-  @Get(':id')
-  @ApiOperation({ summary: 'Buscar agendamento por ID' })
-  findOne(@Param('id') id: string) {
-    return this.agendaService.findOne(id);
   }
 
   @Put(':id')
@@ -80,9 +75,18 @@ export class AgendaController {
 
   @Post('lista-espera')
   @ApiOperation({ summary: 'Adicionar à lista de espera' })
-  addListaEspera(@Body() body: any) {
+  addListaEspera(@Body() body: CreateListaEsperaDto) {
     return this.agendaService.addListaEspera(body);
   }
+
+  @Get(':id')
+  @ApiOperation({ summary: 'Buscar agendamento por ID' })
+  findOne(@Param('id') id: string) {
+    return this.agendaService.findOne(id);
+  }
+
+  @Delete('lista-espera/:id')
+  concluirListaEspera(@Param('id') id: string) { return this.agendaService.concluirListaEspera(id); }
 
   // ─── Bloqueios ─────────────────────────────────────────────────
   @Get('bloqueios/:profissionalId')

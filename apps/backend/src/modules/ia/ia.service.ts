@@ -141,7 +141,7 @@ export class IaService {
       include: {
         diagnosticos: true,
         responsaveis: { where: { isPrincipal: true }, take: 1 },
-        prontuarios: { orderBy: { data: 'desc' }, take: 10, include: { profissional: { include: { usuario: true } } } },
+        prontuarios: { orderBy: { data: 'desc' }, take: 10, include: { profissional: { include: { usuario: { select: { id: true, nome: true, email: true, foto: true } } } } } },
         planosTerapeuticos: { include: { metas: true } },
         avaliacoes: { orderBy: { data: 'desc' }, take: 3, include: { tipo: true } },
       },
