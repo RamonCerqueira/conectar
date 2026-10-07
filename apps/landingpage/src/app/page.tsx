@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { X } from "lucide-react";
 
 // Import Modular Components matching the design specifications
@@ -11,7 +11,9 @@ import ReferenceLanding from "@/components/ReferenceLanding";
 const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5101/api";
 
 export default function Home() {
-  // Modal & Chat shared states
+  const reducedMotion = useReducedMotion();
+  const dialogRef = useRef<HTMLDivElement>(null);
+  // Contact form state
   const [leadModalOpen, setLeadModalOpen] = useState(false);
   // Lead Form state
   const [leadForm, setLeadForm] = useState({
@@ -27,6 +29,24 @@ export default function Home() {
   const [notice, setNotice] = useState("");
   const [errors, setErrors] = useState<any>({});
 
+  useEffect(() => {
+    if (!leadModalOpen) return;
+    const previous = document.activeElement as HTMLElement | null;
+    const oldOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const frame = requestAnimationFrame(() => dialogRef.current?.querySelector<HTMLElement>("input")?.focus());
+    const keydown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") { event.preventDefault(); setLeadModalOpen(false); }
+      if (event.key !== "Tab") return;
+      const fields = Array.from(dialogRef.current?.querySelectorAll<HTMLElement>("button:not(:disabled), input, textarea, select, a[href]") || []);
+      const first = fields[0], last = fields[fields.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+    };
+    document.addEventListener("keydown", keydown);
+    return () => { cancelAnimationFrame(frame); document.removeEventListener("keydown", keydown); document.body.style.overflow = oldOverflow; previous?.focus(); };
+  }, [leadModalOpen]);
+
   const validateLeadForm = () => {
     const newErrors: any = {};
     if (leadForm.nomeCrianca.trim().length < 3) {
@@ -37,7 +57,7 @@ export default function Home() {
       newErrors.idade = "Por favor, preencha a idade do seu filho.";
     }
     const cleanPhone = leadForm.telefone.replace(/\D/g, "");
-    if (cleanPhone.length < 10) {
+    if (cleanPhone.length < 10 || cleanPhone.length > 13) {
       newErrors.telefone =
         "Número de telefone inválido (mínimo 10 dígitos com DDD).";
     }
@@ -99,11 +119,12 @@ export default function Home() {
               onClick={() => setLeadModalOpen(false)}
             />
             <motion.div
+              ref={dialogRef}
               role="dialog" aria-modal="true" aria-label="Solicitar contato do Instituto Conectar"
-              initial={{ scale: 0.95, opacity: 0 }}
+              initial={{ scale: reducedMotion ? 1 : 0.95, opacity: reducedMotion ? 1 : 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              className="relative w-full max-w-sm rounded-2xl shadow-2xl border bg-white p-6 space-y-4"
+              exit={{ scale: reducedMotion ? 1 : 0.95, opacity: 0 }}
+              className="relative w-full max-w-sm max-h-[90dvh] overflow-y-auto rounded-2xl shadow-2xl border bg-white p-6 space-y-4"
               style={{ borderColor: "#E7E7E7" }}
             >
               <div className="flex justify-between items-center border-b pb-2">
@@ -130,10 +151,10 @@ export default function Home() {
                 className="space-y-3 text-left"
               >
                 <div className="space-y-1">
-                  <label className="text-[9px] font-bold text-zinc-500 uppercase">
+                  <label htmlFor="lead-nomeCrianca" className="text-[9px] font-bold text-zinc-500 uppercase">
                     Nome da Criança
                   </label>
-                  <input
+                  <input id="lead-nomeCrianca"
                     type="text"
                     value={leadForm.nomeCrianca}
                     onChange={(e) =>
@@ -149,10 +170,10 @@ export default function Home() {
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="text-[9px] font-bold text-zinc-500 uppercase">
+                    <label htmlFor="lead-idade" className="text-[9px] font-bold text-zinc-500 uppercase">
                       Idade
                     </label>
-                    <input
+                    <input id="lead-idade"
                       type="text"
                       placeholder="Ex: 6 anos"
                       value={leadForm.idade}
@@ -168,10 +189,10 @@ export default function Home() {
                     )}
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[9px] font-bold text-zinc-500 uppercase">
+                    <label htmlFor="lead-telefone" className="text-[9px] font-bold text-zinc-500 uppercase">
                       Telefone Responsável
                     </label>
-                    <input
+                    <input id="lead-telefone"
                       type="text"
                       placeholder="(DD) 99999-9999"
                       value={leadForm.telefone}
@@ -188,10 +209,10 @@ export default function Home() {
                   </div>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[9px] font-bold text-zinc-500 uppercase">
+                  <label htmlFor="lead-queixa" className="text-[9px] font-bold text-zinc-500 uppercase">
                     Principais queixas ou dificuldades
                   </label>
-                  <textarea
+                  <textarea id="lead-queixa"
                     rows={3}
                     placeholder="Ex: Atraso de fala, gagueira, hiperatividade..."
                     value={leadForm.queixa}
@@ -207,10 +228,10 @@ export default function Home() {
                   )}
                 </div>
                 <div className="space-y-1">
-                  <label className="text-[9px] font-bold text-zinc-500 uppercase">
+                  <label htmlFor="lead-periodo" className="text-[9px] font-bold text-zinc-500 uppercase">
                     Período de preferência
                   </label>
-                  <select
+                  <select id="lead-periodo"
                     value={leadForm.periodo}
                     onChange={(e) =>
                       setLeadForm({ ...leadForm, periodo: e.target.value })

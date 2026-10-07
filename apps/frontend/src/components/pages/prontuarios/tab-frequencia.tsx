@@ -4,6 +4,8 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Clock, X } from "lucide-react";
 import { formatDate } from "@/lib/utils";
+import { api } from "@/lib/api";
+import { getApiErrorMessage } from "@/lib/api-errors";
 import { toast } from "sonner";
 
 interface TabFrequenciaProps {
@@ -24,10 +26,11 @@ export function TabFrequencia({
   const [newFreqStatus, setNewFreqStatus] = useState("PRESENTE");
   const [newFreqJustificativa, setNewFreqJustificativa] = useState("");
 
-  const handleUpdateFrequencia = (e: React.FormEvent) => {
+  const handleUpdateFrequencia = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedFreq) return;
 
+    try { await api.put(`/frequencia/${selectedFreq.id}`, { status: newFreqStatus, justificativa: newFreqJustificativa }); } catch (error) { toast.error(getApiErrorMessage(error, "Não foi possível salvar a frequência.")); return; }
     setFrequencias(
       frequencias.map((f) =>
         f.id === selectedFreq.id
@@ -56,7 +59,7 @@ export function TabFrequencia({
             {filteredFrequencias.map((f) => (
               <tr key={f.id} className="hover:bg-muted/10 transition-colors">
                 <td className="p-4 font-semibold">{formatDate(f.data)}</td>
-                <td className="p-4">{f.agendamento?.profissional?.usuario?.nome || f.profissional || "Dra. Ana Lima"}</td>
+                <td className="p-4">{f.agendamento?.profissional?.usuario?.nome || f.profissional || "Profissional não informado"}</td>
                 <td className="p-4">
                   {f.status === "PRESENTE" ? (
                     <span className="text-[10px] font-bold bg-emerald-500/10 text-emerald-600 px-2 py-0.5 rounded-full border border-emerald-500/15">Presente</span>

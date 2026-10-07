@@ -248,59 +248,10 @@ interface PortalPixModalProps {
 }
 
 export function PortalPixModal({ isOpen, onClose, currentInvoice }: PortalPixModalProps) {
-  const [copied, setCopied] = useState(false);
-
-  const copyPixKey = () => {
-    navigator.clipboard.writeText(
-      "00020126580014BR.GOV.BCB.PIX01364589214700018952040000530398654051400.005802BR5925INSTITUTO CONECTAR LTDA6009SAO PAULO62070503***6304E8F2"
-    );
-    setCopied(true);
-    toast.success("Código PIX Copia e Cola copiado com sucesso!");
-    setTimeout(() => setCopied(false), 3000);
-  };
-
-  return (
-    <AnimatePresence>
-      {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs select-none">
-          <motion.div
-            initial={{ scale: 0.95, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.95, opacity: 0 }}
-            className="bg-white/95 backdrop-blur-md rounded-[22px] p-5 max-w-xs w-full space-y-3.5 shadow-2xl border border-white/80 text-center"
-          >
-            <div className="flex justify-between items-center border-b border-[#EEEAF4] pb-2">
-              <h3 className="font-extrabold text-[#29232F] text-sm">Pagamento com PIX</h3>
-              <button onClick={onClose} className="p-1 text-[#77717E] cursor-pointer">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="p-3.5 rounded-[14px] bg-[#FAF8FF] border border-[#EEE8FA] flex flex-col items-center gap-1.5">
-              <QrCode className="w-28 h-28 text-[#8D5BD1]" />
-              <p className="text-[11px] font-black text-[#29232F]">
-                {currentInvoice ? formatCurrency(currentInvoice.valor) : "R$ 1.400,00"}
-              </p>
-              <p className="text-[9px] text-[#77717E]">Escaneie com o app do seu banco</p>
-            </div>
-
-            <button
-              onClick={copyPixKey}
-              className="w-full py-2.5 rounded-[12px] bg-[#8D5BD1] hover:bg-[#7B48C2] text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-[#8D5BD1]/20 cursor-pointer"
-            >
-              {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-              <span>{copied ? "Código Copiado!" : "Copiar Código PIX"}</span>
-            </button>
-          </motion.div>
-        </div>
-      )}
-    </AnimatePresence>
-  );
+  if (!isOpen) return null;
+  return <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40"><section role="dialog" aria-modal="true" aria-label="Orientações de pagamento" className="bg-white rounded-3xl p-6 max-w-sm space-y-4 text-center"><h2 className="font-bold text-lg">Pagamento com a recepção</h2><p>{currentInvoice ? formatCurrency(currentInvoice.valor) : "Consulte o valor com a equipe."}</p><p className="text-sm text-gray-600">O pagamento por PIX no portal ainda está em configuração. Solicite os dados oficiais à recepção antes de pagar.</p><button onClick={onClose} className="px-5 py-3 rounded-xl bg-purple-600 text-white">Entendi</button></section></div>;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// 5. MODAL DE NOVO AGENDAMENTO
-// ─────────────────────────────────────────────────────────────────────────────
 interface PortalSchedulingModalProps {
   isOpen: boolean;
   onClose: () => void;

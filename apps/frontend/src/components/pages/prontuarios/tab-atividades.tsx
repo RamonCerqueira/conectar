@@ -113,17 +113,6 @@ export function TabAtividades({
     }
   };
 
-  const handleToggleShare = (id: string, currentlyShared: boolean) => {
-    setRecursos(
-      recursos.map((r) => (r.id === id ? { ...r, compartilhado: !r.compartilhado } : r))
-    );
-    toast.success(
-      currentlyShared
-        ? "Mídia ocultada do aplicativo da família."
-        : "Mídia publicada no Portal da Família com sucesso!"
-    );
-  };
-
   // Drag and drop mock handler
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -146,7 +135,7 @@ export function TabAtividades({
 
   // Calculations for Stats
   const totalMedia = filteredRecursos.length;
-  const sharedMedia = filteredRecursos.filter((r) => r.compartilhado).length;
+  const sharedMedia = filteredRecursos.length;
   const answeredFeedbacks = filteredRecursos.filter((r) => r.respostasPai).length;
   
   // Calculate mock storage size
@@ -258,7 +247,7 @@ export function TabAtividades({
       {/* ─── MEDIA CARDS GRID ─── */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
         {searchFilteredRecursos.map((rec) => {
-          const isShared = rec.compartilhado;
+          const isShared = true;
           return (
             <motion.div
               layout
@@ -332,14 +321,7 @@ export function TabAtividades({
                   Visualizar
                 </button>
 
-                <button
-                  type="button"
-                  onClick={() => handleToggleShare(rec.id, isShared)}
-                  className="px-2.5 py-1.5 rounded-lg border hover:bg-muted transition-colors cursor-pointer border-border text-muted-foreground hover:text-foreground bg-transparent"
-                  title={isShared ? "Retirar do Portal da Família" : "Publicar no Portal da Família"}
-                >
-                  {isShared ? <Lock className="h-3.5 w-3.5 text-purple-500" /> : <Unlock className="h-3.5 w-3.5" />}
-                </button>
+                <span className="text-xs text-purple-600 px-2 self-center" title="Recurso disponível para a família desta criança">No portal</span>
 
                 <button
                   type="button"
@@ -651,18 +633,7 @@ export function TabAtividades({
                   />
                 </div>
 
-                <div className="flex items-center gap-2 pt-2 text-left">
-                  <input
-                    type="checkbox"
-                    id="compartilhado"
-                    checked={recCompartilhado}
-                    onChange={(e) => setRecCompartilhado(e.target.checked)}
-                    className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-border rounded"
-                  />
-                  <label htmlFor="compartilhado" className="text-xs font-semibold text-foreground cursor-pointer select-none">
-                    Compartilhar imediatamente com o Portal da Família
-                  </label>
-                </div>
+                <p className="text-xs text-muted-foreground">Este recurso ficará disponível no portal da família desta criança.</p>
 
                 <div className="pt-4 border-t border-border flex justify-end gap-3 bg-card">
                   <button

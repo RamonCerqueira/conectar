@@ -24,7 +24,7 @@ export class PacientesService {
           : undefined,
       },
       include: {
-        responsaveis: true,
+        responsaveis: { omit: { senhaPortal: true } },
         diagnosticos: true,
       },
     });
@@ -71,6 +71,7 @@ export class PacientesService {
         orderBy: { [orderBy]: 'asc' },
         include: {
           responsaveis: {
+            omit: { senhaPortal: true },
             where: { isPrincipal: true },
             take: 1,
           },
@@ -98,7 +99,7 @@ export class PacientesService {
     const paciente = await this.prisma.paciente.findUnique({
       where: { id },
       include: {
-        responsaveis: true,
+        responsaveis: { omit: { senhaPortal: true } },
         diagnosticos: true,
         planosTerapeuticos: {
           include: {
@@ -137,7 +138,7 @@ export class PacientesService {
           dataNascimento: new Date(dados.dataNascimento),
         }),
       },
-      include: { responsaveis: true, diagnosticos: true },
+      include: { responsaveis: { omit: { senhaPortal: true } }, diagnosticos: true },
     });
   }
 
@@ -159,7 +160,7 @@ export class PacientesService {
   async getProntuarios(id: string) {
     return this.prisma.prontuario.findMany({
       where: { pacienteId: id },
-      include: { profissional: { include: { usuario: true } } },
+      include: { profissional: { include: { usuario: { select: { id: true, nome: true, foto: true } } } } },
       orderBy: { data: 'desc' },
     });
   }
@@ -168,7 +169,7 @@ export class PacientesService {
     return this.prisma.agendamento.findMany({
       where: { pacienteId: id },
       include: {
-        profissional: { include: { usuario: true } },
+        profissional: { include: { usuario: { select: { id: true, nome: true, foto: true } } } },
         sala: true,
         frequencia: true,
       },

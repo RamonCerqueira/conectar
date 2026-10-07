@@ -16,42 +16,38 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatCurrency } from "@/lib/utils";
+import { api } from "@/lib/api";
+import { getApiErrorMessage } from "@/lib/api-errors";
 import { toast } from "sonner";
 
-// ─── DADOS MOCKADOS COMPLETOS ───────────────────────────────────────────────
+// ─── CATÁLOGO DE RELATÓRIOS DO SERVIDOR ───────────────────────────────────────────────
 const reportsList = [
-  {
-    id: "rep-1",
-    titulo: "Relatório de Ocupação de Salas",
-    descricao: "Métricas de uso diário e semanal por sala, identificando horários subutilizados.",
-    tipo: "Clínico",
-    formato: "PDF",
-  },
   {
     id: "rep-2",
     titulo: "Faturamento Mensal e Lucratividade",
     descricao: "Detalhamento de receitas pagas, despesas quitadas e margem de lucro operacional.",
     tipo: "Financeiro",
-    formato: "XLSX",
+    formato: "CSV",
   },
   {
     id: "rep-3",
     titulo: "Taxa de Faltas e Evasão Clínica",
-    descricao: "Controle de presenças, faltas justificadas e cancelamentos por profissional.",
+    descricao: "Totais de atendimentos agrupados por status.",
     tipo: "Atendimentos",
-    formato: "PDF",
+    formato: "CSV",
   },
   {
     id: "rep-4",
-    titulo: "Pacientes Ativos por Diagnóstico",
-    descricao: "Distribuição demográfica das crianças da clínica agrupadas por CID/Diagnóstico.",
+    titulo: "Pacientes por Status e Sexo",
+    descricao: "Totais de pacientes cadastrados agrupados por status e sexo.",
     tipo: "Pacientes",
-    formato: "PDF",
+    formato: "CSV",
   },
 ];
 
 export function RelatoriosPage() {
   const [reports, setReports] = useState(reportsList);
+  const [exporting, setExporting] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState("TODOS");
 
@@ -64,6 +60,27 @@ export function RelatoriosPage() {
 
     return matchesSearch && matchesTab;
   });
+
+  const exportReport = async (id: string, title: string) => {
+    if (exporting) return;
+    setExporting(id);
+    try {
+      const endpoint = { "rep-2": "financeiro", "rep-3": "atendimentos", "rep-4": "pacientes" }[id];
+      const { data } = await api.get(`/relatorios/${endpoint}`);
+      const rows: string[][] = [["Métrica", "Grupo", "Valor"]];
+      const flatten = (value: unknown, path: string[] = []) => {
+        if (value !== null && typeof value === "object") Object.entries(value).forEach(([key, val]) => flatten(val, [...path, key]));
+        else rows.push([path[0] || "total", path.slice(1).join(" / "), String(value ?? "")]);
+      };
+      flatten(data);
+      const quote = (value: string) => '"' + (/^[=+@-]/.test(value) ? "'" : "") + value.replace(/"/g, '""') + '"';
+      const blob = new Blob(["\uFEFF" + rows.map(row => row.map(quote).join(";")).join("\r\n")], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a"); anchor.href = url; anchor.download = `${endpoint}-${new Date().toISOString().slice(0,10)}.csv`; document.body.appendChild(anchor); anchor.click(); anchor.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+      toast.success(`Relatório "${title}" gerado com dados do servidor.`);
+    } catch (error) { toast.error(getApiErrorMessage(error, "Não foi possível exportar o relatório.")); }
+    finally { setExporting(null); }
+  };
 
   return (
     <div className="space-y-6">
@@ -133,7 +150,7 @@ export function RelatoriosPage() {
                     </>
                   ) : (
                     <>
-                      <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-500" /> Planilha Excel
+                      <FileSpreadsheet className="h-3.5 w-3.5 text-emerald-500" /> Planilha CSV
                     </>
                   )}
                 </span>
@@ -153,17 +170,13 @@ export function RelatoriosPage() {
 
             {/* Ação Exportar */}
             <button
-              onClick={() => {
-                toast.success(`Exportação do "${rep.titulo}" em formato ${rep.formato} iniciada.`);
-                setTimeout(() => {
-                  toast.success(`Download do arquivo "${rep.titulo.toLowerCase().replace(/ /g, "_")}.${rep.formato.toLowerCase()}" concluído!`);
-                }, 1500);
-              }}
+              disabled={exporting !== null}
+              onClick={() => exportReport(rep.id, rep.titulo)}
               className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border text-xs font-bold transition-all hover:bg-purple-500/10 hover:border-purple-500 text-purple-500 cursor-pointer"
               style={{ borderColor: "hsl(var(--border))" }}
             >
               <Download className="h-4 w-4" />
-              <span>Exportar Dados ({rep.formato})</span>
+              <span>{exporting === rep.id ? "Gerando…" : `Exportar Dados (${rep.formato})`}</span>
             </button>
           </motion.div>
         ))}
