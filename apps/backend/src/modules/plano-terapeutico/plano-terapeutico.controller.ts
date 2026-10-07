@@ -6,6 +6,6 @@ export class PlanoTerapeuticoController {
   constructor(private readonly service: PlanoTerapeuticoService) {}
   @Get('paciente/:id') findByPaciente(@Param('id') id: string) { return this.service.findByPaciente(id); }
   @Post() create(@Body() body: any) { return this.service.create(body); }
-  @Post(':planoId/metas') addMeta(@Body() body: any) { return this.service.addMeta(body); }
+  @Post(':planoId/metas') addMeta(@Param('planoId') planoId: string, @Body() body: any) { return this.service.addMeta({ ...body, planoId }); }
   @Patch('metas/:id/progresso') updateMeta(@Param('id') id: string, @Body() body: { progresso: number; nota?: string }) { return this.service.updateMeta(id, body.progresso, body.nota); }
 }

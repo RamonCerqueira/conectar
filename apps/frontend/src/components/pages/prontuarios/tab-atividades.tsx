@@ -23,6 +23,8 @@ import {
 } from "lucide-react";
 import { cn, formatDate } from "@/lib/utils";
 import { toast } from "sonner";
+import { api, BASE_API_URL } from "@/lib/api";
+import { getApiErrorMessage } from "@/lib/api-errors";
 
 interface TabAtividadesProps {
   paciente: any;
@@ -63,7 +65,7 @@ export function TabAtividades({
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadedFileName, setUploadedFileName] = useState("");
 
-  const handleCreateRecurso = (e: React.FormEvent) => {
+  const handleCreateRecurso = async (e: React.FormEvent) => {
     e.preventDefault();
     const newRec = {
       id: `rec-${Date.now()}`,
@@ -85,7 +87,10 @@ export function TabAtividades({
       ] : undefined
     };
 
-    setRecursos([newRec, ...recursos]);
+    try {
+      const response = await api.post("/exercicios", { pacienteId: paciente.id, titulo: recTitulo, tipo: recTipo, descricao: recDescricao, url: recUrl || undefined });
+      setRecursos(previous => [{...response.data, dataCriacao: response.data.criadoEm}, ...previous]);
+    } catch (error) { toast.error(getApiErrorMessage(error, "Não foi possível salvar o recurso.")); return; }
     setIsNewRecursoModalOpen(false);
     
     // Reset Form
@@ -99,7 +104,8 @@ export function TabAtividades({
     toast.success("Recurso / Mídia adicionado com sucesso!");
   };
 
-  const handleDeleteRecurso = (id: string, titulo: string) => {
+  const handleDeleteRecurso = async (id: string, titulo: string) => {
+    try { await api.delete(`/exercicios/${id}`); } catch (error) { toast.error(getApiErrorMessage(error, "Não foi possível excluir o recurso.")); return; }
     setRecursos(recursos.filter((r) => r.id !== id));
     toast.success(`Mídia "${titulo}" excluída com sucesso!`);
     if (previewMedia && previewMedia.id === id) {
@@ -123,34 +129,19 @@ export function TabAtividades({
     e.preventDefault();
   };
 
-  const handleDropFile = (e: React.DragEvent) => {
+  const handleDropFile = async (e: React.DragEvent) => {
     e.preventDefault();
-    const files = e.dataTransfer.files;
-    if (files && files.length > 0) {
-      const file = files[0];
-      setUploadedFileName(file.name);
-      setRecTitulo(file.name.split(".").slice(0, -1).join(" "));
-      
-      // Select appropriate type by file extension
-      const ext = file.name.split(".").pop()?.toLowerCase();
-      if (ext === "pdf") setRecTipo("PDF");
-      else if (ext === "mp4" || ext === "avi" || ext === "mkv") setRecTipo("VIDEO");
-      
-      // Simulate progress bar upload
-      setIsUploading(true);
-      setUploadProgress(0);
-      const timer = setInterval(() => {
-        setUploadProgress((prev) => {
-          if (prev >= 100) {
-            clearInterval(timer);
-            setIsUploading(false);
-            toast.success("Arquivo pré-carregado com sucesso!");
-            return 100;
-          }
-          return prev + 25;
-        });
-      }, 200);
-    }
+    const file = e.dataTransfer.files[0];
+    if (!file || isUploading) return;
+    setIsUploading(true); setUploadProgress(0);
+    try {
+      const form = new FormData(); form.append("file", file); form.append("pacienteId", paciente.id); form.append("tipo", file.type.startsWith("video/") ? "VIDEO" : "DOCUMENTO");
+      const response = await api.post("/arquivos/upload", form, {headers:{"Content-Type":"multipart/form-data"}, onUploadProgress: event => setUploadProgress(event.total ? Math.round(event.loaded / event.total * 100) : 0)});
+      setUploadedFileName(file.name); setRecTitulo(file.name.replace(/\.[^.]+$/, ""));
+      setRecTipo(file.type.startsWith("video/") ? "VIDEO" : "PDF");
+      setRecUrl(`${BASE_API_URL.replace(/\/api$/, "")}${response.data.caminho}`);
+      setUploadProgress(100); toast.success("Arquivo enviado ao servidor.");
+    } catch (error) { toast.error(getApiErrorMessage(error, "Não foi possível enviar o arquivo.")); } finally { setIsUploading(false); }
   };
 
   // Calculations for Stats
@@ -169,7 +160,7 @@ export function TabAtividades({
   const searchFilteredRecursos = filteredRecursos.filter((rec) => {
     const matchesSearch =
       rec.titulo.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      rec.descricao.toLowerCase().includes(searchQuery.toLowerCase());
+      (rec.descricao || "").toLowerCase().includes(searchQuery.toLowerCase());
     
     const matchesCategory = selectedCategory === "TODOS" || rec.tipo === selectedCategory;
     

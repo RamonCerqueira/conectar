@@ -121,16 +121,21 @@ export function ChatFloatingDock() {
     });
 
     socketRef.current = socket;
+    let retriedAuth = false;
     socket.on("connect_error", async () => {
+      if (retriedAuth) return;
+      retriedAuth = true;
       try {
         await api.get("/auth/me");
         socket.auth = { accessToken: getAccessToken() };
+        socket.connect();
       } catch {
         return;
       }
     });
 
     socket.on("connect", () => {
+      retriedAuth = false;
       socket.emit("chat:join", { usuarioId: usuarioIdLogado });
     });
 

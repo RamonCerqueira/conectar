@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Brain, X } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import { toast } from "sonner";
+import { api } from "@/lib/api";
+import { getApiErrorMessage } from "@/lib/api-errors";
 
 interface TabAvaliacoesProps {
   paciente: any;
@@ -30,7 +32,7 @@ export function TabAvaliacoes({
   const [newQ1, setNewQ1] = useState("");
   const [newQ2, setNewQ2] = useState("");
 
-  const handleCreateAvaliacao = (e: React.FormEvent) => {
+  const handleCreateAvaliacao = async (e: React.FormEvent) => {
     e.preventDefault();
     const newAv = {
       id: `av-${Date.now()}`,
@@ -45,7 +47,10 @@ export function TabAvaliacoes({
       ],
     };
 
-    onAddAvaliacao(newAv);
+    try {
+      const response = await api.post("/avaliacoes", { pacienteId: paciente.id, tipo: newTipo, conclusao: newConclusao, respostas: newAv.respostas });
+      onAddAvaliacao({...response.data, tipo: response.data.tipo?.nome || newTipo});
+    } catch (error) { toast.error(getApiErrorMessage(error, "Não foi possível registrar a avaliação.")); return; }
     setIsNewAvaliacaoModalOpen(false);
     
     // Reset Form

@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 import { Prontuario } from "@/types/prontuario";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
+import { getApiErrorMessage } from "@/lib/api-errors";
 import { getOfflineProntuarios } from "@/lib/offline-sync";
 
 // Imports of refactored tab components
@@ -132,7 +133,7 @@ export function ProntuariosPage({
     // 2. Plans / Metas
     try {
       const res = await api.get(`/plano-terapeutico/paciente/${pacId}`);
-      setPlanos(res.data || []);
+      setPlanos((Array.isArray(res.data) ? res.data : []).map((plano: any) => ({...plano, metas: (plano.metas || []).map(normalizeMeta)})));
     } catch (e) {
       setPlanos([]);
     }
@@ -140,7 +141,7 @@ export function ProntuariosPage({
     // 3. Assessments
     try {
       const res = await api.get(`/avaliacoes/paciente/${pacId}`);
-      setAvaliacoes(res.data || []);
+      setAvaliacoes((Array.isArray(res.data) ? res.data : []).map((av: any) => ({ ...av, tipo: typeof av.tipo === "string" ? av.tipo : av.tipo?.nome || "Avaliação" })));
     } catch (e) {
       setAvaliacoes([]);
     }
@@ -156,7 +157,7 @@ export function ProntuariosPage({
     // 5. Recursos / Exercicios
     try {
       const res = await api.get(`/exercicios/paciente/${pacId}`);
-      setRecursos(res.data || []);
+      setRecursos((Array.isArray(res.data) ? res.data : []).map((rec: any) => ({...rec, tipo: rec.tipo?.toUpperCase(), dataCriacao: rec.criadoEm, descricao: rec.descricao || ""})));
     } catch (e) {
       setRecursos([]);
     }
@@ -172,56 +173,31 @@ export function ProntuariosPage({
     setProntuarios([newPr, ...prontuarios]);
   };
 
-  const handleAddMeta = (planoId: string, newMeta: any) => {
-    setPlanos(
-      planos.map((plano) => {
-        if (plano.id === planoId) {
-          return { ...plano, metas: [newMeta, ...plano.metas] };
-        }
-        return plano;
-      }),
-    );
-    toast.success("Nova meta cadastrada!");
+  const normalizeMeta = (meta: any) => ({ ...meta, historico: (meta.historicoProgresso || []).map((h: any) => ({ ...h, valor: h.progresso })) });
+  const handleAddMeta = async (planoId: string, newMeta: any) => {
+    try {
+      if (!planoId) {
+        const created = await api.post("/plano-terapeutico", {pacienteId: selectedPacienteId, titulo: "Plano terapêutico", descricao: "Plano individual de desenvolvimento"});
+        planoId = created.data.id;
+        setPlanos(previous => [...previous, {...created.data, metas: []}]);
+      }
+      const { objetivo, descricao, prazo } = newMeta;
+      const response = await api.post(`/plano-terapeutico/${planoId}/metas`, { objetivo, descricao, prazo: prazo ? new Date(prazo).toISOString() : undefined });
+      const saved = normalizeMeta(response.data);
+      setPlanos(previous => previous.map(plano => plano.id === planoId ? {...plano, metas: [saved, ...plano.metas]} : plano));
+      toast.success("Nova meta cadastrada!");
+      return true;
+    } catch (error) { toast.error(getApiErrorMessage(error, "Não foi possível cadastrar a meta.")); return false; }
   };
-
-  const handleUpdateMetaProgress = (
-    planoId: string,
-    metaId: string,
-    val: number,
-    nota: string,
-  ) => {
-    setPlanos(
-      planos.map((plano) => {
-        if (plano.id === planoId) {
-          return {
-            ...plano,
-            metas: plano.metas.map((meta: { id: string; historico: any }) => {
-              if (meta.id === metaId) {
-                const histItem = {
-                  data: new Date().toISOString().split("T")[0],
-                  valor: val,
-                  nota: nota || "Progresso atualizado.",
-                };
-                return {
-                  ...meta,
-                  progresso: val,
-                  status: val >= 100 ? "CONCLUIDO" : "EM_ANDAMENTO",
-                  historico: [histItem, ...meta.historico],
-                };
-              }
-              return meta;
-            }),
-          };
-        }
-        return plano;
-      }),
-    );
-    toast.success("Progresso atualizado!");
+  const handleUpdateMetaProgress = async (planoId: string, metaId: string, val: number, nota: string) => {
+    try {
+      const response = await api.patch(`/plano-terapeutico/metas/${metaId}/progresso`, { progresso: val, nota });
+      const saved = normalizeMeta(response.data);
+      setPlanos(previous => previous.map(plano => plano.id === planoId ? {...plano, metas: plano.metas.map((meta: any) => meta.id === metaId ? saved : meta)} : plano));
+      toast.success("Progresso atualizado!"); return true;
+    } catch (error) { toast.error(getApiErrorMessage(error, "Não foi possível atualizar o progresso.")); return false; }
   };
-
-  const handleAddAvaliacao = (newAv: any) => {
-    setAvaliacoes([newAv, ...avaliacoes]);
-  };
+  const handleAddAvaliacao = (newAv: any) => setAvaliacoes(previous => [newAv, ...previous]);
 
   const activePaciente = pacientes.find((p) => p.id === selectedPacienteId);
 

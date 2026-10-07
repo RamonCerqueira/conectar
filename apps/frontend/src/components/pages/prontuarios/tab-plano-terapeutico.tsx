@@ -11,8 +11,8 @@ interface TabPlanoTerapeuticoProps {
   planos: any[];
   isNewMetaModalOpen: boolean;
   setIsNewMetaModalOpen: (open: boolean) => void;
-  onAddMeta: (planoId: string, meta: any) => void;
-  onUpdateMetaProgress: (planoId: string, metaId: string, val: number, nota: string) => void;
+  onAddMeta: (planoId: string, meta: any) => Promise<boolean>;
+  onUpdateMetaProgress: (planoId: string, metaId: string, val: number, nota: string) => Promise<boolean>;
 }
 
 export function TabPlanoTerapeutico({
@@ -37,12 +37,8 @@ export function TabPlanoTerapeutico({
   const [metaDescricao, setMetaDescricao] = useState("");
   const [metaPrazo, setMetaPrazo] = useState("");
 
-  const handleCreateMeta = (e: React.FormEvent) => {
+  const handleCreateMeta = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!activePlano) {
-      toast.error("Nenhum plano ativo para associar esta meta.");
-      return;
-    }
     const newMeta = {
       id: `meta-${Date.now()}`,
       objetivo: metaObjetivo,
@@ -53,18 +49,18 @@ export function TabPlanoTerapeutico({
       historico: [],
     };
 
-    onAddMeta(activePlano.id, newMeta);
+    if (!await onAddMeta(activePlano?.id || "", newMeta)) return;
     setIsNewMetaModalOpen(false);
     setMetaObjetivo("");
     setMetaDescricao("");
     setMetaPrazo("");
   };
 
-  const handleUpdateProgresso = (e: React.FormEvent) => {
+  const handleUpdateProgresso = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!activePlano) return;
 
-    onUpdateMetaProgress(activePlano.id, editingMetaId, newProgressoVal, newProgressoNota);
+    if (!await onUpdateMetaProgress(activePlano.id, editingMetaId, newProgressoVal, newProgressoNota)) return;
     
     // Update local history preview if active
     if (selectedMetaHistory && selectedMetaHistory.id === editingMetaId) {
