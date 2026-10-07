@@ -38,6 +38,7 @@ export function LoginPage() {
       const { accessToken, usuario } = res.data;
       setAccessToken(accessToken);
 
+      localStorage.setItem("userId", usuario.id);
       localStorage.setItem("userName", usuario.nome);
       localStorage.setItem("userRole", usuario.perfil);
       localStorage.setItem("userEmail", usuario.email);
@@ -45,17 +46,7 @@ export function LoginPage() {
       toast.success(`Bem-vindo, ${usuario.nome}!`);
       router.push("/dashboard");
     } catch (err: any) {
-      console.warn("Could not authenticate with real backend, checking demo credentials.", err);
-      if (data.email === "admin@conectar.com" && data.password === "123456") {
-        setAccessToken("mock-admin-token");
-        localStorage.setItem("userName", "Administrador Conectar");
-        localStorage.setItem("userRole", "ADMINISTRADOR");
-        localStorage.setItem("userEmail", "admin@conectar.com");
-        toast.success("Bem-vindo! (Modo de Demonstração)");
-        router.push("/dashboard");
-      } else {
-        toast.error("Falha ao entrar: verifique seu e-mail e senha.");
-      }
+      toast.error(err.response?.status === 401 ? 'E-mail ou senha inválidos.' : 'Não foi possível conectar à API. Tente novamente.');
     } finally {
       setIsLoading(false);
     }

@@ -2,7 +2,15 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { DollarSign, CheckCircle, Clock, Wallet, XCircle, Sparkles } from "lucide-react";
+import {
+  DollarSign,
+  CheckCircle,
+  Clock,
+  Wallet,
+  XCircle,
+  Sparkles,
+} from "lucide-react";
+import { getApiErrorMessage } from "@/lib/api-errors";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
 import { ProfissionaisFilter } from "./agenda/profissionais-filter";
@@ -35,7 +43,7 @@ export function AgendaPage() {
   const [selectedProf, setSelectedProf] = useState("TODOS");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
-  
+
   // Prefill states for dragging and slot clicks
   const [initialPacienteNome, setInitialPacienteNome] = useState("");
   const [initialProfId, setInitialProfId] = useState("");
@@ -52,7 +60,7 @@ export function AgendaPage() {
     try {
       const [profsRes, waitRes] = await Promise.all([
         api.get("/profissionais"),
-        api.get("/agenda/lista-espera").catch(() => ({ data: [] }))
+        api.get("/agenda/lista-espera").catch(() => ({ data: [] })),
       ]);
 
       const mappedProfs = (profsRes.data || []).map((p: any) => ({
@@ -74,7 +82,9 @@ export function AgendaPage() {
       // Now load agenda with fresh professionals mapped list
       const res = await api.get("/agenda");
       const mappedAgendas = (res.data || []).map((ag: any) => {
-        const profInfo = mappedProfs.find((p: any) => p.id === ag.profissionalId) || { nome: "Profissional", cor: "#8E7BBE" };
+        const profInfo = mappedProfs.find(
+          (p: any) => p.id === ag.profissionalId,
+        ) || { nome: "Profissional", cor: "#8E7BBE" };
         return {
           id: ag.id,
           paciente: ag.paciente?.nome || ag.pacienteNome || "Paciente",
@@ -83,7 +93,11 @@ export function AgendaPage() {
           sala: ag.sala?.nome || ag.salaNome || "Sala Comum",
           salaId: ag.salaId,
           data: ag.data,
-          dataFim: ag.dataFim || new Date(new Date(ag.data).getTime() + 60 * 60 * 1000).toISOString(),
+          dataFim:
+            ag.dataFim ||
+            new Date(
+              new Date(ag.data).getTime() + 60 * 60 * 1000,
+            ).toISOString(),
           tipo: ag.tipo || "PRESENCIAL",
           status: ag.status || "AGENDADO",
           cor: ag.profissional?.cor || profInfo.cor,
@@ -104,6 +118,9 @@ export function AgendaPage() {
 
   const handleCreateAgendamento = async (data: {
     pacienteNome: string;
+    pacienteId: string;
+    salaId?: string;
+    dataFim: string;
     profId: string;
     salaNome: string;
     dataHora: string;
@@ -112,9 +129,12 @@ export function AgendaPage() {
     numSemanas: number;
   }) => {
     const payload = {
-      pacienteNome: data.pacienteNome,
+      pacienteId: data.pacienteId,
       profissionalId: data.profId,
-      salaNome: data.salaNome,
+      salaId: data.salaId,
+      dataFim: data.dataFim,
+      repetirSemanal: data.recorrente,
+      semanas: data.numSemanas,
       data: new Date(data.dataHora).toISOString(),
       tipo: data.tipoAtend,
     };
@@ -124,17 +144,21 @@ export function AgendaPage() {
       toast.success("Consulta agendada com sucesso!");
       loadData();
       setIsModalOpen(false);
+      return true;
     } catch (err) {
       console.error(err);
-      toast.error("Erro ao cadastrar consulta no servidor.");
+      toast.error(
+        getApiErrorMessage(err, "Erro ao cadastrar consulta no servidor."),
+      );
+      return false;
     }
   };
 
   const handleStatusChange = async (id: string, newStatus: string) => {
     if (newStatus === "PRESENTE") {
       // Find patient and populate defaults
-      const currentSlot = filteredAgendamentos.find(ag => ag.id === id);
-      
+      const currentSlot = filteredAgendamentos.find((ag) => ag.id === id);
+
       setCheckoutValor("150.00");
       setCheckoutForma("PIX");
       setCheckoutConta("Caixa Geral");
@@ -157,7 +181,9 @@ export function AgendaPage() {
   const handleConfirmPendente = async () => {
     if (!checkoutSlot) return;
     try {
-      await api.patch(`/agenda/${checkoutSlot.id}/status`, { status: "PRESENTE" });
+      await api.patch(`/agenda/${checkoutSlot.id}/status`, {
+        status: "PRESENTE",
+      });
       toast.success("Presença registrada e faturamento lançado como pendente!");
       loadData();
     } catch (err) {
@@ -189,7 +215,9 @@ export function AgendaPage() {
       await api.post("/financeiro", payload);
 
       // 2. Set attendance status to PRESENTE
-      await api.patch(`/agenda/${checkoutSlot.id}/status`, { status: "PRESENTE" });
+      await api.patch(`/agenda/${checkoutSlot.id}/status`, {
+        status: "PRESENTE",
+      });
 
       toast.success("Pagamento recebido com sucesso e presença registrada!");
       loadData();
@@ -209,58 +237,80 @@ export function AgendaPage() {
     setIsModalOpen(true);
   };
 
-  const handleOpenCreateModalWithSlot = (slotTime: string, dateStr: string = "2026-06-26") => {
+  const handleOpenCreateModalWithSlot = (
+    slotTime: string,
+    dateStr: string = "2026-06-26",
+  ) => {
     setInitialPacienteNome("");
     setInitialProfId(selectedProf !== "TODOS" ? selectedProf : "");
     setInitialDataHora(`${dateStr}T${slotTime}:00`);
     setIsModalOpen(true);
   };
 
-  const handleDropItem = (type: "patient" | "professional", item: any, slotTime: string, dateStr: string = "2026-06-26") => {
+  const handleDropItem = (
+    type: "patient" | "professional",
+    item: any,
+    slotTime: string,
+    dateStr: string = "2026-06-26",
+  ) => {
     const dataHoraString = `${dateStr}T${slotTime}:00`;
-    
+
     if (type === "patient") {
       const waitItem = item as WaitItem;
       let defaultProfId = "";
       if (selectedProf !== "TODOS") {
         defaultProfId = selectedProf;
       } else {
-        const matched = profissionais.find(p => 
-          p.cargo.toLowerCase().includes(waitItem.especialidade.toLowerCase()) || 
-          waitItem.especialidade.toLowerCase().includes(p.cargo.toLowerCase())
+        const matched = profissionais.find(
+          (p) =>
+            p.cargo
+              .toLowerCase()
+              .includes(waitItem.especialidade.toLowerCase()) ||
+            waitItem.especialidade
+              .toLowerCase()
+              .includes(p.cargo.toLowerCase()),
         );
-        defaultProfId = matched ? matched.id : (profissionais[0]?.id || "");
+        defaultProfId = matched ? matched.id : profissionais[0]?.id || "";
       }
-      
+
       setInitialPacienteNome(waitItem.nome);
       setInitialProfId(defaultProfId);
       setInitialDataHora(dataHoraString);
       setIsModalOpen(true);
-      toast.info(`Agendando ${waitItem.nome} em ${dateStr.split("-")[2]}/${dateStr.split("-")[1]} às ${slotTime}`);
+      toast.info(
+        `Agendando ${waitItem.nome} em ${dateStr.split("-")[2]}/${dateStr.split("-")[1]} às ${slotTime}`,
+      );
     } else if (type === "professional") {
       const profItem = item as ProfissionalAgenda;
-      
+
       setInitialPacienteNome("");
       setInitialProfId(profItem.id);
       setInitialDataHora(dataHoraString);
       setIsModalOpen(true);
-      toast.info(`Preenchendo agendamento com ${profItem.nome} em ${dateStr.split("-")[2]}/${dateStr.split("-")[1]} às ${slotTime}`);
+      toast.info(
+        `Preenchendo agendamento com ${profItem.nome} em ${dateStr.split("-")[2]}/${dateStr.split("-")[1]} às ${slotTime}`,
+      );
     }
   };
 
   const filteredAgendamentos = agendamentos.filter(
-    (ag) => selectedProf === "TODOS" || ag.profissionalId === selectedProf
+    (ag) => selectedProf === "TODOS" || ag.profissionalId === selectedProf,
   );
 
   const filteredWaitList = waitingList.filter(
-    (item) => !agendamentos.some((ag) => ag.paciente.toLowerCase() === item.nome.toLowerCase())
+    (item) =>
+      !agendamentos.some(
+        (ag) => ag.paciente.toLowerCase() === item.nome.toLowerCase(),
+      ),
   );
 
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center h-[calc(100vh-120px)] space-y-4">
         <div className="w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-xs text-muted-foreground">Carregando agenda clínica...</p>
+        <p className="text-xs text-muted-foreground">
+          Carregando agenda clínica...
+        </p>
       </div>
     );
   }
@@ -279,7 +329,11 @@ export function AgendaPage() {
           waitList={filteredWaitList}
           onAllocate={(item) => {
             setInitialPacienteNome(item.nome);
-            setInitialProfId(selectedProf !== "TODOS" ? selectedProf : (profissionais[0]?.id || ""));
+            setInitialProfId(
+              selectedProf !== "TODOS"
+                ? selectedProf
+                : profissionais[0]?.id || "",
+            );
             setInitialDataHora("2026-06-26T09:00:00");
             setIsModalOpen(true);
             toast.info(`Preenchendo agendamento para ${item.nome}`);
@@ -319,7 +373,10 @@ export function AgendaPage() {
       <AnimatePresence>
         {isCheckoutOpen && checkoutSlot && (
           <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
-            <div className="absolute inset-0" onClick={() => setIsCheckoutOpen(false)} />
+            <div
+              className="absolute inset-0"
+              onClick={() => setIsCheckoutOpen(false)}
+            />
 
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
@@ -330,9 +387,12 @@ export function AgendaPage() {
             >
               <div className="p-6 border-b flex items-center justify-between">
                 <div>
-                  <h3 className="font-bold text-base text-foreground">Faturar Atendimento</h3>
+                  <h3 className="font-bold text-base text-foreground">
+                    Faturar Atendimento
+                  </h3>
                   <p className="text-[10px] text-muted-foreground mt-0.5">
-                    Paciente {checkoutSlot.slot?.paciente} está presente. Registre a receita da consulta.
+                    Paciente {checkoutSlot.slot?.paciente} está presente.
+                    Registre a receita da consulta.
                   </p>
                 </div>
                 <button
@@ -346,7 +406,9 @@ export function AgendaPage() {
               <div className="p-6 space-y-4 text-xs">
                 {/* Billing fields */}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-muted-foreground">Valor Cobrado (R$)</label>
+                  <label className="text-xs font-semibold text-muted-foreground">
+                    Valor Cobrado (R$)
+                  </label>
                   <input
                     type="number"
                     step="0.01"
@@ -358,7 +420,9 @@ export function AgendaPage() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-muted-foreground">Forma de Pagamento</label>
+                    <label className="text-xs font-semibold text-muted-foreground">
+                      Forma de Pagamento
+                    </label>
                     <select
                       value={checkoutForma}
                       onChange={(e) => setCheckoutForma(e.target.value)}
@@ -368,18 +432,24 @@ export function AgendaPage() {
                       <option value="CARTAO_CREDITO">Cartão de Crédito</option>
                       <option value="CARTAO_DEBITO">Cartão de Débito</option>
                       <option value="DINHEIRO">Dinheiro</option>
-                      <option value="TRANSFERENCIA">Transferência Bancária</option>
+                      <option value="TRANSFERENCIA">
+                        Transferência Bancária
+                      </option>
                     </select>
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-muted-foreground">Conta Caixa / Destino</label>
+                    <label className="text-xs font-semibold text-muted-foreground">
+                      Conta Caixa / Destino
+                    </label>
                     <select
                       value={checkoutConta}
                       onChange={(e) => setCheckoutConta(e.target.value)}
                       className="w-full p-2.5 rounded-xl border bg-background text-foreground outline-none cursor-pointer"
                     >
-                      <option value="Caixa Geral">Caixa Geral (Dinheiro)</option>
+                      <option value="Caixa Geral">
+                        Caixa Geral (Dinheiro)
+                      </option>
                       <option value="Banco Itaú">Banco Itaú</option>
                       <option value="Banco Inter">Banco Inter</option>
                       <option value="Banco Nubank">Banco Nubank</option>
@@ -389,10 +459,13 @@ export function AgendaPage() {
 
                 <div className="p-3.5 rounded-xl bg-purple-500/5 border border-purple-500/10 space-y-1">
                   <p className="font-bold text-foreground text-[10px] uppercase flex items-center gap-1.5">
-                    <Sparkles className="h-3.5 w-3.5 text-purple-400" /> Fluxo Particular Ativo
+                    <Sparkles className="h-3.5 w-3.5 text-purple-400" /> Fluxo
+                    Particular Ativo
                   </p>
                   <p className="text-[9px] text-muted-foreground leading-relaxed">
-                    Você pode registrar o recebimento imediato ("Receber Agora") para conciliar a entrada na recepção, ou apenas lançar no faturamento pendente do cliente.
+                    Você pode registrar o recebimento imediato ("Receber Agora")
+                    para conciliar a entrada na recepção, ou apenas lançar no
+                    faturamento pendente do cliente.
                   </p>
                 </div>
 

@@ -32,7 +32,9 @@ interface ProntuariosPageProps {
   defaultTab?: "evolucao" | "plano" | "avaliacoes" | "frequencia" | "cadastro";
 }
 
-export function ProntuariosPage({ defaultTab = "evolucao" }: ProntuariosPageProps) {
+export function ProntuariosPage({
+  defaultTab = "evolucao",
+}: ProntuariosPageProps) {
   // Navigation & Patients
   const [pacientes, setPacientes] = useState<any[]>([]);
   const [selectedPacienteId, setSelectedPacienteId] = useState<string>("");
@@ -76,16 +78,33 @@ export function ProntuariosPage({ defaultTab = "evolucao" }: ProntuariosPageProp
   useEffect(() => {
     const init = async () => {
       try {
-        const res = await api.get("/pacientes");
-        const data = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+        const res = await api.get("/pacientes", { params: { limit: 100 } });
+        const data = Array.isArray(res.data) ? res.data : res.data?.data || [];
+        const linkedId = new URLSearchParams(window.location.search).get("pacienteId");
+        if (linkedId && !data.some((p: any) => p.id === linkedId)) {
+          const linked = await api.get(`/pacientes/${encodeURIComponent(linkedId)}`);
+          if (linked.data?.id) data.push(linked.data);
+        }
         if (data.length > 0) {
           const mapped = data.map((p: any) => ({
             ...p,
             idade: p.dataNascimento ? getAge(p.dataNascimento) : 8,
           }));
           setPacientes(mapped);
-          setSelectedPacienteId(mapped[0].id);
-          loadAllPatientData(mapped[0].id);
+          const requestedId = new URLSearchParams(window.location.search).get(
+            "pacienteId",
+          );
+          const selected =
+            mapped.find((p: any) => p.id === requestedId) ||
+            (!requestedId ? mapped[0] : undefined);
+          if (!selected) {
+            toast.error(
+              "Paciente solicitado não encontrado. Selecione um paciente na lista.",
+            );
+            return;
+          }
+          setSelectedPacienteId(selected.id);
+          loadAllPatientData(selected.id);
         }
       } catch (err) {
         console.error("API error loading patients", err);
@@ -98,11 +117,15 @@ export function ProntuariosPage({ defaultTab = "evolucao" }: ProntuariosPageProp
     // 1. Evolutions
     try {
       const res = await api.get(`/prontuarios/paciente/${pacId}`);
-      const serverPronts = res.data || [];
-      const offlinePronts = getOfflineProntuarios().filter((p) => p.pacienteId === pacId);
+      const serverPronts = Array.isArray(res.data) ? res.data : [];
+      const offlinePronts = getOfflineProntuarios().filter(
+        (p) => p.pacienteId === pacId,
+      );
       setProntuarios([...offlinePronts, ...serverPronts]);
     } catch (e) {
-      const offlinePronts = getOfflineProntuarios().filter((p) => p.pacienteId === pacId);
+      const offlinePronts = getOfflineProntuarios().filter(
+        (p) => p.pacienteId === pacId,
+      );
       setProntuarios(offlinePronts);
     }
 
@@ -156,7 +179,7 @@ export function ProntuariosPage({ defaultTab = "evolucao" }: ProntuariosPageProp
           return { ...plano, metas: [newMeta, ...plano.metas] };
         }
         return plano;
-      })
+      }),
     );
     toast.success("Nova meta cadastrada!");
   };
@@ -165,14 +188,14 @@ export function ProntuariosPage({ defaultTab = "evolucao" }: ProntuariosPageProp
     planoId: string,
     metaId: string,
     val: number,
-    nota: string
+    nota: string,
   ) => {
     setPlanos(
       planos.map((plano) => {
         if (plano.id === planoId) {
           return {
             ...plano,
-            metas: plano.metas.map((meta: { id: string; historico: any; }) => {
+            metas: plano.metas.map((meta: { id: string; historico: any }) => {
               if (meta.id === metaId) {
                 const histItem = {
                   data: new Date().toISOString().split("T")[0],
@@ -191,7 +214,7 @@ export function ProntuariosPage({ defaultTab = "evolucao" }: ProntuariosPageProp
           };
         }
         return plano;
-      })
+      }),
     );
     toast.success("Progresso atualizado!");
   };
@@ -203,7 +226,7 @@ export function ProntuariosPage({ defaultTab = "evolucao" }: ProntuariosPageProp
   const activePaciente = pacientes.find((p) => p.id === selectedPacienteId);
 
   const filteredPatientsList = pacientes.filter((p) =>
-    p.nome.toLowerCase().includes(searchPatientTerm.toLowerCase())
+    p.nome.toLowerCase().includes(searchPatientTerm.toLowerCase()),
   );
 
   // Tab items metadata
@@ -218,7 +241,6 @@ export function ProntuariosPage({ defaultTab = "evolucao" }: ProntuariosPageProp
 
   return (
     <div className="space-y-6">
-
       {/* ─── SEARCH & AUTOCOMPLETE BAR (TOP ALIGN) ─── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 z-40 relative">
         <div className="relative w-full max-w-xl">
@@ -253,7 +275,10 @@ export function ProntuariosPage({ defaultTab = "evolucao" }: ProntuariosPageProp
           <AnimatePresence>
             {searchFocused && filteredPatientsList.length > 0 && (
               <>
-                <div className="fixed inset-0 z-40" onClick={() => setSearchFocused(false)} />
+                <div
+                  className="fixed inset-0 z-40"
+                  onClick={() => setSearchFocused(false)}
+                />
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -272,12 +297,19 @@ export function ProntuariosPage({ defaultTab = "evolucao" }: ProntuariosPageProp
                       className="w-full flex items-center gap-3 p-2.5 rounded-xl text-left hover:bg-purple-500/10 hover:text-purple-700 dark:hover:text-purple-300 transition-colors text-xs text-foreground cursor-pointer bg-transparent border-0"
                     >
                       <div className="w-8 h-8 rounded-full gradient-primary text-white flex items-center justify-center font-bold text-xs shrink-0">
-                        {p.nome.split(" ").slice(0, 2).map((n: string) => n[0]).join("")}
+                        {p.nome
+                          .split(" ")
+                          .slice(0, 2)
+                          .map((n: string) => n[0])
+                          .join("")}
                       </div>
                       <div>
-                        <p className="font-semibold text-foreground">{p.nome}</p>
+                        <p className="font-semibold text-foreground">
+                          {p.nome}
+                        </p>
                         <p className="text-[10px] text-muted-foreground">
-                          {p.diagnosticos?.[0]?.descricao || "Sem diagnóstico"} • {p.idade || getAge(p.dataNascimento)} anos
+                          {p.diagnosticos?.[0]?.descricao || "Sem diagnóstico"}{" "}
+                          • {p.idade || getAge(p.dataNascimento)} anos
                         </p>
                       </div>
                     </button>
@@ -333,17 +365,20 @@ export function ProntuariosPage({ defaultTab = "evolucao" }: ProntuariosPageProp
 
       {/* ─── 360 PATIENT HEADER BANNER ─── */}
       {activePaciente ? (
-        <PacienteProfileBanner paciente={activePaciente} prontuarios={prontuarios} />
+        <PacienteProfileBanner
+          paciente={activePaciente}
+          prontuarios={prontuarios}
+        />
       ) : (
         <div className="p-12 text-center text-xs text-muted-foreground border rounded-2xl bg-card border-border">
-          Nenhum paciente selecionado. Digite o nome no campo de buscas acima para carregar o prontuário.
+          Nenhum paciente selecionado. Digite o nome no campo de buscas acima
+          para carregar o prontuário.
         </div>
       )}
 
       {/* ─── MAIN WORKSPACE CONTENTS ─── */}
       {activePaciente && (
         <div className="space-y-6">
-
           {/* Tabs bar */}
           <div className="border-b border-border">
             <div className="flex overflow-x-auto scrollbar-none">
@@ -358,7 +393,7 @@ export function ProntuariosPage({ defaultTab = "evolucao" }: ProntuariosPageProp
                       "flex items-center gap-2 px-5 py-3.5 text-xs font-semibold whitespace-nowrap transition-all border-b-2 -mb-[2px] cursor-pointer bg-transparent border-t-0 border-x-0",
                       isActive
                         ? "border-purple-500 text-purple-600 dark:text-purple-400 font-bold"
-                        : "border-transparent text-muted-foreground hover:text-foreground"
+                        : "border-transparent text-muted-foreground hover:text-foreground",
                     )}
                   >
                     <Icon className="h-4 w-4" />

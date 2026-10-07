@@ -1,7 +1,33 @@
 import axios from "axios";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5101";
-const BASE_API_URL = API_URL.endsWith("/api") ? API_URL : `${API_URL}/api`;
+const configuredUrl = process.env.NEXT_PUBLIC_API_URL?.trim().replace(
+  /\/+$/,
+  "",
+);
+const defaultUrl =
+  typeof window !== "undefined" &&
+  !["localhost", "127.0.0.1"].includes(window.location.hostname)
+    ? window.location.hostname.startsWith("app.")
+      ? `${window.location.protocol}//api.${window.location.hostname.slice(4)}`
+      : window.location.origin
+    : "http://localhost:5101";
+export const BASE_API_URL = `${(configuredUrl || defaultUrl).replace(/\/api$/, "")}/api`;
+export const WS_URL =
+  process.env.NEXT_PUBLIC_WS_URL || BASE_API_URL.replace(/\/api$/, "");
+let refreshPromise: Promise<string> | null = null;
+async function refreshAccessToken() {
+  if (!refreshPromise)
+    refreshPromise = axios
+      .post(`${BASE_API_URL}/auth/refresh`, {}, { withCredentials: true })
+      .then((response) => {
+        setAccessToken(response.data.accessToken);
+        return response.data.accessToken as string;
+      })
+      .finally(() => {
+        refreshPromise = null;
+      });
+  return refreshPromise;
+}
 
 export const api = axios.create({
   baseURL: BASE_API_URL,
@@ -21,7 +47,7 @@ api.interceptors.request.use(
     }
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 // Interceptor de Response — Refresh Token automático
@@ -30,17 +56,18 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (
+      error.response?.status === 401 &&
+      originalRequest &&
+      !originalRequest._retry &&
+      !/\/auth\/(login|login-responsavel|refresh)$/.test(
+        originalRequest.url || "",
+      )
+    ) {
       originalRequest._retry = true;
 
       try {
-        const response = await axios.post(
-          `${BASE_API_URL}/auth/refresh`,
-          {},
-          { withCredentials: true }
-        );
-        const { accessToken } = response.data;
-        setAccessToken(accessToken);
+        const accessToken = await refreshAccessToken();
         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
         return api(originalRequest);
       } catch (refreshError) {
@@ -55,7 +82,7 @@ api.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 // ─── Access Token em Memória (mais seguro que localStorage) ──────────────────

@@ -20,7 +20,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { cn, formatDate } from "@/lib/utils";
-import { api } from "@/lib/api";
+import { api, BASE_API_URL } from "@/lib/api";
 import { toast } from "sonner";
 
 export function ArquivosPage() {
@@ -135,7 +135,7 @@ export function ArquivosPage() {
   };
 
   const handleDownload = (arq: any) => {
-    const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5101";
+    const apiBase = BASE_API_URL;
     const downloadUrl = arq.caminho.startsWith("http")
       ? arq.caminho
       : `${apiBase.replace(/\/api$/, "")}${arq.caminho}`;

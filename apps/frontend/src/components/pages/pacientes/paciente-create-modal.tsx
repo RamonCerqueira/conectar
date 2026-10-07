@@ -3,51 +3,24 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, User, Phone, GraduationCap, Heart, MapPin } from "lucide-react";
+import type { PacienteIntakeData } from "@/lib/paciente-payload";
 import { cn } from "@/lib/utils";
 
 interface PacienteCreateModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: {
-    nome: string;
-    dataNascimento: string;
-    sexo: string;
-    cpf: string;
-    status: string;
-    escola: string;
-    serie: string;
-    turnoEscolar: string;
-    nomeProf: string;
-    coordenador: string;
-    responsavelNome: string;
-    responsavelTel: string;
-    responsavelEmail: string;
-    responsavelParentesco: string;
-    responsavelProfissao: string;
-    diagnosticoDesc: string;
-    diagnosticoCid: string;
-    medicamentos: string;
-    alergias: string;
-    observacoesMed: string;
-    sensibilidadeSensorial: string;
-    hiperfoco: string;
-    observacoes: string;
-    cep?: string;
-    logradouro?: string;
-    numero?: string;
-    complemento?: string;
-    bairro?: string;
-    cidade?: string;
-    estado?: string;
-    modeloCobranca?: string;
-    valorConsulta?: number;
-  }) => void;
+  onSubmit: (data: PacienteIntakeData) => Promise<boolean>;
 }
 
 type TabType = "dados" | "contato" | "escola" | "clinico";
 
-export function PacienteCreateModal({ isOpen, onClose, onSubmit }: PacienteCreateModalProps) {
+export function PacienteCreateModal({
+  isOpen,
+  onClose,
+  onSubmit,
+}: PacienteCreateModalProps) {
   // Navigation State
+  const [submitting, setSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>("dados");
 
   // Form State - Personal / Address
@@ -97,47 +70,55 @@ export function PacienteCreateModal({ isOpen, onClose, onSubmit }: PacienteCreat
     { id: "clinico", label: "Perfil Clínico", icon: Heart },
   ] as const;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!nome || !dataNascimento) {
       setActiveTab("dados");
       return;
     }
 
-    onSubmit({
-      nome,
-      dataNascimento,
-      sexo,
-      cpf,
-      status,
-      escola,
-      serie,
-      turnoEscolar,
-      nomeProf,
-      coordenador,
-      responsavelNome,
-      responsavelTel,
-      responsavelEmail,
-      responsavelParentesco,
-      responsavelProfissao,
-      diagnosticoDesc,
-      diagnosticoCid,
-      medicamentos,
-      alergias,
-      observacoesMed,
-      sensibilidadeSensorial,
-      hiperfoco,
-      observacoes,
-      cep,
-      logradouro,
-      numero,
-      complemento,
-      bairro,
-      cidade,
-      estado,
-      modeloCobranca,
-      valorConsulta: Number(valorConsulta) || 150,
-    });
+    if (submitting) return;
+    setSubmitting(true);
+    let saved = false;
+    try {
+      saved = await onSubmit({
+        nome,
+        dataNascimento,
+        sexo,
+        cpf,
+        status,
+        escola,
+        serie,
+        turnoEscolar,
+        nomeProf,
+        coordenador,
+        responsavelNome,
+        responsavelTel,
+        responsavelEmail,
+        responsavelParentesco,
+        responsavelProfissao,
+        diagnosticoDesc,
+        diagnosticoCid,
+        medicamentos,
+        alergias,
+        observacoesMed,
+        sensibilidadeSensorial,
+        hiperfoco,
+        observacoes,
+        cep,
+        logradouro,
+        numero,
+        complemento,
+        bairro,
+        cidade,
+        estado,
+        modeloCobranca,
+        valorConsulta: Number(valorConsulta) || 150,
+      });
+    } finally {
+      setSubmitting(false);
+    }
+    if (!saved) return;
 
     // Reset fields
     setNome("");
@@ -180,7 +161,9 @@ export function PacienteCreateModal({ isOpen, onClose, onSubmit }: PacienteCreat
     if (cleanedCep.length !== 8) return;
 
     try {
-      const response = await fetch(`https://viacep.com.br/ws/${cleanedCep}/json/`);
+      const response = await fetch(
+        `https://viacep.com.br/ws/${cleanedCep}/json/`,
+      );
       const data = await response.json();
       if (!data.erro) {
         setLogradouro(data.logradouro || "");
@@ -209,9 +192,12 @@ export function PacienteCreateModal({ isOpen, onClose, onSubmit }: PacienteCreat
             {/* Header */}
             <div className="p-6 border-b flex items-center justify-between">
               <div>
-                <h3 className="font-bold text-lg text-foreground">Cadastrar Novo Paciente (Intake)</h3>
+                <h3 className="font-bold text-lg text-foreground">
+                  Cadastrar Novo Paciente (Intake)
+                </h3>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Preencha o perfil completo da criança. Terapeutas usarão estes dados para planejar as sessões.
+                  Preencha o perfil completo da criança. Terapeutas usarão estes
+                  dados para planejar as sessões.
                 </p>
               </div>
               <button
@@ -223,7 +209,10 @@ export function PacienteCreateModal({ isOpen, onClose, onSubmit }: PacienteCreat
             </div>
 
             {/* Tab Links */}
-            <div className="flex border-b overflow-x-auto scrollbar-none" style={{ borderColor: "hsl(var(--border))" }}>
+            <div
+              className="flex border-b overflow-x-auto scrollbar-none"
+              style={{ borderColor: "hsl(var(--border))" }}
+            >
               {tabs.map((tab) => {
                 const Icon = tab.icon;
                 const isActive = activeTab === tab.id;
@@ -236,7 +225,7 @@ export function PacienteCreateModal({ isOpen, onClose, onSubmit }: PacienteCreat
                       "flex items-center gap-2 px-5 py-3 text-xs font-semibold whitespace-nowrap transition-all border-b-2 -mb-[2px] cursor-pointer",
                       isActive
                         ? "border-purple-500 text-purple-600 dark:text-purple-400"
-                        : "border-transparent text-muted-foreground hover:text-foreground"
+                        : "border-transparent text-muted-foreground hover:text-foreground",
                     )}
                   >
                     <Icon className="h-4 w-4" />
@@ -247,8 +236,10 @@ export function PacienteCreateModal({ isOpen, onClose, onSubmit }: PacienteCreat
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6">
-              
+            <form
+              onSubmit={handleSubmit}
+              className="flex-1 overflow-y-auto p-6 space-y-6"
+            >
               {/* TAB 1: DADOS GERAIS E ENDEREÇO */}
               {activeTab === "dados" && (
                 <div className="space-y-6">
@@ -258,7 +249,9 @@ export function PacienteCreateModal({ isOpen, onClose, onSubmit }: PacienteCreat
                     </h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-1.5 col-span-full">
-                        <label className="text-xs font-semibold text-muted-foreground">Nome Completo *</label>
+                        <label className="text-xs font-semibold text-muted-foreground">
+                          Nome Completo *
+                        </label>
                         <input
                           type="text"
                           required
@@ -270,7 +263,9 @@ export function PacienteCreateModal({ isOpen, onClose, onSubmit }: PacienteCreat
                       </div>
 
                       <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-muted-foreground">Data de Nascimento *</label>
+                        <label className="text-xs font-semibold text-muted-foreground">
+                          Data de Nascimento *
+                        </label>
                         <input
                           type="date"
                           required
@@ -281,7 +276,9 @@ export function PacienteCreateModal({ isOpen, onClose, onSubmit }: PacienteCreat
                       </div>
 
                       <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-muted-foreground">Sexo</label>
+                        <label className="text-xs font-semibold text-muted-foreground">
+                          Sexo
+                        </label>
                         <select
                           value={sexo}
                           onChange={(e) => setSexo(e.target.value)}
@@ -294,7 +291,9 @@ export function PacienteCreateModal({ isOpen, onClose, onSubmit }: PacienteCreat
                       </div>
 
                       <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-muted-foreground">CPF (Opcional)</label>
+                        <label className="text-xs font-semibold text-muted-foreground">
+                          CPF (Opcional)
+                        </label>
                         <input
                           type="text"
                           placeholder="Apenas números"
@@ -305,7 +304,9 @@ export function PacienteCreateModal({ isOpen, onClose, onSubmit }: PacienteCreat
                       </div>
 
                       <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-muted-foreground">Status do Paciente</label>
+                        <label className="text-xs font-semibold text-muted-foreground">
+                          Status do Paciente
+                        </label>
                         <select
                           value={status}
                           onChange={(e) => setStatus(e.target.value)}
@@ -326,19 +327,27 @@ export function PacienteCreateModal({ isOpen, onClose, onSubmit }: PacienteCreat
                     </h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-muted-foreground">Modelo de Cobrança</label>
+                        <label className="text-xs font-semibold text-muted-foreground">
+                          Modelo de Cobrança
+                        </label>
                         <select
                           value={modeloCobranca}
                           onChange={(e) => setModeloCobranca(e.target.value)}
                           className="w-full p-2.5 rounded-xl border text-sm outline-none focus:ring-1 bg-background text-foreground"
                         >
-                          <option value="POR_CONSULTA">Por Consulta / Avulso</option>
-                          <option value="MENSALIDADE">Mensalidade (Contrato)</option>
+                          <option value="POR_CONSULTA">
+                            Por Consulta / Avulso
+                          </option>
+                          <option value="MENSALIDADE">
+                            Mensalidade (Contrato)
+                          </option>
                         </select>
                       </div>
 
                       <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-muted-foreground">Valor por Consulta (R$)</label>
+                        <label className="text-xs font-semibold text-muted-foreground">
+                          Valor por Consulta (R$)
+                        </label>
                         <input
                           type="number"
                           step="0.01"
@@ -357,7 +366,9 @@ export function PacienteCreateModal({ isOpen, onClose, onSubmit }: PacienteCreat
                     </h4>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-muted-foreground">CEP</label>
+                        <label className="text-xs font-semibold text-muted-foreground">
+                          CEP
+                        </label>
                         <input
                           type="text"
                           placeholder="00000-000"
@@ -369,7 +380,9 @@ export function PacienteCreateModal({ isOpen, onClose, onSubmit }: PacienteCreat
                       </div>
 
                       <div className="space-y-1.5 md:col-span-2">
-                        <label className="text-xs font-semibold text-muted-foreground">Rua / Logradouro</label>
+                        <label className="text-xs font-semibold text-muted-foreground">
+                          Rua / Logradouro
+                        </label>
                         <input
                           type="text"
                           placeholder="Avenida, Rua, Travessa..."
@@ -380,7 +393,9 @@ export function PacienteCreateModal({ isOpen, onClose, onSubmit }: PacienteCreat
                       </div>
 
                       <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-muted-foreground">Número</label>
+                        <label className="text-xs font-semibold text-muted-foreground">
+                          Número
+                        </label>
                         <input
                           type="text"
                           placeholder="123"
@@ -391,7 +406,9 @@ export function PacienteCreateModal({ isOpen, onClose, onSubmit }: PacienteCreat
                       </div>
 
                       <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-muted-foreground">Complemento</label>
+                        <label className="text-xs font-semibold text-muted-foreground">
+                          Complemento
+                        </label>
                         <input
                           type="text"
                           placeholder="Apto, Bloco, etc."
@@ -402,7 +419,9 @@ export function PacienteCreateModal({ isOpen, onClose, onSubmit }: PacienteCreat
                       </div>
 
                       <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-muted-foreground">Bairro</label>
+                        <label className="text-xs font-semibold text-muted-foreground">
+                          Bairro
+                        </label>
                         <input
                           type="text"
                           placeholder="Bairro"
@@ -413,7 +432,9 @@ export function PacienteCreateModal({ isOpen, onClose, onSubmit }: PacienteCreat
                       </div>
 
                       <div className="space-y-1.5 md:col-span-2">
-                        <label className="text-xs font-semibold text-muted-foreground">Cidade</label>
+                        <label className="text-xs font-semibold text-muted-foreground">
+                          Cidade
+                        </label>
                         <input
                           type="text"
                           placeholder="São Paulo"
@@ -424,13 +445,17 @@ export function PacienteCreateModal({ isOpen, onClose, onSubmit }: PacienteCreat
                       </div>
 
                       <div className="space-y-1.5">
-                        <label className="text-xs font-semibold text-muted-foreground">Estado (UF)</label>
+                        <label className="text-xs font-semibold text-muted-foreground">
+                          Estado (UF)
+                        </label>
                         <input
                           type="text"
                           maxLength={2}
                           placeholder="SP"
                           value={estado}
-                          onChange={(e) => setEstado(e.target.value.toUpperCase())}
+                          onChange={(e) =>
+                            setEstado(e.target.value.toUpperCase())
+                          }
                           className="w-full p-2.5 rounded-xl border text-sm outline-none focus:ring-1 bg-background"
                         />
                       </div>
@@ -447,7 +472,9 @@ export function PacienteCreateModal({ isOpen, onClose, onSubmit }: PacienteCreat
                   </h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-1.5 col-span-full">
-                      <label className="text-xs font-semibold text-muted-foreground">Nome do Responsável *</label>
+                      <label className="text-xs font-semibold text-muted-foreground">
+                        Nome do Responsável *
+                      </label>
                       <input
                         type="text"
                         required
@@ -459,10 +486,14 @@ export function PacienteCreateModal({ isOpen, onClose, onSubmit }: PacienteCreat
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-muted-foreground">Parentesco / Vínculo</label>
+                      <label className="text-xs font-semibold text-muted-foreground">
+                        Parentesco / Vínculo
+                      </label>
                       <select
                         value={responsavelParentesco}
-                        onChange={(e) => setResponsavelParentesco(e.target.value)}
+                        onChange={(e) =>
+                          setResponsavelParentesco(e.target.value)
+                        }
                         className="w-full p-2.5 rounded-xl border text-sm outline-none focus:ring-1 bg-background"
                       >
                         <option value="MAE">Mãe</option>
@@ -477,18 +508,24 @@ export function PacienteCreateModal({ isOpen, onClose, onSubmit }: PacienteCreat
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-muted-foreground">Profissão</label>
+                      <label className="text-xs font-semibold text-muted-foreground">
+                        Profissão
+                      </label>
                       <input
                         type="text"
                         placeholder="Ex: Administrador, Professora"
                         value={responsavelProfissao}
-                        onChange={(e) => setResponsavelProfissao(e.target.value)}
+                        onChange={(e) =>
+                          setResponsavelProfissao(e.target.value)
+                        }
                         className="w-full p-2.5 rounded-xl border text-sm outline-none focus:ring-1 bg-background"
                       />
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-muted-foreground">Telefone / WhatsApp *</label>
+                      <label className="text-xs font-semibold text-muted-foreground">
+                        Telefone / WhatsApp *
+                      </label>
                       <input
                         type="tel"
                         required
@@ -500,7 +537,9 @@ export function PacienteCreateModal({ isOpen, onClose, onSubmit }: PacienteCreat
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-muted-foreground">E-mail de Contato</label>
+                      <label className="text-xs font-semibold text-muted-foreground">
+                        E-mail de Contato
+                      </label>
                       <input
                         type="email"
                         placeholder="nome@email.com"
@@ -521,7 +560,9 @@ export function PacienteCreateModal({ isOpen, onClose, onSubmit }: PacienteCreat
                   </h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-1.5 col-span-full">
-                      <label className="text-xs font-semibold text-muted-foreground">Instituição de Ensino</label>
+                      <label className="text-xs font-semibold text-muted-foreground">
+                        Instituição de Ensino
+                      </label>
                       <input
                         type="text"
                         placeholder="Nome da escola ou creche"
@@ -532,7 +573,9 @@ export function PacienteCreateModal({ isOpen, onClose, onSubmit }: PacienteCreat
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-muted-foreground">Série / Ano</label>
+                      <label className="text-xs font-semibold text-muted-foreground">
+                        Série / Ano
+                      </label>
                       <input
                         type="text"
                         placeholder="Ex: 2º ano Fundamental, Maternal II"
@@ -543,7 +586,9 @@ export function PacienteCreateModal({ isOpen, onClose, onSubmit }: PacienteCreat
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-muted-foreground">Turno</label>
+                      <label className="text-xs font-semibold text-muted-foreground">
+                        Turno
+                      </label>
                       <select
                         value={turnoEscolar}
                         onChange={(e) => setTurnoEscolar(e.target.value)}
@@ -557,7 +602,9 @@ export function PacienteCreateModal({ isOpen, onClose, onSubmit }: PacienteCreat
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-muted-foreground">Professor(a) Regente</label>
+                      <label className="text-xs font-semibold text-muted-foreground">
+                        Professor(a) Regente
+                      </label>
                       <input
                         type="text"
                         placeholder="Nome do professor principal"
@@ -568,7 +615,9 @@ export function PacienteCreateModal({ isOpen, onClose, onSubmit }: PacienteCreat
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-muted-foreground">Coordenador(a) Pedagógico(a)</label>
+                      <label className="text-xs font-semibold text-muted-foreground">
+                        Coordenador(a) Pedagógico(a)
+                      </label>
                       <input
                         type="text"
                         placeholder="Nome do coordenador"
@@ -589,7 +638,9 @@ export function PacienteCreateModal({ isOpen, onClose, onSubmit }: PacienteCreat
                   </h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-muted-foreground">Diagnóstico / Hipótese Diagnóstica</label>
+                      <label className="text-xs font-semibold text-muted-foreground">
+                        Diagnóstico / Hipótese Diagnóstica
+                      </label>
                       <input
                         type="text"
                         placeholder="Ex: TEA Nível 1 de Suporte, TDAH"
@@ -600,7 +651,9 @@ export function PacienteCreateModal({ isOpen, onClose, onSubmit }: PacienteCreat
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-muted-foreground">Código CID-10 / CID-11</label>
+                      <label className="text-xs font-semibold text-muted-foreground">
+                        Código CID-10 / CID-11
+                      </label>
                       <input
                         type="text"
                         placeholder="Ex: F84.0, F90.0"
@@ -611,7 +664,9 @@ export function PacienteCreateModal({ isOpen, onClose, onSubmit }: PacienteCreat
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-muted-foreground">Medicamentos de Uso Contínuo</label>
+                      <label className="text-xs font-semibold text-muted-foreground">
+                        Medicamentos de Uso Contínuo
+                      </label>
                       <input
                         type="text"
                         placeholder="Separados por vírgula (Ex: Ritalina 10mg)"
@@ -622,7 +677,9 @@ export function PacienteCreateModal({ isOpen, onClose, onSubmit }: PacienteCreat
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-xs font-semibold text-muted-foreground">Alergias Alimentares / Medicamentosas</label>
+                      <label className="text-xs font-semibold text-muted-foreground">
+                        Alergias Alimentares / Medicamentosas
+                      </label>
                       <input
                         type="text"
                         placeholder="Separados por vírgula (Ex: Lactose, Dipirona)"
@@ -633,18 +690,24 @@ export function PacienteCreateModal({ isOpen, onClose, onSubmit }: PacienteCreat
                     </div>
 
                     <div className="space-y-1.5 col-span-full">
-                      <label className="text-xs font-semibold text-muted-foreground">Sensibilidades Sensoriais</label>
+                      <label className="text-xs font-semibold text-muted-foreground">
+                        Sensibilidades Sensoriais
+                      </label>
                       <textarea
                         rows={2}
                         placeholder="Ex: Hipersensibilidade auditiva (ruídos altos), não tolera texturas pastosas, etc."
                         value={sensibilidadeSensorial}
-                        onChange={(e) => setSensibilidadeSensorial(e.target.value)}
+                        onChange={(e) =>
+                          setSensibilidadeSensorial(e.target.value)
+                        }
                         className="w-full p-2.5 rounded-xl border text-sm outline-none bg-background resize-none"
                       />
                     </div>
 
                     <div className="space-y-1.5 col-span-full">
-                      <label className="text-xs font-semibold text-muted-foreground">Hiperfocos / Interesses de Engajamento</label>
+                      <label className="text-xs font-semibold text-muted-foreground">
+                        Hiperfocos / Interesses de Engajamento
+                      </label>
                       <input
                         type="text"
                         placeholder="Ex: Dinossauros, Carros de corrida, Quebra-cabeças, Desenhos de letras"
@@ -655,7 +718,9 @@ export function PacienteCreateModal({ isOpen, onClose, onSubmit }: PacienteCreat
                     </div>
 
                     <div className="space-y-1.5 col-span-full">
-                      <label className="text-xs font-semibold text-muted-foreground">Observações Médicas / Gerais</label>
+                      <label className="text-xs font-semibold text-muted-foreground">
+                        Observações Médicas / Gerais
+                      </label>
                       <textarea
                         rows={2}
                         placeholder="Outras informações importantes para a condução do plano de terapia..."
@@ -677,8 +742,10 @@ export function PacienteCreateModal({ isOpen, onClose, onSubmit }: PacienteCreat
                       type="button"
                       onClick={() => {
                         if (activeTab === "contato") setActiveTab("dados");
-                        else if (activeTab === "escola") setActiveTab("contato");
-                        else if (activeTab === "clinico") setActiveTab("escola");
+                        else if (activeTab === "escola")
+                          setActiveTab("contato");
+                        else if (activeTab === "clinico")
+                          setActiveTab("escola");
                       }}
                       className="px-4 py-2 rounded-xl border text-xs font-semibold hover:bg-muted transition-colors cursor-pointer"
                     >
@@ -690,8 +757,10 @@ export function PacienteCreateModal({ isOpen, onClose, onSubmit }: PacienteCreat
                       type="button"
                       onClick={() => {
                         if (activeTab === "dados") setActiveTab("contato");
-                        else if (activeTab === "contato") setActiveTab("escola");
-                        else if (activeTab === "escola") setActiveTab("clinico");
+                        else if (activeTab === "contato")
+                          setActiveTab("escola");
+                        else if (activeTab === "escola")
+                          setActiveTab("clinico");
                       }}
                       className="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-purple-600 hover:bg-purple-700 transition-colors cursor-pointer"
                     >
@@ -710,9 +779,10 @@ export function PacienteCreateModal({ isOpen, onClose, onSubmit }: PacienteCreat
                   </button>
                   <button
                     type="submit"
+                    disabled={submitting}
                     className="px-4 py-2.5 rounded-xl text-xs font-semibold text-white gradient-primary shadow-lg shadow-purple-500/10 cursor-pointer"
                   >
-                    Salvar Cadastro
+                    {submitting ? "Salvando…" : "Salvar Cadastro"}
                   </button>
                 </div>
               </div>

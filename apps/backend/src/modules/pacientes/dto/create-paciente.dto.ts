@@ -1,10 +1,17 @@
 import {
-  IsString, IsOptional, IsEnum, IsDateString, IsArray,
-  ValidateNested, IsEmail, IsBoolean, ArrayMaxSize,
-} from 'class-validator';
-import { Type } from 'class-transformer';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Sexo, TipoResponsavel } from '@prisma/client';
+  IsString,
+  IsOptional,
+  IsEnum,
+  IsDateString,
+  IsArray,
+  ValidateNested,
+  IsEmail,
+  IsBoolean,
+  ArrayMaxSize,
+} from "class-validator";
+import { Type } from "class-transformer";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { Sexo, StatusPaciente, TipoResponsavel } from "@prisma/client";
 
 export class CreateResponsavelDto {
   @ApiProperty()
@@ -85,6 +92,26 @@ export class CreatePacienteDto {
   @IsOptional()
   @IsString()
   rg?: string;
+
+  @ApiPropertyOptional({ enum: StatusPaciente })
+  @IsOptional()
+  @IsEnum(StatusPaciente)
+  status?: StatusPaciente;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  nomeProf?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  coordenador?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  observacoesMed?: string;
 
   // Endereço
   @ApiPropertyOptional()
