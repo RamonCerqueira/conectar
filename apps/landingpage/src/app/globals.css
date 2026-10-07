@@ -591,7 +591,7 @@ html {
 .footer-map { font-size: 13px; color: #187765; }
 .footer-system { margin-top: 14px; font-size: 13px; font-weight: 600; color: #644686; }
 .footer-bottom { display: flex; align-items: center; justify-content: space-between; gap: 22px; border-top: 1px solid #d8cbe1; padding-block: 22px; font-size: 12px; }
-.developer-credit a { display: inline-flex; align-items: center; gap: 4px; color: #644686; font-weight: 700; text-decoration: none; }
+.developer-credit strong { color: #644686; font-weight: 700; }
 .footer-top { white-space: nowrap; }
 @media (max-width: 1000px) {
   .footer-main { grid-template-columns: 1fr 1fr; gap: 35px; }

@@ -374,7 +374,7 @@ export default function ReferenceLanding({ onChat }: { onChat: () => void }) {
         </div>
         <div className="shell footer-bottom">
           <p>© {new Date().getFullYear()} Instituto Conectar. Todos os direitos reservados.</p>
-          <p className="developer-credit">Desenvolvido por <a href="https://github.com/RamonCerqueira" target="_blank" rel="noopener noreferrer">Ramon Cerqueira <ArrowRight size={13} aria-hidden="true" /></a></p>
+          <p className="developer-credit">Desenvolvido por <strong>Ramon Cerqueira</strong></p>
           <a href="#inicio" className="footer-top">Voltar ao início ↑</a>
         </div>
       </footer>
