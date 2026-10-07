@@ -86,7 +86,7 @@ export default function ReferenceLanding({ onChat }: { onChat: () => void }) {
       const max = document.documentElement.scrollHeight - window.innerHeight;
       root.style.setProperty("--scroll-progress", `${max > 0 ? Math.min(1, window.scrollY / max) : 0}`);
       root.classList.toggle("has-scrolled", window.scrollY > 24);
-      const current = sections.filter(section => section.getBoundingClientRect().top <= window.innerHeight * .35).at(-1);
+      const current = sections.map(section => ({ section, top: section.getBoundingClientRect().top })).filter(item => item.top <= window.innerHeight * .35).sort((a, b) => b.top - a.top)[0]?.section;
       links.forEach(link => { if (current && link.hash === `#${current.id}`) link.setAttribute("aria-current", "location"); else link.removeAttribute("aria-current"); });
       frame = 0;
     };
@@ -108,7 +108,7 @@ export default function ReferenceLanding({ onChat }: { onChat: () => void }) {
         {label}
       </a>
     ) : (
-      <button className={cls} onClick={onChat}>
+      <button type="button" className={cls} onClick={onChat}>
         <MessageCircle size={20} aria-hidden="true" />
         {label.replace(/ pelo WhatsApp$/, "")}
       </button>
