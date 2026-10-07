@@ -887,3 +887,43 @@ html {
   .app-store-buttons { flex-wrap: wrap; }
   .reference-landing .app-store-badge { flex: 1; min-width: 145px; padding: 14px 12px; }
 }
+
+/* Movimento leve, feedback e acabamento */
+.landing-progress { position: fixed; inset: 0 0 auto; height: 3px; background: linear-gradient(90deg, #f56e56, #8e7bbe, #69c4b5); transform-origin: left; transform: scaleX(var(--scroll-progress, 0)); z-index: 90; pointer-events: none; }
+.site-header { border-radius: 0 0 24px 24px; transition: box-shadow .25s ease, background-color .25s ease; }
+.has-scrolled .site-header { box-shadow: 0 9px 28px -22px #64468680; }
+.site-header nav a { position: relative; padding-block: 7px; transition: color .2s ease; }
+.site-header nav a::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; border-radius: 3px; background: #8e7bbe; transform: scaleX(0); transform-origin: left; transition: transform .22s ease; }
+.site-header nav a:hover::after, .site-header nav a[aria-current="location"]::after { transform: scaleX(1); }
+.site-header nav a[aria-current="location"] { color: #644686; }
+.reference-landing .button { position: relative; overflow: hidden; transition: transform .22s ease, box-shadow .22s ease, background-color .22s ease; }
+.reference-landing .button::after { content: ""; position: absolute; inset: 0; background: linear-gradient(105deg, transparent 30%, #ffffff30 50%, transparent 70%); transform: translateX(-120%); pointer-events: none; transition: transform .55s ease; }
+.reference-landing .button:hover::after { transform: translateX(120%); }
+.reference-landing .button:hover { box-shadow: 0 9px 20px -10px #64468660; }
+.reference-landing .button:active { transform: translateY(0) scale(.97); }
+.reference-landing a svg, .reference-landing .button svg { transition: transform .22s ease; }
+.text-link:hover svg, .footer-system:hover svg, .footer-portal:hover svg { transform: translateX(4px); }
+.service-item .icon-circle { transition: transform .3s ease, box-shadow .3s ease; }
+.service-item:hover .icon-circle, .service-item:focus-visible .icon-circle { transform: translateY(-5px) rotate(-5deg); box-shadow: 0 12px 20px -12px #75549c80; }
+.service-item:active .icon-circle { transform: scale(.96); }
+.space-photo, .connection-image, .founder-photo, .content-grid article { overflow: hidden; }
+.space-photo img, .connection-image img, .founder-photo img, .content-grid img { transition: transform .6s cubic-bezier(.2,.7,.3,1); }
+.space-photo:hover img, .connection-image:hover img, .founder-photo:hover img, .content-grid article:hover img { transform: scale(1.035); }
+.value-row .value-icon { transition: transform .25s ease; }
+.value-row:hover .value-icon { transform: rotate(-8deg) scale(1.06); }
+.content-grid article { border-radius: 20px; transition: box-shadow .3s ease; }
+.content-grid article:hover { box-shadow: 0 14px 32px -18px #64468670; }
+.contact-updating { font-size: 11px; color: #6d537e; }
+.footer-column a, .footer-whatsapp, .footer-top { transition: color .2s ease; }
+.motion-ready .reveal-item { opacity: 0; transform: translateY(20px); transition: opacity .65s ease var(--reveal-delay, 0ms), transform .65s cubic-bezier(.2,.7,.3,1) var(--reveal-delay, 0ms); }
+.motion-ready .reveal-item.is-revealed { opacity: 1; transform: none; }
+@keyframes welcome-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+.hero-copy .eyebrow { animation: welcome-in .65s ease both; }
+.hero-copy h1 { animation: welcome-in .75s ease .08s both; }
+.hero-copy > p:not(.eyebrow) { animation: welcome-in .75s ease .16s both; }
+.hero-actions { animation: welcome-in .75s ease .24s both; }
+@media (prefers-reduced-motion: reduce) {
+  .reference-landing *, .reference-landing *::before, .reference-landing *::after { animation: none !important; transition: none !important; }
+  .motion-ready .reveal-item { opacity: 1; transform: none; }
+  .reference-landing .button:hover, .service-item:hover .icon-circle, .space-photo:hover img, .connection-image:hover img, .founder-photo:hover img, .content-grid article:hover img, .value-row:hover .value-icon { transform: none; }
+}

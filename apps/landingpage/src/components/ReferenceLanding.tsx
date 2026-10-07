@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useRef } from "react";
 import Image from "next/image";
 import {
   ArrowRight,
@@ -53,13 +56,46 @@ const values = [
 ] as const;
 export default function ReferenceLanding({ onChat }: { onChat: () => void }) {
   const number = (
-    process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "5571999550803"
+    process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || ""
   ).replace(/\D/g, "");
   const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://app.institutoconectar.net.br").replace(/\/+$/, "");
   const portalUrl = `${appUrl}/portal/login`;
   const address =
     process.env.NEXT_PUBLIC_CLINIC_ADDRESS ||
     "Edifício Aero — Condomínio Aero Espaço Empresarial e Hotel, Av. Santos Dumont, nº 1883 (Km 1.5), Centro, Lauro de Freitas - BA, CEP 42702-400";
+  const rootRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const targets = Array.from(root.querySelectorAll<HTMLElement>(".help-section, .purpose-card, .connection-image, .values-card, .space-copy, .space-photo, .founder-photo, .founder-copy, .contact-card, .video-section, .content-grid article, .footer-main, .footer-apps"));
+    let observer: IntersectionObserver | undefined;
+    if (!reducedMotion.matches && "IntersectionObserver" in window) {
+      root.classList.add("motion-ready");
+      observer = new IntersectionObserver(entries => entries.forEach(entry => {
+        if (entry.isIntersecting) { entry.target.classList.add("is-revealed"); observer?.unobserve(entry.target); }
+      }), { threshold: 0.08, rootMargin: "0px 0px -18px 0px" });
+      targets.forEach((target, index) => { target.classList.add("reveal-item"); target.style.setProperty("--reveal-delay", `${index % 3 * 65}ms`); observer?.observe(target); });
+    }
+    const revealAll = () => { if (reducedMotion.matches) { observer?.disconnect(); targets.forEach(target => target.classList.add("is-revealed")); } };
+    reducedMotion.addEventListener("change", revealAll);
+    const links = Array.from(root.querySelectorAll<HTMLAnchorElement>(".site-header nav a"));
+    const sections = links.map(link => root.querySelector<HTMLElement>(link.getAttribute("href") || "")).filter((item): item is HTMLElement => Boolean(item));
+    let frame = 0;
+    const updateScroll = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      root.style.setProperty("--scroll-progress", `${max > 0 ? Math.min(1, window.scrollY / max) : 0}`);
+      root.classList.toggle("has-scrolled", window.scrollY > 24);
+      const current = sections.filter(section => section.getBoundingClientRect().top <= window.innerHeight * .35).at(-1);
+      links.forEach(link => { if (current && link.hash === `#${current.id}`) link.setAttribute("aria-current", "location"); else link.removeAttribute("aria-current"); });
+      frame = 0;
+    };
+    const onScroll = () => { if (!frame) frame = requestAnimationFrame(updateScroll); };
+    updateScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => { observer?.disconnect(); targets.forEach(target => target.classList.remove("reveal-item")); root.classList.remove("motion-ready"); reducedMotion.removeEventListener("change", revealAll); window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); cancelAnimationFrame(frame); };
+  }, []);
   const contact = (label: string, cls = "button button-teal") =>
     number ? (
       <a
@@ -74,11 +110,12 @@ export default function ReferenceLanding({ onChat }: { onChat: () => void }) {
     ) : (
       <button className={cls} onClick={onChat}>
         <MessageCircle size={20} aria-hidden="true" />
-        Fale conosco
+        {label.replace(/ pelo WhatsApp$/, "")}
       </button>
     );
   return (
-    <div className="reference-landing">
+    <div className="reference-landing" ref={rootRef}>
+      <div className="landing-progress" aria-hidden="true" />
       <a className="skip-link" href="#conteudo">
         Pular para o conteúdo
       </a>
@@ -282,7 +319,7 @@ export default function ReferenceLanding({ onChat }: { onChat: () => void }) {
             </p>
             {contact("Fale conosco pelo WhatsApp")}
             <p className="official-contact">
-              (71) 99955-0803
+              (XX) XXXXX-XXXX
               <br />
               Edifício Aero · Av. Santos Dumont, 1883
               <br />
@@ -369,9 +406,8 @@ export default function ReferenceLanding({ onChat }: { onChat: () => void }) {
           </nav>
           <div className="footer-column footer-contact">
             <h2>Estamos aqui para acolher</h2>
-            <a href={`https://wa.me/${number}`} target="_blank" rel="noopener noreferrer" className="footer-phone">
-              <MessageCircle size={19} aria-hidden="true" /> (71) 99955-0803
-            </a>
+            <p className="footer-phone"><MessageCircle size={19} aria-hidden="true" /> (XX) XXXXX-XXXX</p>
+            <p className="contact-updating">Número de atendimento em atualização.</p>
             <address>{address}</address>
             <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`} target="_blank" rel="noopener noreferrer" className="footer-map">
               <MapPin size={18} aria-hidden="true" /> Ver no mapa e como chegar
