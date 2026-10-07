@@ -11,6 +11,8 @@ import {
   School,
   Sprout,
   MapPin,
+  Smartphone,
+  UserRound,
 } from "lucide-react";
 const services = [
   [Brain, "Atenção e funções executivas", "pink"],
@@ -53,6 +55,8 @@ export default function ReferenceLanding({ onChat }: { onChat: () => void }) {
   const number = (
     process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "5571999550803"
   ).replace(/\D/g, "");
+  const appUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://app.institutoconectar.net.br").replace(/\/+$/, "");
+  const portalUrl = `${appUrl}/portal/login`;
   const address =
     process.env.NEXT_PUBLIC_CLINIC_ADDRESS ||
     "Edifício Aero — Condomínio Aero Espaço Empresarial e Hotel, Av. Santos Dumont, nº 1883 (Km 1.5), Centro, Lauro de Freitas - BA, CEP 42702-400";
@@ -98,7 +102,10 @@ export default function ReferenceLanding({ onChat }: { onChat: () => void }) {
           <a href="#conteudos">Conteúdos</a>
           <a href="#contato">Contato</a>
         </nav>
-        {contact("Fale conosco")}
+        <div className="header-actions">
+          <a href={portalUrl} className="button button-portal"><UserRound size={18} aria-hidden="true" /> Portal dos Pais</a>
+          {contact("Fale conosco")}
+        </div>
       </header>
       <main id="conteudo">
         <section id="inicio" className="hero-reference shell">
@@ -370,6 +377,23 @@ export default function ReferenceLanding({ onChat }: { onChat: () => void }) {
               <MapPin size={18} aria-hidden="true" /> Ver no mapa e como chegar
             </a>
             <a href={process.env.NEXT_PUBLIC_APP_URL || "https://app.institutoconectar.net.br"} className="footer-system">Acessar o sistema do Instituto <ArrowRight size={16} aria-hidden="true" /></a>
+          </div>
+        </div>
+        <div className="shell footer-apps">
+          <div className="footer-apps-copy">
+            <h2>O Conectar perto da sua família</h2>
+            <p>O Portal dos Pais já está disponível pelo navegador. Nossos aplicativos para Android e iOS serão lançados no futuro.</p>
+            <a href={portalUrl} className="footer-portal"><UserRound size={18} aria-hidden="true" /> Acessar Portal dos Pais <ArrowRight size={16} aria-hidden="true" /></a>
+          </div>
+          <div className="app-store-buttons" aria-label="Aplicativos com lançamento futuro">
+            <button type="button" disabled className="app-store-badge" aria-label="Baixar aplicativo Android na Google Play — em breve">
+              <Smartphone size={26} aria-hidden="true" />
+              <span><small>Aplicativo Android</small><strong>Google Play</strong><span className="app-coming-soon">Em breve</span></span>
+            </button>
+            <button type="button" disabled className="app-store-badge" aria-label="Baixar aplicativo iOS na App Store — em breve">
+              <Smartphone size={26} aria-hidden="true" />
+              <span><small>Aplicativo iOS</small><strong>App Store</strong><span className="app-coming-soon">Em breve</span></span>
+            </button>
           </div>
         </div>
         <div className="shell footer-bottom">

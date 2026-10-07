@@ -855,3 +855,35 @@ html {
     height: 390px;
   }
 }
+
+/* Acesso da família e aplicativos futuros */
+.header-actions { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.site-header { gap: 18px; }
+.site-header nav { gap: 14px; }
+.button-portal { border: 1px solid #75549c; color: #644686; background: #f5eef8; }
+.button-portal:hover { background: #ece0f3; }
+.footer-apps { display: flex; align-items: center; justify-content: space-between; gap: 40px; padding-block: 30px; border-top: 1px solid #d8cbe1; }
+.footer-apps-copy { max-width: 560px; }
+.footer-apps h2 { font-size: 19px; font-weight: 700; color: #644686; margin-bottom: 8px; }
+.footer-apps p { font-size: 13px; line-height: 1.7; }
+.footer-portal { display: inline-flex; align-items: center; gap: 8px; margin-top: 15px; color: #644686; font-weight: 700; }
+.footer-portal:hover { text-decoration: underline; text-underline-offset: 4px; }
+.app-store-buttons { display: flex; gap: 12px; flex-shrink: 0; }
+.reference-landing .app-store-badge { display: flex; align-items: center; gap: 12px; min-width: 180px; border: 1px solid #c5b5d0; border-radius: 14px; padding: 16px 18px; background: #f8f4fa; color: #424050; text-align: left; cursor: not-allowed; }
+.app-store-badge small, .app-store-badge strong { display: block; line-height: 1.5; }
+.app-store-badge small { font-size: 11px; }
+.app-store-badge strong { font-size: 17px; font-weight: 700; }
+.app-coming-soon { display: inline-block; margin-top: 7px; padding: 2px 8px; border-radius: 20px; background: #e7dcef; color: #644686; font-size: 10px; font-weight: 700; }
+@media (max-width: 1250px) {
+  .site-header { flex-wrap: wrap; padding-block: 15px; gap: 12px; }
+  .site-header nav { order: 3; width: 100%; justify-content: center; }
+  .header-actions { margin-left: auto; }
+}
+@media (max-width: 760px) {
+  .header-actions { width: 100%; margin-left: 0; }
+  .header-actions .button { flex: 1; padding: 10px 12px; font-size: 12px; }
+  .site-header nav { justify-content: flex-start; }
+  .footer-apps { flex-direction: column; align-items: stretch; gap: 22px; }
+  .app-store-buttons { flex-wrap: wrap; }
+  .reference-landing .app-store-badge { flex: 1; min-width: 145px; padding: 14px 12px; }
+}
