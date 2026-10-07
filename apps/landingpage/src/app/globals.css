@@ -927,3 +927,18 @@ html {
   .motion-ready .reveal-item { opacity: 1; transform: none; }
   .reference-landing .button:hover, .service-item:hover .icon-circle, .space-photo:hover img, .connection-image:hover img, .founder-photo:hover img, .content-grid article:hover img, .value-row:hover .value-icon { transform: none; }
 }
+
+/* Portal character: interaction only on deliberate activation. */
+.landing-mascot { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+.landing-mascot-button { position:relative; flex:0 0 82px; width:82px; height:76px; border:0; background:transparent; cursor:pointer; border-radius:24px; transition:transform .2s ease; }
+.landing-mascot-button:hover { transform:rotate(-4deg) scale(1.06); }
+.landing-mascot-button:active { transform:scale(.95); }
+.landing-mascot-button:focus-visible { outline:3px solid #8562b3; outline-offset:4px; }
+.landing-mascot-art { width:100%; height:100%; overflow:visible; }
+.landing-mascot-message { font-size:13px; color:#493763; max-width:165px; line-height:1.4; }
+.mascot-affection { position:absolute; inset:0; pointer-events:none; }
+.mascot-affection span { position:absolute; left:40%; top:35%; animation:mascot-love 1.5s ease-out both; }
+.mascot-affection span:nth-child(2) { left:10%; animation-delay:.12s; }
+.mascot-affection span:nth-child(3) { left:70%; animation-delay:.24s; }
+@keyframes mascot-love { 0% { opacity:0; transform:translateY(0) scale(.5); } 20% { opacity:1; } 100% { opacity:0; transform:translateY(-65px) scale(1.2); } }
+@media (prefers-reduced-motion:reduce) { .landing-mascot-button:hover, .landing-mascot-button:active { transform:none; } .mascot-affection span { animation:none; } }

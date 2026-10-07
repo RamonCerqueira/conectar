@@ -6,22 +6,13 @@ import { X } from "lucide-react";
 
 // Import Modular Components matching the design specifications
 import ReferenceLanding from "@/components/ReferenceLanding";
-import ChatbotWidget from "@/components/ChatbotWidget";
+
 
 const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5101/api";
 
 export default function Home() {
   // Modal & Chat shared states
   const [leadModalOpen, setLeadModalOpen] = useState(false);
-  const [chatOpen, setChatOpen] = useState(false);
-
-  // Chatbot state
-  const [phone, setPhone] = useState("");
-  const [phoneSubmitted, setPhoneSubmitted] = useState(false);
-  const [chatText, setChatText] = useState("");
-  const [chatHistory, setChatHistory] = useState<any[]>([]);
-  const [botTyping, setBotTyping] = useState(false);
-
   // Lead Form state
   const [leadForm, setLeadForm] = useState({
     nomeCrianca: "",
@@ -32,6 +23,8 @@ export default function Home() {
   });
 
   // Zod-like validation errors state
+  const [sending, setSending] = useState(false);
+  const [notice, setNotice] = useState("");
   const [errors, setErrors] = useState<any>({});
 
   const validateLeadForm = () => {
@@ -58,19 +51,18 @@ export default function Home() {
 
   const handleSubmitLeadForm = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateLeadForm()) return;
+    if (sending || !validateLeadForm()) return;
+    setSending(true);
+    setNotice("");
 
     try {
-      const response = await fetch(`${apiBase}/comunicacao/chatbot/leads`, {
+      const response = await fetch(`${apiBase}/comunicacao/triagem`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(leadForm),
       });
       if (!response.ok) throw new Error("Falha no envio da triagem");
-      alert(
-        "Ficha de triagem clínica enviada com sucesso! Nossa equipe entrará em contato em breve.",
-      );
-      setLeadModalOpen(false);
+      setNotice("Solicitação enviada! Nossa equipe entrará em contato.");
       setLeadForm({
         nomeCrianca: "",
         idade: "",
@@ -81,19 +73,22 @@ export default function Home() {
       setErrors({});
     } catch (err) {
       console.error(err);
-      alert("Ocorreu um erro ao enviar a triagem. Por favor, tente novamente.");
+      setNotice("Não foi possível enviar. Seus dados foram mantidos; tente novamente.");
+    } finally {
+      setSending(false);
     }
   };
 
   const handleOpenLeadModal = () => {
     setErrors({});
+    setNotice("");
     setLeadModalOpen(true);
   };
-  const handleOpenChat = () => setChatOpen(true);
+
 
   return (
     <div className="min-h-screen bg-white text-[#4A4A4A] font-sans overflow-x-hidden antialiased">
-      <ReferenceLanding onChat={handleOpenChat} />
+      <ReferenceLanding onChat={handleOpenLeadModal} />
 
       {/* Lead capture modal */}
       <AnimatePresence>
@@ -104,6 +99,7 @@ export default function Home() {
               onClick={() => setLeadModalOpen(false)}
             />
             <motion.div
+              role="dialog" aria-modal="true" aria-label="Solicitar contato do Instituto Conectar"
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
@@ -128,6 +124,7 @@ export default function Home() {
                 </button>
               </div>
 
+              {notice && <p role="status" className="text-sm text-[#493763]">{notice}</p>}
               <form
                 onSubmit={handleSubmitLeadForm}
                 className="space-y-3 text-left"
@@ -236,10 +233,10 @@ export default function Home() {
                     Cancelar
                   </button>
                   <button
-                    type="submit"
+                    type="submit" disabled={sending}
                     className="px-5 py-2 rounded-xl font-bold text-white bg-[#69C4B5] hover:bg-[#58b3a4] shadow-md border-0 cursor-pointer text-[10px] uppercase tracking-wider"
                   >
-                    Enviar Solicitação
+                    {sending ? "Enviando…" : "Enviar Solicitação"}
                   </button>
                 </div>
               </form>
@@ -248,22 +245,6 @@ export default function Home() {
         )}
       </AnimatePresence>
 
-      {/* WhatsApp Chatbot overlay widget */}
-      <ChatbotWidget
-        chatOpen={chatOpen}
-        setChatOpen={setChatOpen}
-        phone={phone}
-        setPhone={setPhone}
-        phoneSubmitted={phoneSubmitted}
-        setPhoneSubmitted={setPhoneSubmitted}
-        chatText={chatText}
-        setChatText={setChatText}
-        chatHistory={chatHistory}
-        setChatHistory={setChatHistory}
-        botTyping={botTyping}
-        setBotTyping={setBotTyping}
-        apiBase={apiBase}
-      />
     </div>
   );
 }

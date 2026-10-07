@@ -15,8 +15,8 @@ const nunito = Nunito({
 
 export function PortalLoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("mariana.mendes@email.com");
-  const [password, setPassword] = useState("123456");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -26,39 +26,19 @@ export function PortalLoginPage() {
     setLoading(true);
 
     try {
-      const res = await api
-        .post("/auth/login-responsavel", { email, password })
-        .catch(() => {
-          if (email === "mariana.mendes@email.com" && password === "123456") {
-            return {
-              data: {
-                accessToken: "mock-parent-token",
-                responsavel: { nome: "Mariana Mendes", pacienteId: "pac-1" },
-              },
-            };
-          }
-          throw new Error("Credenciais inválidas. Verifique seu e-mail e senha.");
-        });
-
+      const res = await api.post("/auth/login-responsavel", { email, password });
       const { accessToken, responsavel } = res.data;
-      if (accessToken) setAccessToken(accessToken);
-      localStorage.setItem("parentName", responsavel.nome || "Mariana Mendes");
-      localStorage.setItem("pacienteId", responsavel.pacienteId || "pac-1");
+      if (!accessToken || !responsavel?.pacienteId) throw new Error("Acesso não vinculado a uma criança. Entre em contato com a recepção.");
+      setAccessToken(accessToken);
+      localStorage.setItem("parentName", responsavel.nome || "Família");
+      localStorage.setItem("pacienteId", responsavel.pacienteId);
 
       router.push("/portal/dashboard");
     } catch (err: any) {
-      setError(err.message || "Falha na autenticação do portal.");
+      setError(err.response?.status === 401 ? "E-mail ou senha inválidos." : (err.response ? "Não foi possível entrar. Tente novamente." : "Não foi possível conectar ao servidor. Verifique sua conexão."));
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleQuickDemo = () => {
-    setEmail("mariana.mendes@email.com");
-    setPassword("123456");
-    localStorage.setItem("parentName", "Mariana Mendes");
-    localStorage.setItem("pacienteId", "pac-1");
-    router.push("/portal/dashboard");
   };
 
   return (
@@ -170,15 +150,6 @@ export function PortalLoginPage() {
 
         {/* Botão de Demonstração Imediata */}
         <div className="pt-2 border-t border-[#EEE8FA] space-y-2">
-          <button
-            onClick={handleQuickDemo}
-            type="button"
-            className="w-full py-2.5 rounded-[14px] bg-[#FAF8FF] border border-[#EEE8FA] hover:bg-[#E8DEFF]/60 text-[#8D5BD1] text-[11px] font-extrabold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-[#F59E0B]" />
-            <span>Acesso Rápido de Demonstração (Mãe do Lucas)</span>
-          </button>
-
           <p className="text-[9px] text-[#77717E] text-center">
             Dúvidas no primeiro acesso? Contate a recepção pelo WhatsApp 💜
           </p>

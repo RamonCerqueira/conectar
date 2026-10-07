@@ -1,5 +1,8 @@
-import { Controller, Post, Get, Body, Delete, Param, Put } from '@nestjs/common';
+import { Controller, Post, Get, Body, Delete, Param, Put, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import { Public } from '../auth/decorators/public.decorator';
+import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
+import { TriagemPublicaDto } from './triagem-publica.dto';
 import { ComunicacaoService } from './comunicacao.service';
 
 @ApiTags('comunicacao')
@@ -7,6 +10,18 @@ import { ComunicacaoService } from './comunicacao.service';
 @Controller('comunicacao')
 export class ComunicacaoController {
   constructor(private readonly comunicacaoService: ComunicacaoService) {}
+
+  @Public()
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ short: { limit: 2, ttl: 1000 }, medium: { limit: 5, ttl: 60000 } })
+  @Post('triagem')
+  async receberTriagem(@Body() body: TriagemPublicaDto) {
+    await this.comunicacaoService.createOrUpdateLead({
+      nomeCrianca: body.nomeCrianca.trim(), idade: body.idade.trim(),
+      telefone: body.telefone, queixa: body.queixa.trim(), periodo: body.periodo,
+    });
+    return { success: true };
+  }
 
   @Get('whatsapp/fila')
   @ApiOperation({ summary: 'Listar histórico/fila de mensagens enviadas do WhatsApp' })

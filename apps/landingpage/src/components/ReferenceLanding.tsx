@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import Image from "next/image";
+import LandingMascot from "./LandingMascot";
 import {
   ArrowRight,
   Brain,
@@ -308,6 +309,7 @@ export default function ReferenceLanding({ onChat }: { onChat: () => void }) {
             </p>
           </article>
           <aside id="contato" className="contact-card">
+            <LandingMascot />
             <h2>
               Vamos conversar
               <br />
