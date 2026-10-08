@@ -19,7 +19,10 @@ export interface OfflineProntuario {
 export function getOfflineProntuarios(): OfflineProntuario[] {
   if (typeof window === "undefined") return [];
   const stored = localStorage.getItem("offline_prontuarios");
-  return stored ? JSON.parse(stored) : [];
+  try {
+    const parsed = stored ? JSON.parse(stored) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch { return []; }
 }
 
 export function saveOfflineProntuario(pr: OfflineProntuario) {

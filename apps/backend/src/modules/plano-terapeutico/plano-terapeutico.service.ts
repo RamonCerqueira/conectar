@@ -7,7 +7,7 @@ export class PlanoTerapeuticoService {
   async create(data: any) { return this.prisma.planoTerapeutico.create({ data }); }
   async updateMeta(id: string, progresso: number, nota?: string) {
     await this.prisma.historicoProgresso.create({ data: { metaId: id, progresso, nota } });
-    return this.prisma.metaTerapeutica.update({ where: { id }, data: { progresso, status: progresso >= 100 ? 'CONCLUIDO' : 'EM_ANDAMENTO' } });
+    return this.prisma.metaTerapeutica.update({ where: { id }, data: { progresso, status: progresso >= 100 ? 'CONCLUIDO' : 'EM_ANDAMENTO' }, include: { historicoProgresso: { orderBy: { data: 'desc' } } } });
   }
   async addMeta(data: any) { return this.prisma.metaTerapeutica.create({ data }); }
 }

@@ -437,3 +437,21 @@ body {
   .print-break { page-break-before: always; }
   body { background: white; color: black; }
 }
+
+/* Feedback visual dos controles, preservando legibilidade clínica */
+button, a, input, select, textarea { transition-property: background-color, border-color, color, box-shadow; transition-duration: 160ms; transition-timing-function: ease; }
+button:not(:disabled) { transition-property: background-color, border-color, color, box-shadow, scale; }
+button:not(:disabled):active { scale: .98; }
+button:disabled { cursor: not-allowed; }
+input:focus-visible, textarea:focus-visible, select:focus-visible { border-color: hsl(var(--primary)); box-shadow: 0 0 0 3px hsl(var(--primary) / .13); }
+button:focus-visible, a:focus-visible { outline: 2px solid hsl(var(--primary)); outline-offset: 3px; }
+aside nav a svg { transition: transform 180ms ease; }
+@media (hover: hover) and (pointer: fine) {
+  aside nav a:hover svg { transform: translateX(2px); }
+  button.gradient-primary:not(:disabled):hover { box-shadow: 0 6px 18px -9px hsl(var(--primary) / .65); }
+}
+@media (prefers-reduced-motion: reduce) {
+  button, a, input, select, textarea, aside nav a svg { transition: none !important; }
+  button:not(:disabled):active { scale: 1; }
+  aside nav a:hover svg { transform: none; }
+}

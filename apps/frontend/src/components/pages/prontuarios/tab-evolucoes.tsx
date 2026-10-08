@@ -2,8 +2,21 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Clock, MessageSquare, Sparkles, X, Activity, ClipboardList, UserCheck, Brain, CheckCircle2 } from "lucide-react";
+import {
+  Search,
+  Clock,
+  MessageSquare,
+  Sparkles,
+  X,
+  Activity,
+  ClipboardList,
+  UserCheck,
+  Brain,
+  CheckCircle2,
+} from "lucide-react";
+import { profissionalLabel } from "@/lib/profissional-label";
 import { cn, formatDate } from "@/lib/utils";
+import { getApiErrorMessage } from "@/lib/api-errors";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
 import { saveOfflineProntuario } from "@/lib/offline-sync";
@@ -16,10 +29,18 @@ interface TabEvolucoesProps {
   onAddEvolution: (evo: any) => void;
 }
 
-export function TabEvolucoes({ paciente, prontuarios, isModalOpen, setIsModalOpen, onAddEvolution }: TabEvolucoesProps) {
+export function TabEvolucoes({
+  paciente,
+  prontuarios,
+  isModalOpen,
+  setIsModalOpen,
+  onAddEvolution,
+}: TabEvolucoesProps) {
   const [searchHistoryTerm, setSearchHistoryTerm] = useState("");
   const [selectedSpecialty, setSelectedSpecialty] = useState("TODOS");
-  const [expandedAiSummaries, setExpandedAiSummaries] = useState<Record<string, string>>({});
+  const [expandedAiSummaries, setExpandedAiSummaries] = useState<
+    Record<string, string>
+  >({});
 
   // Form States - Evoluções
   const [queixa, setQueixa] = useState("");
@@ -34,21 +55,31 @@ export function TabEvolucoes({ paciente, prontuarios, isModalOpen, setIsModalOpe
     .filter((pr) => pr.pacienteId === paciente.id)
     .filter((pr) => {
       const matchesSearch =
-        pr.queixaPrincipal?.toLowerCase().includes(searchHistoryTerm.toLowerCase()) ||
-        pr.atividadesRealizadas?.toLowerCase().includes(searchHistoryTerm.toLowerCase()) ||
-        pr.resultados?.toLowerCase().includes(searchHistoryTerm.toLowerCase()) ||
-        pr.profissional?.toLowerCase().includes(searchHistoryTerm.toLowerCase());
+        pr.queixaPrincipal
+          ?.toLowerCase()
+          .includes(searchHistoryTerm.toLowerCase()) ||
+        pr.atividadesRealizadas
+          ?.toLowerCase()
+          .includes(searchHistoryTerm.toLowerCase()) ||
+        pr.resultados
+          ?.toLowerCase()
+          .includes(searchHistoryTerm.toLowerCase()) ||
+        profissionalLabel(pr.profissional)
+          .toLowerCase()
+          .includes(searchHistoryTerm.toLowerCase());
 
       const matchesSpecialty =
         selectedSpecialty === "TODOS" ||
-        pr.profissional.toLowerCase().includes(selectedSpecialty.toLowerCase());
+        profissionalLabel(pr.profissional)
+          .toLowerCase()
+          .includes(selectedSpecialty.toLowerCase());
 
       return matchesSearch && matchesSpecialty;
     });
 
   const handleCreateProntuario = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const isOffline = typeof window !== "undefined" && !navigator.onLine;
 
     const newPr = {
@@ -56,7 +87,10 @@ export function TabEvolucoes({ paciente, prontuarios, isModalOpen, setIsModalOpe
       pacienteId: paciente.id,
       pacienteNome: paciente.nome,
       data: new Date().toISOString(),
-      profissional: { usuario: { nome: "Dra. Ana Lima" }, especialidade: "Psicopedagogia" },
+      profissional:
+        typeof window !== "undefined"
+          ? localStorage.getItem("userName") || "Profissional"
+          : "Profissional",
       queixaPrincipal: queixa,
       objetivosSessao: objetivos,
       atividadesRealizadas: atividades,
@@ -80,9 +114,11 @@ export function TabEvolucoes({ paciente, prontuarios, isModalOpen, setIsModalOpe
         proximaMeta: proximaMeta,
         data: newPr.data,
         pacienteNome: paciente.nome,
-        profissional: "Dra. Ana Lima (Psicopedagoga)"
+        profissional: newPr.profissional,
       });
-      toast.warning("Você está offline! A evolução foi salva localmente e será enviada automaticamente quando a conexão retornar.");
+      toast.warning(
+        "Você está offline! A evolução foi salva localmente e será enviada automaticamente quando a conexão retornar.",
+      );
       onAddEvolution(newPr);
       setIsModalOpen(false);
       // Reset Form
@@ -97,7 +133,7 @@ export function TabEvolucoes({ paciente, prontuarios, isModalOpen, setIsModalOpe
     }
 
     try {
-      await api.post("/prontuarios", {
+      const response = await api.post("/prontuarios", {
         pacienteId: paciente.id,
         queixaPrincipal: queixa,
         objetivosSessao: objetivos,
@@ -106,10 +142,17 @@ export function TabEvolucoes({ paciente, prontuarios, isModalOpen, setIsModalOpe
         comportamento: comportamento,
         orientacoesPais: orientacoes,
         proximaMeta: proximaMeta,
-        data: newPr.data
+        data: newPr.data,
       });
+      onAddEvolution(response.data);
       toast.success("Evolução salva!");
     } catch (err) {
+      if ((err as { response?: unknown }).response) {
+        toast.error(
+          getApiErrorMessage(err, "Não foi possível salvar a evolução."),
+        );
+        return;
+      }
       console.warn("Salvando offline devido a erro de rede:", err);
       saveOfflineProntuario({
         id: newPr.id,
@@ -123,15 +166,17 @@ export function TabEvolucoes({ paciente, prontuarios, isModalOpen, setIsModalOpe
         proximaMeta: proximaMeta,
         data: newPr.data,
         pacienteNome: paciente.nome,
-        profissional: "Dra. Ana Lima (Psicopedagoga)"
+        profissional: newPr.profissional,
       });
       newPr.isOfflinePending = true;
-      toast.warning("Erro de rede. A evolução foi salva localmente para sincronização posterior.");
+      toast.warning(
+        "Erro de rede. A evolução foi salva localmente para sincronização posterior.",
+      );
     }
 
-    onAddEvolution(newPr);
+    if (newPr.isOfflinePending) onAddEvolution(newPr);
     setIsModalOpen(false);
-    
+
     // Reset Form
     setQueixa("");
     setObjetivos("");
@@ -155,28 +200,24 @@ export function TabEvolucoes({ paciente, prontuarios, isModalOpen, setIsModalOpe
       if (res.data && res.data.resumo) {
         setExpandedAiSummaries({
           ...expandedAiSummaries,
-          [prId]: res.data.resumo
+          [prId]: res.data.resumo,
         });
         toast.success("Resumo clínico estruturado gerado!");
       } else {
         throw new Error();
       }
     } catch (err) {
-      setTimeout(() => {
-        const text = `ANÁLISE IA CONECTAR: O paciente apresentou evolução relevante em relação à queixa de "${pr.queixaPrincipal.toLowerCase()}". A atividade de "${pr.atividadesRealizadas.toLowerCase()}" demonstrou eficácia terapêutica, resultando em: "${pr.resultados.toLowerCase()}". Aspectos de engajamento foram avaliados como "${pr.comportamento.toLowerCase()}". Recomendado reforço domiciliar da orientação: "${pr.orientacoesPais}". Foco da próxima sessão: "${pr.proximaMeta.toLowerCase()}".`;
-        setExpandedAiSummaries({
-          ...expandedAiSummaries,
-          [prId]: text
-        });
-        toast.success("Resumo clínico estruturado gerado com IA Local!");
-      }, 700);
+      toast.error(getApiErrorMessage(err, "Não foi possível gerar o resumo clínico."));
     }
   };
 
   return (
     <div className="space-y-6 animate-in fade-in duration-200">
       {/* Filters & search */}
-      <div className="p-4 rounded-2xl border bg-card flex flex-col md:flex-row gap-4 justify-between items-center shadow-xs" style={{ borderColor: "hsl(var(--border))" }}>
+      <div
+        className="p-4 rounded-2xl border bg-card flex flex-col md:flex-row gap-4 justify-between items-center shadow-xs"
+        style={{ borderColor: "hsl(var(--border))" }}
+      >
         <div className="relative w-full md:w-80">
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
           <input
@@ -189,7 +230,12 @@ export function TabEvolucoes({ paciente, prontuarios, isModalOpen, setIsModalOpe
         </div>
 
         <div className="flex gap-1.5 w-full md:w-auto overflow-x-auto scrollbar-none">
-          {["TODOS", "Psicopedagoga", "Fonoaudióloga", "Terapia Ocupacional"].map((spec) => (
+          {[
+            "TODOS",
+            "Psicopedagoga",
+            "Fonoaudióloga",
+            "Terapia Ocupacional",
+          ].map((spec) => (
             <button
               key={spec}
               onClick={() => setSelectedSpecialty(spec)}
@@ -197,7 +243,7 @@ export function TabEvolucoes({ paciente, prontuarios, isModalOpen, setIsModalOpe
                 "px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap cursor-pointer transition-all",
                 selectedSpecialty === spec
                   ? "gradient-primary text-white"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  : "bg-muted text-muted-foreground hover:bg-muted/80",
               )}
             >
               {spec === "TODOS" ? "Todas Especialidades" : spec}
@@ -220,8 +266,12 @@ export function TabEvolucoes({ paciente, prontuarios, isModalOpen, setIsModalOpe
             return "Profissional";
           };
           const profName = getProfissionalName(pr.profissional);
-          const initials = profName.includes(" ") 
-            ? profName.split(" ").slice(1, 3).map((n: string) => n[0]).join("") 
+          const initials = profName.includes(" ")
+            ? profName
+                .split(" ")
+                .slice(1, 3)
+                .map((n: string) => n[0])
+                .join("")
             : profName.substring(0, 2);
 
           return (
@@ -259,7 +309,7 @@ export function TabEvolucoes({ paciente, prontuarios, isModalOpen, setIsModalOpe
                     <Clock className="h-3.5 w-3.5 text-purple-500" />
                     {formatDate(pr.data)}
                   </span>
-                  
+
                   <button
                     onClick={() => handleCopyOrientations(pr.orientacoesPais)}
                     className="p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
@@ -289,16 +339,24 @@ export function TabEvolucoes({ paciente, prontuarios, isModalOpen, setIsModalOpe
                   >
                     <div className="flex items-center justify-between">
                       <p className="font-bold text-purple-600 dark:text-purple-400 flex items-center gap-1.5">
-                        <Sparkles className="h-3.5 w-3.5" /> IA Conectar Assistente
+                        <Sparkles className="h-3.5 w-3.5" /> IA Conectar
+                        Assistente
                       </p>
                       <button
-                        onClick={() => setExpandedAiSummaries({ ...expandedAiSummaries, [pr.id]: "" })}
+                        onClick={() =>
+                          setExpandedAiSummaries({
+                            ...expandedAiSummaries,
+                            [pr.id]: "",
+                          })
+                        }
                         className="p-0.5 rounded hover:bg-purple-500/10 text-muted-foreground"
                       >
                         <X className="h-3 w-3" />
                       </button>
                     </div>
-                    <p className="text-foreground/80 leading-relaxed italic">{expandedAiSummaries[pr.id]}</p>
+                    <p className="text-foreground/80 leading-relaxed italic">
+                      {expandedAiSummaries[pr.id]}
+                    </p>
                   </motion.div>
                 )}
               </AnimatePresence>
@@ -308,10 +366,13 @@ export function TabEvolucoes({ paciente, prontuarios, isModalOpen, setIsModalOpe
                 <div className="p-4 rounded-xl bg-purple-50/40 dark:bg-purple-950/10 border border-purple-100/60 dark:border-purple-900/20 space-y-2">
                   <div className="flex items-center gap-1.5 text-purple-600 dark:text-purple-400">
                     <Activity className="h-4 w-4" />
-                    <h5 className="font-bold text-xs">Estado Inicial / Queixa</h5>
+                    <h5 className="font-bold text-xs">
+                      Estado Inicial / Queixa
+                    </h5>
                   </div>
                   <p className="text-xs text-foreground/80 leading-relaxed">
-                    {pr.queixaPrincipal || "Sem queixas registradas no início da sessão."}
+                    {pr.queixaPrincipal ||
+                      "Sem queixas registradas no início da sessão."}
                   </p>
                 </div>
 
@@ -321,7 +382,8 @@ export function TabEvolucoes({ paciente, prontuarios, isModalOpen, setIsModalOpe
                     <h5 className="font-bold text-xs">Objetivos da Sessão</h5>
                   </div>
                   <p className="text-xs text-foreground/80 leading-relaxed">
-                    {pr.objetivosSessao || "Sem metas clínicas específicas descritas."}
+                    {pr.objetivosSessao ||
+                      "Sem metas clínicas específicas descritas."}
                   </p>
                 </div>
 
@@ -338,7 +400,9 @@ export function TabEvolucoes({ paciente, prontuarios, isModalOpen, setIsModalOpe
                 <div className="p-4 rounded-xl bg-emerald-50/40 dark:bg-emerald-950/10 border border-emerald-100/60 dark:border-emerald-900/20 space-y-2">
                   <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
                     <UserCheck className="h-4 w-4" />
-                    <h5 className="font-bold text-xs">Resultados / Desempenho</h5>
+                    <h5 className="font-bold text-xs">
+                      Resultados / Desempenho
+                    </h5>
                   </div>
                   <p className="text-xs text-foreground/80 leading-relaxed">
                     {pr.resultados}
@@ -358,7 +422,9 @@ export function TabEvolucoes({ paciente, prontuarios, isModalOpen, setIsModalOpe
                 <div className="p-4 rounded-xl bg-pink-50/40 dark:bg-pink-950/10 border border-pink-100/60 dark:border-pink-900/20 space-y-2">
                   <div className="flex items-center gap-1.5 text-pink-600 dark:text-pink-400">
                     <MessageSquare className="h-4 w-4" />
-                    <h5 className="font-bold text-xs">Orientações enviadas aos Pais</h5>
+                    <h5 className="font-bold text-xs">
+                      Orientações enviadas aos Pais
+                    </h5>
                   </div>
                   <p className="text-xs text-foreground/80 font-medium italic leading-relaxed">
                     "{pr.orientacoesPais}"
@@ -390,7 +456,10 @@ export function TabEvolucoes({ paciente, prontuarios, isModalOpen, setIsModalOpe
       <AnimatePresence>
         {isModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
-            <div className="absolute inset-0" onClick={() => setIsModalOpen(false)} />
+            <div
+              className="absolute inset-0"
+              onClick={() => setIsModalOpen(false)}
+            />
 
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
@@ -400,8 +469,12 @@ export function TabEvolucoes({ paciente, prontuarios, isModalOpen, setIsModalOpe
             >
               <div className="p-6 border-b flex items-center justify-between">
                 <div>
-                  <h3 className="font-bold text-lg text-foreground">Evoluir Sessão Clínica</h3>
-                  <p className="text-xs text-muted-foreground mt-0.5">{paciente.nome}</p>
+                  <h3 className="font-bold text-lg text-foreground">
+                    Evoluir Sessão Clínica
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {paciente.nome}
+                  </p>
                 </div>
                 <button
                   onClick={() => setIsModalOpen(false)}
@@ -411,9 +484,14 @@ export function TabEvolucoes({ paciente, prontuarios, isModalOpen, setIsModalOpe
                 </button>
               </div>
 
-              <form onSubmit={handleCreateProntuario} className="flex-1 overflow-y-auto p-6 space-y-4">
+              <form
+                onSubmit={handleCreateProntuario}
+                className="flex-1 overflow-y-auto p-6 space-y-4"
+              >
                 <div className="space-y-1.5 text-left">
-                  <label className="text-xs font-semibold text-muted-foreground">Queixa Principal / Estado Inicial</label>
+                  <label className="text-xs font-semibold text-muted-foreground">
+                    Queixa Principal / Estado Inicial
+                  </label>
                   <textarea
                     required
                     placeholder="Ex: Criança entrou agitada, relatando conflito na escola..."
@@ -425,7 +503,9 @@ export function TabEvolucoes({ paciente, prontuarios, isModalOpen, setIsModalOpe
                 </div>
 
                 <div className="space-y-1.5 text-left">
-                  <label className="text-xs font-semibold text-muted-foreground">Objetivos Trabalhados</label>
+                  <label className="text-xs font-semibold text-muted-foreground">
+                    Objetivos Trabalhados
+                  </label>
                   <textarea
                     required
                     placeholder="Ex: Estimulação da consciência fonológica e segmentação silábica..."
@@ -437,7 +517,9 @@ export function TabEvolucoes({ paciente, prontuarios, isModalOpen, setIsModalOpe
                 </div>
 
                 <div className="space-y-1.5 text-left">
-                  <label className="text-xs font-semibold text-muted-foreground">Atividades Aplicadas</label>
+                  <label className="text-xs font-semibold text-muted-foreground">
+                    Atividades Aplicadas
+                  </label>
                   <textarea
                     required
                     placeholder="Ex: Jogo de cartas com rimas, pareamento visual de figuras..."
@@ -449,7 +531,9 @@ export function TabEvolucoes({ paciente, prontuarios, isModalOpen, setIsModalOpe
                 </div>
 
                 <div className="space-y-1.5 text-left">
-                  <label className="text-xs font-semibold text-muted-foreground">Resultados Obtidos</label>
+                  <label className="text-xs font-semibold text-muted-foreground">
+                    Resultados Obtidos
+                  </label>
                   <textarea
                     required
                     placeholder="Ex: Identificou 8 de 10 rimas corretamente, precisando de suporte leve nas duas últimas..."
@@ -461,7 +545,9 @@ export function TabEvolucoes({ paciente, prontuarios, isModalOpen, setIsModalOpe
                 </div>
 
                 <div className="space-y-1.5 text-left">
-                  <label className="text-xs font-semibold text-muted-foreground">Comportamento / Engajamento</label>
+                  <label className="text-xs font-semibold text-muted-foreground">
+                    Comportamento / Engajamento
+                  </label>
                   <textarea
                     required
                     placeholder="Ex: Cooperativo, manteve foco por períodos de 15 minutos, regulado sensorialmente..."
@@ -473,7 +559,9 @@ export function TabEvolucoes({ paciente, prontuarios, isModalOpen, setIsModalOpe
                 </div>
 
                 <div className="space-y-1.5 text-left">
-                  <label className="text-xs font-semibold text-muted-foreground">Orientações de Apoio Domiciliar (Pais)</label>
+                  <label className="text-xs font-semibold text-muted-foreground">
+                    Orientações de Apoio Domiciliar (Pais)
+                  </label>
                   <textarea
                     required
                     placeholder="Ex: Treinar leitura em voz alta de rimas simples por 5 minutos antes de dormir..."
@@ -485,7 +573,9 @@ export function TabEvolucoes({ paciente, prontuarios, isModalOpen, setIsModalOpe
                 </div>
 
                 <div className="space-y-1.5 text-left">
-                  <label className="text-xs font-semibold text-muted-foreground">Próxima Meta Clínica (Sessão Seguinte)</label>
+                  <label className="text-xs font-semibold text-muted-foreground">
+                    Próxima Meta Clínica (Sessão Seguinte)
+                  </label>
                   <textarea
                     required
                     placeholder="Ex: Introduzir segmentação silábica em palavras de 3 sílabas sem pistas visuais..."

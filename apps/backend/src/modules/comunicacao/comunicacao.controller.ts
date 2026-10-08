@@ -1,5 +1,10 @@
-import { Controller, Post, Get, Body, Delete, Param, Put } from '@nestjs/common';
+import * as QRCode from 'qrcode';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { Controller, Post, Get, Body, Delete, Param, Put, UseGuards, ForbiddenException } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import { Public } from '../auth/decorators/public.decorator';
+import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
+import { TriagemPublicaDto } from './triagem-publica.dto';
 import { ComunicacaoService } from './comunicacao.service';
 
 @ApiTags('comunicacao')
@@ -8,6 +13,24 @@ import { ComunicacaoService } from './comunicacao.service';
 export class ComunicacaoController {
   constructor(private readonly comunicacaoService: ComunicacaoService) {}
 
+  @Public()
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ short: { limit: 2, ttl: 1000 }, medium: { limit: 5, ttl: 60000 } })
+  @Post('triagem')
+  async receberTriagem(@Body() body: TriagemPublicaDto) {
+    await this.comunicacaoService.createOrUpdateLead({
+      nomeCrianca: body.nomeCrianca.trim(), idade: body.idade.trim(),
+      telefone: body.telefone, queixa: body.queixa.trim(), periodo: body.periodo,
+    });
+    return { success: true };
+  }
+
+  @Get('integracoes/status')
+  getIntegrations(@CurrentUser() user:any) {return this.comunicacaoService.integrationStatus(['ADMINISTRADOR','DIRETOR'].includes(user.perfil));}
+  @Get('integracoes/qr')
+  async whatsappQr(@CurrentUser() user:any) {if(!['ADMINISTRADOR','DIRETOR'].includes(user.perfil))throw new ForbiddenException();const status=await this.comunicacaoService.integrationStatus(true);return {qrCode:status.whatsapp.qrCode ? await QRCode.toDataURL(status.whatsapp.qrCode) : null};}
+  @Post('integracoes/verificar-email')
+  verifyEmail(@CurrentUser() user:any) {if(!['ADMINISTRADOR','DIRETOR'].includes(user.perfil))throw new ForbiddenException();return this.comunicacaoService.verifyEmail();}
   @Get('whatsapp/fila')
   @ApiOperation({ summary: 'Listar histórico/fila de mensagens enviadas do WhatsApp' })
   getWhatsAppQueue() {

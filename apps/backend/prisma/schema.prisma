@@ -166,6 +166,7 @@ model Usuario {
   atualizadoEm DateTime       @updatedAt
 
   // Relações
+  holerites               Lancamento[] @relation("holeritesUsuario")
   profissional            Profissional?
   refreshTokens           RefreshToken[]
   auditLogs               AuditLog[]
@@ -647,6 +648,10 @@ model Lancamento {
   observacoes    String?
   contaCaixa     String          @default("Caixa Geral")
   contratoId     String?
+  colaboradorId  String?
+  colaborador Usuario? @relation("holeritesUsuario", fields: [colaboradorId], references: [id], onDelete: Restrict)
+
+  @@index([colaboradorId])
   criadoEm      DateTime        @default(now())
   atualizadoEm  DateTime        @updatedAt
 
@@ -974,6 +979,7 @@ model Adiantamento {
 }
 
 model MensagemFila {
+  canal String @default("WHATSAPP")
   id           String   @id @default(uuid())
   destinatario String
   mensagem     String   @db.Text

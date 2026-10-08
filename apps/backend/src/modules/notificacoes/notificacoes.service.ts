@@ -16,9 +16,9 @@ export class NotificacoesService {
     return this.prisma.notificacao.create({ data });
   }
 
-  async markAsRead(id: string) {
-    return this.prisma.notificacao.update({
-      where: { id },
+  async markAsRead(id: string,usuarioId:string) {
+    return this.prisma.notificacao.updateMany({
+      where: { id, usuarioId },
       data: { lida: true },
     });
   }

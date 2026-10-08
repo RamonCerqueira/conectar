@@ -1,5 +1,6 @@
 import { Controller, Get, Post, Put, Delete, Body, Param, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { UsuariosService } from './usuarios.service';
 
 @ApiTags('usuarios')
@@ -26,8 +27,8 @@ export class UsuariosController {
 
   @Put(':id/senha')
   @ApiOperation({ summary: 'Alterar senha' })
-  changePassword(@Param('id') id: string, @Body() body: { novaSenha: string }) {
-    return this.usuariosService.changePassword(id, body.novaSenha);
+  changePassword(@Param('id') id: string, @Body() body: { novaSenha: string; senhaAtual?: string }, @CurrentUser() user: { id: string }) {
+    return this.usuariosService.changePassword(id, body.novaSenha, body.senhaAtual, id === user.id);
   }
 
   @Delete(':id')

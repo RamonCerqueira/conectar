@@ -219,6 +219,10 @@ export class AgendaService {
     });
   }
 
+  async concluirListaEspera(id: string) {
+    return this.prisma.listaEspera.update({ where: { id }, data: { notificado: true } });
+  }
+
   async addListaEspera(data: any) {
     return this.prisma.listaEspera.create({ data });
   }

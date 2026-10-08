@@ -11,12 +11,12 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
-import { extname, join } from 'path';
+import { extname, resolve } from 'path';
 import { existsSync, mkdirSync } from 'fs';
 import { ApiTags, ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
 import { ArquivosService } from './arquivos.service';
 
-const uploadDir = join(process.cwd(), process.env.STORAGE_PATH || './storage', 'uploads');
+const uploadDir = resolve(process.cwd(), process.env.STORAGE_PATH || './storage', 'uploads');
 if (!existsSync(uploadDir)) {
   mkdirSync(uploadDir, { recursive: true });
 }
@@ -70,11 +70,6 @@ export class ArquivosController {
       mimeType: file.mimetype,
       tamanho: file.size,
     });
-  }
-
-  @Post()
-  create(@Body() data: any) {
-    return this.arquivosService.create(data);
   }
 
   @Delete(':id')

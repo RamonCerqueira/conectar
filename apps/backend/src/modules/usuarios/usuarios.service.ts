@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { PerfilUsuario } from '@prisma/client';
@@ -53,10 +53,15 @@ export class UsuariosService {
     salarioBase: number; cargaHoraria: string; chavePix: string;
   }>) {
     await this.findOne(id);
-    return this.prisma.usuario.update({ where: { id }, data });
+    return this.prisma.usuario.update({ where: { id }, data, omit: { senha: true } });
   }
 
-  async changePassword(id: string, novaSenha: string) {
+  async changePassword(id: string, novaSenha: string, senhaAtual?: string, requireCurrent = false) {
+    if (typeof novaSenha !== 'string' || novaSenha.length < 6 || novaSenha.length > 72) throw new BadRequestException('A senha precisa ter entre 6 e 72 caracteres.');
+    if (requireCurrent) {
+      const user = await this.prisma.usuario.findUnique({where:{id},select:{senha:true}});
+      if (!user || !senhaAtual || !await bcrypt.compare(senhaAtual,user.senha)) throw new UnauthorizedException('Senha atual incorreta.');
+    }
     const hash = await bcrypt.hash(novaSenha, parseInt(process.env.BCRYPT_ROUNDS || '12'));
     await this.prisma.usuario.update({ where: { id }, data: { senha: hash } });
     return { message: 'Senha alterada com sucesso' };

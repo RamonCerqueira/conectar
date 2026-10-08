@@ -1,4 +1,5 @@
 "use client";
+import { openMaterial } from "@/lib/private-download";
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -23,6 +24,8 @@ import {
 } from "lucide-react";
 import { cn, formatDate } from "@/lib/utils";
 import { toast } from "sonner";
+import { api, BASE_API_URL } from "@/lib/api";
+import { getApiErrorMessage } from "@/lib/api-errors";
 
 interface TabAtividadesProps {
   paciente: any;
@@ -63,7 +66,7 @@ export function TabAtividades({
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadedFileName, setUploadedFileName] = useState("");
 
-  const handleCreateRecurso = (e: React.FormEvent) => {
+  const handleCreateRecurso = async (e: React.FormEvent) => {
     e.preventDefault();
     const newRec = {
       id: `rec-${Date.now()}`,
@@ -85,7 +88,10 @@ export function TabAtividades({
       ] : undefined
     };
 
-    setRecursos([newRec, ...recursos]);
+    try {
+      const response = await api.post("/exercicios", { pacienteId: paciente.id, titulo: recTitulo, tipo: recTipo, descricao: recDescricao, url: recUrl || undefined });
+      setRecursos(previous => [{...response.data, dataCriacao: response.data.criadoEm}, ...previous]);
+    } catch (error) { toast.error(getApiErrorMessage(error, "Não foi possível salvar o recurso.")); return; }
     setIsNewRecursoModalOpen(false);
     
     // Reset Form
@@ -99,7 +105,8 @@ export function TabAtividades({
     toast.success("Recurso / Mídia adicionado com sucesso!");
   };
 
-  const handleDeleteRecurso = (id: string, titulo: string) => {
+  const handleDeleteRecurso = async (id: string, titulo: string) => {
+    try { await api.delete(`/exercicios/${id}`); } catch (error) { toast.error(getApiErrorMessage(error, "Não foi possível excluir o recurso.")); return; }
     setRecursos(recursos.filter((r) => r.id !== id));
     toast.success(`Mídia "${titulo}" excluída com sucesso!`);
     if (previewMedia && previewMedia.id === id) {
@@ -107,55 +114,29 @@ export function TabAtividades({
     }
   };
 
-  const handleToggleShare = (id: string, currentlyShared: boolean) => {
-    setRecursos(
-      recursos.map((r) => (r.id === id ? { ...r, compartilhado: !r.compartilhado } : r))
-    );
-    toast.success(
-      currentlyShared
-        ? "Mídia ocultada do aplicativo da família."
-        : "Mídia publicada no Portal da Família com sucesso!"
-    );
-  };
-
   // Drag and drop mock handler
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
   };
 
-  const handleDropFile = (e: React.DragEvent) => {
+  const handleDropFile = async (e: React.DragEvent) => {
     e.preventDefault();
-    const files = e.dataTransfer.files;
-    if (files && files.length > 0) {
-      const file = files[0];
-      setUploadedFileName(file.name);
-      setRecTitulo(file.name.split(".").slice(0, -1).join(" "));
-      
-      // Select appropriate type by file extension
-      const ext = file.name.split(".").pop()?.toLowerCase();
-      if (ext === "pdf") setRecTipo("PDF");
-      else if (ext === "mp4" || ext === "avi" || ext === "mkv") setRecTipo("VIDEO");
-      
-      // Simulate progress bar upload
-      setIsUploading(true);
-      setUploadProgress(0);
-      const timer = setInterval(() => {
-        setUploadProgress((prev) => {
-          if (prev >= 100) {
-            clearInterval(timer);
-            setIsUploading(false);
-            toast.success("Arquivo pré-carregado com sucesso!");
-            return 100;
-          }
-          return prev + 25;
-        });
-      }, 200);
-    }
+    const file = e.dataTransfer.files[0];
+    if (!file || isUploading) return;
+    setIsUploading(true); setUploadProgress(0);
+    try {
+      const form = new FormData(); form.append("file", file); form.append("pacienteId", paciente.id); form.append("tipo", file.type.startsWith("video/") ? "VIDEO" : "DOCUMENTO");
+      const response = await api.post("/arquivos/upload", form, {headers:{"Content-Type":"multipart/form-data"}, onUploadProgress: event => setUploadProgress(event.total ? Math.round(event.loaded / event.total * 100) : 0)});
+      setUploadedFileName(file.name); setRecTitulo(file.name.replace(/\.[^.]+$/, ""));
+      setRecTipo(file.type.startsWith("video/") ? "VIDEO" : "PDF");
+      setRecUrl(`${BASE_API_URL.replace(/\/api$/, "")}${response.data.caminho}`);
+      setUploadProgress(100); toast.success("Arquivo enviado ao servidor.");
+    } catch (error) { toast.error(getApiErrorMessage(error, "Não foi possível enviar o arquivo.")); } finally { setIsUploading(false); }
   };
 
   // Calculations for Stats
   const totalMedia = filteredRecursos.length;
-  const sharedMedia = filteredRecursos.filter((r) => r.compartilhado).length;
+  const sharedMedia = filteredRecursos.length;
   const answeredFeedbacks = filteredRecursos.filter((r) => r.respostasPai).length;
   
   // Calculate mock storage size
@@ -169,7 +150,7 @@ export function TabAtividades({
   const searchFilteredRecursos = filteredRecursos.filter((rec) => {
     const matchesSearch =
       rec.titulo.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      rec.descricao.toLowerCase().includes(searchQuery.toLowerCase());
+      (rec.descricao || "").toLowerCase().includes(searchQuery.toLowerCase());
     
     const matchesCategory = selectedCategory === "TODOS" || rec.tipo === selectedCategory;
     
@@ -267,7 +248,7 @@ export function TabAtividades({
       {/* ─── MEDIA CARDS GRID ─── */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
         {searchFilteredRecursos.map((rec) => {
-          const isShared = rec.compartilhado;
+          const isShared = true;
           return (
             <motion.div
               layout
@@ -341,14 +322,7 @@ export function TabAtividades({
                   Visualizar
                 </button>
 
-                <button
-                  type="button"
-                  onClick={() => handleToggleShare(rec.id, isShared)}
-                  className="px-2.5 py-1.5 rounded-lg border hover:bg-muted transition-colors cursor-pointer border-border text-muted-foreground hover:text-foreground bg-transparent"
-                  title={isShared ? "Retirar do Portal da Família" : "Publicar no Portal da Família"}
-                >
-                  {isShared ? <Lock className="h-3.5 w-3.5 text-purple-500" /> : <Unlock className="h-3.5 w-3.5" />}
-                </button>
+                <span className="text-xs text-purple-600 px-2 self-center" title="Recurso disponível para a família desta criança">No portal</span>
 
                 <button
                   type="button"
@@ -418,24 +392,7 @@ export function TabAtividades({
                 {previewMedia.tipo === "VIDEO" && (
                   <div className="space-y-2">
                     <h6 className="font-bold text-muted-foreground uppercase text-[10px]">Pré-visualização do Reprodutor de Vídeo</h6>
-                    <div className="aspect-video rounded-xl bg-black relative flex flex-col justify-between p-3 overflow-hidden border border-neutral-800">
-                      <div className="absolute inset-0 flex items-center justify-center bg-purple-950/20">
-                        <Play className="h-12 w-12 text-white animate-pulse bg-purple-600/70 p-3 rounded-full cursor-pointer" />
-                      </div>
-                      <div className="w-full flex justify-between items-center text-white text-[10px] z-10 bg-black/50 p-2 rounded-lg">
-                        <span className="font-bold">Player de Vídeo Prescrito</span>
-                        <span className="font-semibold text-neutral-300">{previewMedia.duracao || "03:45"}</span>
-                      </div>
-                      <div className="w-full space-y-1 z-10">
-                        <div className="w-full h-1.5 bg-neutral-700 rounded-full overflow-hidden">
-                          <div className="w-1/4 h-full bg-purple-500" />
-                        </div>
-                        <div className="flex justify-between items-center text-[8px] text-neutral-400">
-                          <span>01:12</span>
-                          <span>{previewMedia.duracao || "03:45"}</span>
-                        </div>
-                      </div>
-                    </div>
+                    <button className="rounded-xl p-4 bg-purple-600 text-white" onClick={()=>openMaterial(previewMedia.url,previewMedia.titulo).catch(()=>toast.error("Não foi possível abrir o vídeo."))}>Abrir vídeo</button>
                   </div>
                 )}
 
@@ -450,7 +407,7 @@ export function TabAtividades({
                       </div>
                       <button
                         type="button"
-                        onClick={() => toast.info("Simulação de download de laudo iniciada.")}
+                        onClick={() => openMaterial(previewMedia.url, previewMedia.titulo).catch(()=>toast.error("Não foi possível baixar o documento."))}
                         className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-[10px] border-0 cursor-pointer transition-all"
                       >
                         <FileDown className="h-4 w-4" /> Baixar Documento
@@ -660,18 +617,7 @@ export function TabAtividades({
                   />
                 </div>
 
-                <div className="flex items-center gap-2 pt-2 text-left">
-                  <input
-                    type="checkbox"
-                    id="compartilhado"
-                    checked={recCompartilhado}
-                    onChange={(e) => setRecCompartilhado(e.target.checked)}
-                    className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-border rounded"
-                  />
-                  <label htmlFor="compartilhado" className="text-xs font-semibold text-foreground cursor-pointer select-none">
-                    Compartilhar imediatamente com o Portal da Família
-                  </label>
-                </div>
+                <p className="text-xs text-muted-foreground">Este recurso ficará disponível no portal da família desta criança.</p>
 
                 <div className="pt-4 border-t border-border flex justify-end gap-3 bg-card">
                   <button

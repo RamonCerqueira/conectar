@@ -74,7 +74,7 @@ export class SalasService {
     const sala = await this.prisma.sala.findUnique({
       where: { id },
       include: {
-        profissionais: { include: { profissional: { include: { usuario: true } } } },
+        profissionais: { include: { profissional: { include: { usuario: { select: { id: true, nome: true, email: true, foto: true } } } } } },
         alocacoes: {
           where: { ativo: true },
           include: { profissional: { include: { usuario: { select: { nome: true } } } } }

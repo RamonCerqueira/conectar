@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Search, Plus, X, Clock, Layers, Mail, Award, BookOpen, MapPin, DollarSign } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getInitials } from "@/lib/utils";
+import { getApiErrorMessage } from "@/lib/api-errors";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
 import { ProfissionalCard } from "./profissionais/profissional-card";
@@ -153,7 +154,7 @@ export function ProfissionaisPage() {
       setIsNewModalOpen(false);
     } catch (err) {
       console.error(err);
-      toast.error("Erro ao cadastrar profissional no servidor.");
+      toast.error(getApiErrorMessage(err, "Erro ao cadastrar profissional no servidor."));
     }
   };
 

@@ -47,6 +47,8 @@ import {
   Cell,
   Legend
 } from "recharts";
+import { PaymentCode } from "@/components/payment-code";
+import { downloadDocument } from "@/lib/private-download";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
 import { cn, formatCurrency, formatDate } from "@/lib/utils";
@@ -153,24 +155,24 @@ export function FinanceiroPage() {
       ]);
 
       const colaboradores = (resUsers.data || [])
-        .filter((u: any) => u.perfil !== "PAIS" && u.perfil !== "ADMINISTRADOR")
+        .filter((u: any) => u.perfil !== "PAIS" && u.perfil !== "ADMINISTRADOR" && !u.profissional)
         .map((u: any) => ({
           id: u.id,
           nome: u.nome,
           cargo: u.perfil === "RECEPCAO" ? "Recepção / Secretária" : "Administrativo",
           tipoContrato: (u.tipoContrato || "CLT") as "CLT" | "PJ",
-          salarioBase: u.salarioBase ? parseFloat(u.salarioBase) : 1800,
+          salarioBase: u.salarioBase ? parseFloat(u.salarioBase) : 0,
           cpfCnpj: u.cpfCnpj || "000.000.000-00",
           telefone: u.telefone || "(00) 00000-0000",
           chavePix: u.chavePix || "",
         }));
 
       const clinicos = (resProfs.data || []).map((p: any) => ({
-        id: p.id,
+        id: p.usuarioId,
         nome: p.usuario?.nome || "Terapeuta",
         cargo: p.cargo || "Clínico",
         tipoContrato: (p.tipoContrato || "PJ") as "CLT" | "PJ",
-        salarioBase: p.salarioBase ? parseFloat(p.salarioBase) : 3200,
+        salarioBase: p.salarioBase ? parseFloat(p.salarioBase) : 0,
         cpfCnpj: p.cpfCnpj || "000.000.000-00",
         telefone: p.telefone || "(00) 00000-0000",
         comissaoPorcentagem: p.comissaoPorcentagem ? parseFloat(p.comissaoPorcentagem) : 50,
@@ -464,187 +466,11 @@ export function FinanceiroPage() {
     return { proventos, descontos };
   };
 
-  const handlePrintComprovante = (lancamento: any) => {
-    const printWindow = window.open("", "_blank");
-    if (!printWindow) return;
-    
-    const html = `
-      <html>
-        <head>
-          <title>Comprovante - Conectar</title>
-          <style>
-            body { font-family: sans-serif; padding: 40px; color: #333; }
-            .header { text-align: center; border-bottom: 2px solid #7c3aed; padding-bottom: 20px; margin-bottom: 30px; }
-            .logo { font-size: 24px; font-weight: bold; color: #7c3aed; }
-            .title { font-size: 18px; font-weight: bold; margin-top: 10px; text-transform: uppercase; letter-spacing: 1px; }
-            .content { line-height: 1.8; font-size: 14px; }
-            .row { display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding: 10px 0; }
-            .label { font-weight: bold; color: #666; }
-            .value { font-weight: bold; }
-            .footer { margin-top: 50px; text-align: center; font-size: 12px; color: #999; border-top: 1px dashed #ccc; padding-top: 20px; }
-            .signature { margin-top: 65px; text-align: center; display: inline-block; width: 250px; border-top: 1px solid #333; padding-top: 5px; }
-          </style>
-        </head>
-        <body>
-          <div class="header">
-            <div class="logo">INSTITUTO CONECTAR</div>
-            <div class="title">Comprovante de Operação Financeira</div>
-          </div>
-          <div class="content">
-            <div class="row"><span class="label">ID da Transação:</span><span class="value">${lancamento.id}</span></div>
-            <div class="row"><span class="label">Tipo:</span><span class="value">${lancamento.tipo === 'RECEITA' ? 'RECEBIMENTO (ENTRADA)' : 'PAGAMENTO (SAÍDA)'}</span></div>
-            <div class="row"><span class="label">Descrição:</span><span class="value">${lancamento.descricao}</span></div>
-            <div class="row"><span class="label">Valor Liquidado:</span><span class="value">${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(lancamento.valor)}</span></div>
-            <div class="row"><span class="label">Forma de Liquidação:</span><span class="value">${lancamento.formaPagamento}</span></div>
-            <div class="row"><span class="label">Data de Vencimento:</span><span class="value">${lancamento.vencimento ? new Date(lancamento.vencimento + 'T00:00:00').toLocaleDateString('pt-BR') : '—'}</span></div>
-            <div class="row"><span class="label">Data de Pagamento:</span><span class="value">${lancamento.pagamento ? new Date(lancamento.pagamento + 'T00:00:00').toLocaleDateString('pt-BR') : '—'}</span></div>
-            <div class="row"><span class="label">Situação:</span><span class="value" style="color: #10b981;">EFETIVADO / PAGO</span></div>
-          </div>
-          <div style="text-align: center; margin-top: 40px;">
-            <div class="signature">Assinatura do Responsável</div>
-          </div>
-          <div class="footer">
-            Instituto Conectar Apoio à Aprendizagem LTDA | CNPJ: 12.345.678/0001-99
-          </div>
-          <script>
-            window.onload = function() { window.print(); }
-          </script>
-        </body>
-      </html>
-    `;
-    
-    printWindow.document.write(html);
-    printWindow.document.close();
+  const handlePrintComprovante = async (l: any) => {
+    try {await downloadDocument(`/financeiro/${l.id}/recibo`,`recibo-${l.id}.pdf`);}catch(e:any){toast.error("Recibo indisponível: confirme o pagamento e os dados do emissor nas configurações.");}
   };
-
-  const handlePrintContracheque = (l: any) => {
-    const printWindow = window.open("", "_blank");
-    if (!printWindow) return;
-    
-    let cargo = "Funcionário";
-    let nome = "Funcionário";
-    let mes = "MM/AAAA";
-    
-    const desc = l.descricao;
-    if (desc.includes("[Folha Salarial]")) {
-      const cleanDesc = desc.replace("[Folha Salarial]", "").trim();
-      const parts = cleanDesc.split(" - ");
-      if (parts.length >= 2) {
-        cargo = parts[0].trim();
-        const nameAndMonth = parts[1].split(" (");
-        nome = nameAndMonth[0].trim();
-        if (nameAndMonth.length >= 2) {
-          mes = nameAndMonth[1].replace(")", "").trim();
-        }
-      }
-    } else if (desc.includes("[Vale Transporte]")) {
-      const cleanDesc = desc.replace("[Vale Transporte] Liberação Ref:", "").trim();
-      const parts = cleanDesc.split(" - ");
-      if (parts.length >= 2) {
-        mes = parts[0].trim();
-        nome = parts[1].trim();
-        cargo = "Auxílio Vale-Transporte";
-      }
-    }
-
-    const { proventos, descontos } = parseHoleriteDetails(l.observacoes, l.valor);
-    
-    if (proventos.length === 0 && descontos.length === 0) {
-      proventos.push({ label: desc.includes("Vale") ? "Vale Transporte Liberação" : "Vencimento Base", value: l.valor });
-    }
-
-    const totalProventos = proventos.reduce((sum, p) => sum + p.value, 0);
-    const totalDescontos = descontos.reduce((sum, d) => sum + d.value, 0);
-    const liquido = totalProventos - totalDescontos;
-
-    const html = `
-      <html>
-        <head>
-          <title>Contracheque - ${nome}</title>
-          <style>
-            body { font-family: monospace; padding: 20px; color: #000; font-size: 12px; }
-            .border-box { border: 2px solid #000; padding: 15px; max-width: 800px; margin: auto; }
-            .header { display: flex; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 10px; }
-            .col { flex: 1; }
-            .col-r { text-align: right; }
-            .bold { font-weight: bold; }
-            .section { border-bottom: 1px solid #000; padding: 5px 0; margin-bottom: 5px; }
-            .grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 5px; border-bottom: 1px solid #000; padding-bottom: 5px; }
-            .grid-head { font-weight: bold; border-bottom: 2px solid #000; padding-bottom: 2px; }
-            .grid-row { padding: 4px 0; }
-            .totals { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 5px; font-weight: bold; padding-top: 5px; border-top: 1px solid #000; }
-            .footer { margin-top: 30px; display: flex; justify-content: space-between; }
-            .sign-area { border-top: 1px solid #000; width: 220px; text-align: center; margin-top: 40px; padding-top: 5px; }
-          </style>
-        </head>
-        <body>
-          <div class="border-box">
-            <div class="header">
-              <div class="col">
-                <div class="bold">INSTITUTO CONECTAR APOIO À APRENDIZAGEM LTDA</div>
-                <div>CNPJ: 12.345.678/0001-99</div>
-              </div>
-              <div class="col col-r">
-                <div class="bold">RECIBO DE PAGAMENTO DE SALÁRIO</div>
-                <div>Referência: ${mes}</div>
-              </div>
-            </div>
-
-            <div class="section grid-row">
-              <div><span class="bold">Nome do Funcionário:</span> ${nome}</div>
-              <div><span class="bold">Função/Cargo:</span> ${cargo}</div>
-              <div><span class="bold">Identificação ID:</span> ${l.id.substring(0, 8)}</div>
-            </div>
-
-            <div class="grid grid-head">
-              <div>Descrição do Evento</div>
-              <div style="text-align: right;">Proventos (+)</div>
-              <div style="text-align: right;">Descontos (-)</div>
-            </div>
-
-            ${proventos.map(p => `
-              <div class="grid grid-row">
-                <div>${p.label}</div>
-                <div style="text-align: right;">${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(p.value)}</div>
-                <div style="text-align: right;">—</div>
-              </div>
-            `).join("")}
-
-            ${descontos.map(d => `
-              <div class="grid grid-row">
-                <div>${d.label}</div>
-                <div style="text-align: right;">—</div>
-                <div style="text-align: right;">${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(d.value)}</div>
-              </div>
-            `).join("")}
-
-            <div style="height: 40px;"></div>
-
-            <div class="totals">
-              <div>Totais Consolidados</div>
-              <div style="text-align: right;">${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalProventos)}</div>
-              <div style="text-align: right;">${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalDescontos)}</div>
-            </div>
-
-            <div class="totals" style="border-top: 2px solid #000; margin-top: 5px; padding-top: 5px; font-size: 14px;">
-              <div>VALOR LÍQUIDO A RECEBER:</div>
-              <div style="grid-column: span 2; text-align: right;" class="bold">${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(liquido)}</div>
-            </div>
-
-            <div class="footer">
-              <div class="sign-area">Assinatura do Funcionário</div>
-              <div class="sign-area">Instituto Conectar</div>
-            </div>
-          </div>
-          <script>
-            window.onload = function() { window.print(); }
-          </script>
-        </body>
-      </html>
-    `;
-    
-    printWindow.document.write(html);
-    printWindow.document.close();
+  const handlePrintContracheque = async (l:any) => {
+    try {await downloadDocument(`/financeiro/${l.id}/holerite`,`holerite-${l.id}.pdf`);}catch {toast.error("Não foi possível emitir o holerite. Confira o vínculo com o colaborador.");}
   };
 
   // ─── CALCULATE SYSTEM METRICS ─────────────────────────────────────────────
@@ -739,6 +565,9 @@ export function FinanceiroPage() {
 
     const payload = {
       tipo: "DESPESA",
+      colaboradorId: selectedEmp.id,
+      adiantamentoIds: empAdvances.map(a=>a.id),
+      referencia: mesReferencia,
       descricao: `[Folha Salarial] ${selectedEmp.cargo} - ${selectedEmp.nome} (${mesReferencia})`,
       valor: liquido - advancesVal,
       formaPagamento: "PIX",
@@ -751,13 +580,6 @@ export function FinanceiroPage() {
       await api.post("/financeiro", payload);
       toast.success(`Despesa de folha de pagamento de ${selectedEmp.nome} lançada no financeiro!`);
       
-      // Update advances as paid
-      if (advancesVal > 0) {
-        await Promise.all(
-          empAdvances.map(a => api.put(`/financeiro/${a.id}`, { status: "PAGO" }).catch(() => {}))
-        );
-      }
-
       setIsPayrollModalOpen(false);
       setSelectedEmp(null);
       loadLancamentos();
@@ -1164,7 +986,7 @@ export function FinanceiroPage() {
                           )}
                           {l.status === "PAGO" && (
                             <div className="flex justify-end gap-1.5">
-                              {(l.descricao.includes("[Folha Salarial]") || l.descricao.includes("[Vale Transporte]")) && (
+                              {l.colaboradorId && (
                                 <button
                                   onClick={() => handlePrintContracheque(l)}
                                   className="py-1.5 px-2.5 rounded-lg border border-purple-500/20 text-purple-400 font-bold hover:bg-purple-500/10 transition-all cursor-pointer text-[10px] uppercase tracking-wider flex items-center gap-1"
@@ -1173,6 +995,7 @@ export function FinanceiroPage() {
                                   <span>Contracheque</span>
                                 </button>
                               )}
+                              {l.tipo === "RECEITA" && (
                               <button
                                 onClick={() => handlePrintComprovante(l)}
                                 className="py-1.5 px-2.5 rounded-lg border border-zinc-500/20 text-zinc-400 font-bold hover:bg-zinc-500/10 transition-all cursor-pointer text-[10px] uppercase tracking-wider flex items-center gap-1"
@@ -1180,6 +1003,7 @@ export function FinanceiroPage() {
                                 <Download className="h-3.5 w-3.5" />
                                 <span>Recibo</span>
                               </button>
+                              )}
                             </div>
                           )}
                         </td>
@@ -1259,7 +1083,7 @@ export function FinanceiroPage() {
                             setSelectedEmp(emp);
                             // Load employee advances for the payroll calculation
                             const res = await api.get(`/financeiro/adiantamentos?refMes=${mesReferencia}`);
-                            const list = (res.data || []).filter((a: any) => a.usuarioId === emp.id && !a.pago);
+                            const list = (res.data || []).filter((a: any) => a.usuarioId === emp.id && a.status === "PENDENTE");
                             setEmpAdvances(list);
                             setIsPayrollModalOpen(true);
                           }}
@@ -1395,9 +1219,8 @@ export function FinanceiroPage() {
                           <td className="p-4 text-right">
                             <button
                               onClick={() => {
-                                const text = `Olá! Gostaríamos de lembrar que a cobrança de "${l.descricao}" no valor de ${formatCurrency(l.valor)} venceu em ${formatDate(l.vencimento)} e consta pendente no Instituto Conectar. Chave PIX CNPJ: 12.345.678/0001-99. Obrigado!`;
-                                navigator.clipboard.writeText(text);
-                                toast.success("Mensagem de cobrança copiada para a área de transferência!");
+                                const text = `Olá! Gostaríamos de lembrar que a cobrança de "${l.descricao}" no valor de ${formatCurrency(l.valor)} venceu em ${formatDate(l.vencimento)} e consta pendente no Instituto Conectar. Confira os dados oficiais de pagamento no Portal dos Pais ou com a recepção. Obrigado!`;
+                                navigator.clipboard.writeText(text).then(()=>toast.success("Mensagem de cobrança copiada para a área de transferência!")).catch(()=>toast.error("Não foi possível copiar o aviso."));
                               }}
                               className="inline-flex items-center gap-1.5 py-1.5 px-3 rounded-lg border border-purple-500/20 text-purple-400 font-bold hover:bg-purple-500/10 text-[10px] uppercase tracking-wider cursor-pointer"
                             >
@@ -2138,23 +1961,8 @@ export function FinanceiroPage() {
               </div>
 
               <div className="p-6 flex flex-col items-center gap-4 text-xs text-center">
-                {/* Simulated PIX QR Code image */}
-                <div className="h-44 w-44 bg-white p-3.5 border rounded-2xl flex items-center justify-center">
-                  <img
-                    src="https://upload.wikimedia.org/wikipedia/commons/d/d0/QR_code_for_mobile_English_Wikipedia.svg"
-                    alt="Simulated PIX QRCode"
-                    className="h-full w-full object-contain"
-                  />
-                </div>
-
-                <div className="w-full bg-muted/40 p-3 rounded-xl border border-border/40 space-y-1">
-                  <span className="text-[9px] text-muted-foreground font-bold uppercase tracking-wider">PIX Copia e Cola</span>
-                  <p className="font-mono text-[9px] select-all break-all text-foreground bg-background p-1.5 rounded border border-border/60">
-                    00020101021126360014br.gov.pix0114123456780001995204000053039865802BR5917InstitutoConectar6009SaoPaulo620705031236304CA12
-                  </p>
-                </div>
-
-                <p className="font-bold text-foreground text-sm">Valor: {formatCurrency(pixPayload.valor)}</p>
+                <PaymentCode id={pixPayload.id} />
+                <p className="text-xs text-muted-foreground">Confirme a entrada na conta bancária antes de dar baixa.</p>
 
                 <button
                   onClick={() => {

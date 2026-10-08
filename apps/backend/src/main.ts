@@ -34,6 +34,8 @@ async function bootstrap() {
 
   // ─── CORS ────────────────────────────────────────────────────
   const allowedOrigins = [
+    'https://app.institutoconectar.net.br',
+    'https://institutoconectar.net.br',
     'https://app.institutoconectar.genioplay.com.br',
     'https://institutoconectar.genioplay.com.br',
     'https://api.institutoconectar.genioplay.com.br',
@@ -45,10 +47,10 @@ async function bootstrap() {
 
   app.enableCors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.genioplay.com.br')) {
+      if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
-        callback(null, true);
+        callback(new Error("Origem não autorizada"), false);
       }
     },
     credentials: true,
@@ -67,12 +69,6 @@ async function bootstrap() {
       transform: true,
       transformOptions: { enableImplicitConversion: true },
     }),
-  );
-
-  // ─── Arquivos Estáticos (Storage) ────────────────────────────
-  app.useStaticAssets(
-    join(process.cwd(), process.env.STORAGE_PATH || './storage'),
-    { prefix: '/storage' },
   );
 
   // ─── Swagger ─────────────────────────────────────────────────

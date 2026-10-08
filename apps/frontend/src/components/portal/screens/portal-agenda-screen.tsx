@@ -43,10 +43,10 @@ export function PortalAgendaScreen({
   const now = new Date();
 
   // Filtrar consultas futuras e passadas
-  const proximas = agenda.filter((ag) => new Date(ag.data) >= now || ag.status === "AGENDADO" || ag.status === "CONFIRMADO");
+  const proximas = agenda.filter((ag) => new Date(ag.data) >= now && ag.status !== "CANCELADO");
   const historico = agenda.filter((ag) => new Date(ag.data) < now && ag.status !== "AGENDADO");
 
-  const displayList = filter === "proximas" ? (proximas.length > 0 ? proximas : agenda) : historico;
+  const displayList = filter === "proximas" ? proximas : historico;
 
   // ─────────────────────────────────────────────────────────────────────────
   // CONFIRMAÇÃO DE PRESENÇA (TAREFA 19 DO ROADMAP OFICIAL COM CELEBRAÇÃO)
@@ -65,11 +65,7 @@ export function PortalAgendaScreen({
       });
       onRefresh();
     } catch (err) {
-      soundEffects.playSuccess();
-      setShowConfetti(true);
-      setTimeout(() => setShowConfetti(false), 2000);
-      toast.success("Presença confirmada! Notificação enviada à recepção.");
-      onRefresh();
+      toast.error("Não foi possível confirmar a presença. Tente novamente.");
     } finally {
       setConfirmingId(null);
     }

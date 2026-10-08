@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 import { Prontuario } from "@/types/prontuario";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
+import { getApiErrorMessage } from "@/lib/api-errors";
 import { getOfflineProntuarios } from "@/lib/offline-sync";
 
 // Imports of refactored tab components
@@ -32,7 +33,9 @@ interface ProntuariosPageProps {
   defaultTab?: "evolucao" | "plano" | "avaliacoes" | "frequencia" | "cadastro";
 }
 
-export function ProntuariosPage({ defaultTab = "evolucao" }: ProntuariosPageProps) {
+export function ProntuariosPage({
+  defaultTab = "evolucao",
+}: ProntuariosPageProps) {
   // Navigation & Patients
   const [pacientes, setPacientes] = useState<any[]>([]);
   const [selectedPacienteId, setSelectedPacienteId] = useState<string>("");
@@ -76,16 +79,33 @@ export function ProntuariosPage({ defaultTab = "evolucao" }: ProntuariosPageProp
   useEffect(() => {
     const init = async () => {
       try {
-        const res = await api.get("/pacientes");
-        const data = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+        const res = await api.get("/pacientes", { params: { limit: 100 } });
+        const data = Array.isArray(res.data) ? res.data : res.data?.data || [];
+        const linkedId = new URLSearchParams(window.location.search).get("pacienteId");
+        if (linkedId && !data.some((p: any) => p.id === linkedId)) {
+          const linked = await api.get(`/pacientes/${encodeURIComponent(linkedId)}`);
+          if (linked.data?.id) data.push(linked.data);
+        }
         if (data.length > 0) {
           const mapped = data.map((p: any) => ({
             ...p,
             idade: p.dataNascimento ? getAge(p.dataNascimento) : 8,
           }));
           setPacientes(mapped);
-          setSelectedPacienteId(mapped[0].id);
-          loadAllPatientData(mapped[0].id);
+          const requestedId = new URLSearchParams(window.location.search).get(
+            "pacienteId",
+          );
+          const selected =
+            mapped.find((p: any) => p.id === requestedId) ||
+            (!requestedId ? mapped[0] : undefined);
+          if (!selected) {
+            toast.error(
+              "Paciente solicitado não encontrado. Selecione um paciente na lista.",
+            );
+            return;
+          }
+          setSelectedPacienteId(selected.id);
+          loadAllPatientData(selected.id);
         }
       } catch (err) {
         console.error("API error loading patients", err);
@@ -98,18 +118,22 @@ export function ProntuariosPage({ defaultTab = "evolucao" }: ProntuariosPageProp
     // 1. Evolutions
     try {
       const res = await api.get(`/prontuarios/paciente/${pacId}`);
-      const serverPronts = res.data || [];
-      const offlinePronts = getOfflineProntuarios().filter((p) => p.pacienteId === pacId);
+      const serverPronts = Array.isArray(res.data) ? res.data : [];
+      const offlinePronts = getOfflineProntuarios().filter(
+        (p) => p.pacienteId === pacId,
+      );
       setProntuarios([...offlinePronts, ...serverPronts]);
     } catch (e) {
-      const offlinePronts = getOfflineProntuarios().filter((p) => p.pacienteId === pacId);
+      const offlinePronts = getOfflineProntuarios().filter(
+        (p) => p.pacienteId === pacId,
+      );
       setProntuarios(offlinePronts);
     }
 
     // 2. Plans / Metas
     try {
       const res = await api.get(`/plano-terapeutico/paciente/${pacId}`);
-      setPlanos(res.data || []);
+      setPlanos((Array.isArray(res.data) ? res.data : []).map((plano: any) => ({...plano, metas: (plano.metas || []).map(normalizeMeta)})));
     } catch (e) {
       setPlanos([]);
     }
@@ -117,7 +141,7 @@ export function ProntuariosPage({ defaultTab = "evolucao" }: ProntuariosPageProp
     // 3. Assessments
     try {
       const res = await api.get(`/avaliacoes/paciente/${pacId}`);
-      setAvaliacoes(res.data || []);
+      setAvaliacoes((Array.isArray(res.data) ? res.data : []).map((av: any) => ({ ...av, tipo: typeof av.tipo === "string" ? av.tipo : av.tipo?.nome || "Avaliação" })));
     } catch (e) {
       setAvaliacoes([]);
     }
@@ -133,7 +157,7 @@ export function ProntuariosPage({ defaultTab = "evolucao" }: ProntuariosPageProp
     // 5. Recursos / Exercicios
     try {
       const res = await api.get(`/exercicios/paciente/${pacId}`);
-      setRecursos(res.data || []);
+      setRecursos((Array.isArray(res.data) ? res.data : []).map((rec: any) => ({...rec, tipo: rec.tipo?.toUpperCase(), dataCriacao: rec.criadoEm, descricao: rec.descricao || ""})));
     } catch (e) {
       setRecursos([]);
     }
@@ -149,61 +173,36 @@ export function ProntuariosPage({ defaultTab = "evolucao" }: ProntuariosPageProp
     setProntuarios([newPr, ...prontuarios]);
   };
 
-  const handleAddMeta = (planoId: string, newMeta: any) => {
-    setPlanos(
-      planos.map((plano) => {
-        if (plano.id === planoId) {
-          return { ...plano, metas: [newMeta, ...plano.metas] };
-        }
-        return plano;
-      })
-    );
-    toast.success("Nova meta cadastrada!");
+  const normalizeMeta = (meta: any) => ({ ...meta, historico: (meta.historicoProgresso || []).map((h: any) => ({ ...h, valor: h.progresso })) });
+  const handleAddMeta = async (planoId: string, newMeta: any) => {
+    try {
+      if (!planoId) {
+        const created = await api.post("/plano-terapeutico", {pacienteId: selectedPacienteId, titulo: "Plano terapêutico", descricao: "Plano individual de desenvolvimento"});
+        planoId = created.data.id;
+        setPlanos(previous => [...previous, {...created.data, metas: []}]);
+      }
+      const { objetivo, descricao, prazo } = newMeta;
+      const response = await api.post(`/plano-terapeutico/${planoId}/metas`, { objetivo, descricao, prazo: prazo ? new Date(prazo).toISOString() : undefined });
+      const saved = normalizeMeta(response.data);
+      setPlanos(previous => previous.map(plano => plano.id === planoId ? {...plano, metas: [saved, ...plano.metas]} : plano));
+      toast.success("Nova meta cadastrada!");
+      return true;
+    } catch (error) { toast.error(getApiErrorMessage(error, "Não foi possível cadastrar a meta.")); return false; }
   };
-
-  const handleUpdateMetaProgress = (
-    planoId: string,
-    metaId: string,
-    val: number,
-    nota: string
-  ) => {
-    setPlanos(
-      planos.map((plano) => {
-        if (plano.id === planoId) {
-          return {
-            ...plano,
-            metas: plano.metas.map((meta: { id: string; historico: any; }) => {
-              if (meta.id === metaId) {
-                const histItem = {
-                  data: new Date().toISOString().split("T")[0],
-                  valor: val,
-                  nota: nota || "Progresso atualizado.",
-                };
-                return {
-                  ...meta,
-                  progresso: val,
-                  status: val >= 100 ? "CONCLUIDO" : "EM_ANDAMENTO",
-                  historico: [histItem, ...meta.historico],
-                };
-              }
-              return meta;
-            }),
-          };
-        }
-        return plano;
-      })
-    );
-    toast.success("Progresso atualizado!");
+  const handleUpdateMetaProgress = async (planoId: string, metaId: string, val: number, nota: string) => {
+    try {
+      const response = await api.patch(`/plano-terapeutico/metas/${metaId}/progresso`, { progresso: val, nota });
+      const saved = normalizeMeta(response.data);
+      setPlanos(previous => previous.map(plano => plano.id === planoId ? {...plano, metas: plano.metas.map((meta: any) => meta.id === metaId ? saved : meta)} : plano));
+      toast.success("Progresso atualizado!"); return true;
+    } catch (error) { toast.error(getApiErrorMessage(error, "Não foi possível atualizar o progresso.")); return false; }
   };
-
-  const handleAddAvaliacao = (newAv: any) => {
-    setAvaliacoes([newAv, ...avaliacoes]);
-  };
+  const handleAddAvaliacao = (newAv: any) => setAvaliacoes(previous => [newAv, ...previous]);
 
   const activePaciente = pacientes.find((p) => p.id === selectedPacienteId);
 
   const filteredPatientsList = pacientes.filter((p) =>
-    p.nome.toLowerCase().includes(searchPatientTerm.toLowerCase())
+    p.nome.toLowerCase().includes(searchPatientTerm.toLowerCase()),
   );
 
   // Tab items metadata
@@ -218,7 +217,6 @@ export function ProntuariosPage({ defaultTab = "evolucao" }: ProntuariosPageProp
 
   return (
     <div className="space-y-6">
-
       {/* ─── SEARCH & AUTOCOMPLETE BAR (TOP ALIGN) ─── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 z-40 relative">
         <div className="relative w-full max-w-xl">
@@ -253,7 +251,10 @@ export function ProntuariosPage({ defaultTab = "evolucao" }: ProntuariosPageProp
           <AnimatePresence>
             {searchFocused && filteredPatientsList.length > 0 && (
               <>
-                <div className="fixed inset-0 z-40" onClick={() => setSearchFocused(false)} />
+                <div
+                  className="fixed inset-0 z-40"
+                  onClick={() => setSearchFocused(false)}
+                />
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -272,12 +273,19 @@ export function ProntuariosPage({ defaultTab = "evolucao" }: ProntuariosPageProp
                       className="w-full flex items-center gap-3 p-2.5 rounded-xl text-left hover:bg-purple-500/10 hover:text-purple-700 dark:hover:text-purple-300 transition-colors text-xs text-foreground cursor-pointer bg-transparent border-0"
                     >
                       <div className="w-8 h-8 rounded-full gradient-primary text-white flex items-center justify-center font-bold text-xs shrink-0">
-                        {p.nome.split(" ").slice(0, 2).map((n: string) => n[0]).join("")}
+                        {p.nome
+                          .split(" ")
+                          .slice(0, 2)
+                          .map((n: string) => n[0])
+                          .join("")}
                       </div>
                       <div>
-                        <p className="font-semibold text-foreground">{p.nome}</p>
+                        <p className="font-semibold text-foreground">
+                          {p.nome}
+                        </p>
                         <p className="text-[10px] text-muted-foreground">
-                          {p.diagnosticos?.[0]?.descricao || "Sem diagnóstico"} • {p.idade || getAge(p.dataNascimento)} anos
+                          {p.diagnosticos?.[0]?.descricao || "Sem diagnóstico"}{" "}
+                          • {p.idade || getAge(p.dataNascimento)} anos
                         </p>
                       </div>
                     </button>
@@ -333,17 +341,20 @@ export function ProntuariosPage({ defaultTab = "evolucao" }: ProntuariosPageProp
 
       {/* ─── 360 PATIENT HEADER BANNER ─── */}
       {activePaciente ? (
-        <PacienteProfileBanner paciente={activePaciente} prontuarios={prontuarios} />
+        <PacienteProfileBanner
+          paciente={activePaciente}
+          prontuarios={prontuarios}
+        />
       ) : (
         <div className="p-12 text-center text-xs text-muted-foreground border rounded-2xl bg-card border-border">
-          Nenhum paciente selecionado. Digite o nome no campo de buscas acima para carregar o prontuário.
+          Nenhum paciente selecionado. Digite o nome no campo de buscas acima
+          para carregar o prontuário.
         </div>
       )}
 
       {/* ─── MAIN WORKSPACE CONTENTS ─── */}
       {activePaciente && (
         <div className="space-y-6">
-
           {/* Tabs bar */}
           <div className="border-b border-border">
             <div className="flex overflow-x-auto scrollbar-none">
@@ -358,7 +369,7 @@ export function ProntuariosPage({ defaultTab = "evolucao" }: ProntuariosPageProp
                       "flex items-center gap-2 px-5 py-3.5 text-xs font-semibold whitespace-nowrap transition-all border-b-2 -mb-[2px] cursor-pointer bg-transparent border-t-0 border-x-0",
                       isActive
                         ? "border-purple-500 text-purple-600 dark:text-purple-400 font-bold"
-                        : "border-transparent text-muted-foreground hover:text-foreground"
+                        : "border-transparent text-muted-foreground hover:text-foreground",
                     )}
                   >
                     <Icon className="h-4 w-4" />

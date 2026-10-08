@@ -8,53 +8,59 @@ import {
   Query,
   UseGuards,
   Req,
-} from '@nestjs/common';
-import { ChatService } from './chat.service';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+} from "@nestjs/common";
+import { ChatGateway } from "./chat.gateway";
+import { ChatService } from "./chat.service";
+import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 
-@Controller('chat')
+@Controller("chat")
 @UseGuards(JwtAuthGuard)
 export class ChatController {
-  constructor(private readonly chatService: ChatService) {}
+  constructor(
+    private readonly chatService: ChatService,
+    private readonly gateway: ChatGateway,
+  ) {}
 
-  @Get('contatos')
+  @Get("contatos")
   async getContatos(@Req() req: any) {
     const usuarioId = req.user?.id || req.user?.sub;
     return this.chatService.getContatosChat(usuarioId);
   }
 
-  @Get('mensagens/:outroUsuarioId')
+  @Get("mensagens/:outroUsuarioId")
   async getHistorico(
     @Req() req: any,
-    @Param('outroUsuarioId') outroUsuarioId: string,
+    @Param("outroUsuarioId") outroUsuarioId: string,
   ) {
     const usuarioId = req.user?.id || req.user?.sub;
     return this.chatService.getHistoricoMensagens(usuarioId, outroUsuarioId);
   }
 
-  @Post('mensagens')
+  @Post("mensagens")
   async enviarMensagem(
     @Req() req: any,
     @Body() body: { destinatarioId: string; conteudo: string },
   ) {
     const remetenteId = req.user?.id || req.user?.sub;
-    return this.chatService.enviarMensagem(
+    const mensagem = await this.chatService.enviarMensagem(
       remetenteId,
       body.destinatarioId,
       body.conteudo,
     );
+    this.gateway.publicarMensagem(mensagem);
+    return mensagem;
   }
 
-  @Patch('ler/:outroUsuarioId')
+  @Patch("ler/:outroUsuarioId")
   async marcarComoLidas(
     @Req() req: any,
-    @Param('outroUsuarioId') outroUsuarioId: string,
+    @Param("outroUsuarioId") outroUsuarioId: string,
   ) {
     const usuarioLogadoId = req.user?.id || req.user?.sub;
     return this.chatService.marcarComoLidas(usuarioLogadoId, outroUsuarioId);
   }
 
-  @Get('nao-lidas')
+  @Get("nao-lidas")
   async getTotalNaoLidas(@Req() req: any) {
     const usuarioId = req.user?.id || req.user?.sub;
     return this.chatService.getTotalNaoLidas(usuarioId);

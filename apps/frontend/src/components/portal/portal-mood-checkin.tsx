@@ -87,8 +87,8 @@ export function PortalMoodCheckin({ childName }: PortalMoodCheckinProps) {
       setParticles((prev) => prev.filter((p) => p.id !== newId));
     }, 1000);
 
-    toast.success(`Humor de ${childName} registrado!`, {
-      description: mood.tip,
+    toast.success(`Humor de ${childName} salvo neste dispositivo!`, {
+      description: "Este registro é pessoal e não é enviado à equipe. " + mood.tip,
     });
   };
 

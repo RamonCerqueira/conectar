@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { User, Lock, Mail, Shield, CheckCircle, AlertTriangle, Eye, EyeOff, FileText, Download } from "lucide-react";
 import { motion } from "framer-motion";
+import { downloadDocument } from "@/lib/private-download";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
 import { cn, formatCurrency, formatDate } from "@/lib/utils";
@@ -116,7 +117,7 @@ export function PerfilPage() {
     }
 
     try {
-      await api.put(`/usuarios/${user.id}/senha`, { novaSenha });
+      await api.put(`/usuarios/${user.id}/senha`, { novaSenha, senhaAtual });
       toast.success("Senha alterada com sucesso!");
       setSenhaAtual("");
       setNovaSenha("");
@@ -155,138 +156,12 @@ export function PerfilPage() {
     return { proventos, descontos };
   };
 
-  const handlePrintContracheque = (l: any) => {
-    const printWindow = window.open("", "_blank");
-    if (!printWindow) return;
-    
-    let cargo = "Funcionário";
-    let nome = user?.nome || "Funcionário";
-    let mes = "MM/AAAA";
-    
-    const desc = l.descricao;
-    if (desc.includes("[Folha Salarial]")) {
-      const cleanDesc = desc.replace("[Folha Salarial]", "").trim();
-      const parts = cleanDesc.split(" - ");
-      if (parts.length >= 2) {
-        cargo = parts[0].trim();
-        const nameAndMonth = parts[1].split(" (");
-        nome = nameAndMonth[0].trim();
-        if (nameAndMonth.length >= 2) {
-          mes = nameAndMonth[1].replace(")", "").trim();
-        }
-      }
-    } else if (desc.includes("[Vale Transporte]")) {
-      const cleanDesc = desc.replace("[Vale Transporte] Liberação Ref:", "").trim();
-      const parts = cleanDesc.split(" - ");
-      if (parts.length >= 2) {
-        mes = parts[0].trim();
-        nome = parts[1].trim();
-        cargo = "Auxílio Vale-Transporte";
-      }
-    }
-
-    const { proventos, descontos } = parseHoleriteDetails(l.observacoes, l.valor);
-    
-    if (proventos.length === 0 && descontos.length === 0) {
-      proventos.push({ label: desc.includes("Vale") ? "Vale Transporte Liberação" : "Vencimento Base", value: l.valor });
-    }
-
-    const totalProventos = proventos.reduce((sum, p) => sum + p.value, 0);
-    const totalDescontos = descontos.reduce((sum, d) => sum + d.value, 0);
-    const liquido = totalProventos - totalDescontos;
-
-    const html = `
-      <html>
-        <head>
-          <title>Contracheque - ${nome}</title>
-          <style>
-            body { font-family: monospace; padding: 20px; color: #000; font-size: 12px; }
-            .border-box { border: 2px solid #000; padding: 15px; max-width: 800px; margin: auto; }
-            .header { display: flex; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 10px; }
-            .col { flex: 1; }
-            .col-r { text-align: right; }
-            .bold { font-weight: bold; }
-            .section { border-bottom: 1px solid #000; padding: 5px 0; margin-bottom: 5px; }
-            .grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 5px; border-bottom: 1px solid #000; padding-bottom: 5px; }
-            .grid-head { font-weight: bold; border-bottom: 2px solid #000; padding-bottom: 2px; }
-            .grid-row { padding: 4px 0; }
-            .totals { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 5px; font-weight: bold; padding-top: 5px; border-top: 1px solid #000; }
-            .footer { margin-top: 30px; display: flex; justify-content: space-between; }
-            .sign-area { border-top: 1px solid #000; width: 220px; text-align: center; margin-top: 40px; padding-top: 5px; }
-          </style>
-        </head>
-        <body>
-          <div class="border-box">
-            <div class="header">
-              <div class="col">
-                <div class="bold">INSTITUTO CONECTAR APOIO À APRENDIZAM LTDA</div>
-                <div>CNPJ: 12.345.678/0001-99</div>
-              </div>
-              <div class="col col-r">
-                <div class="bold">RECIBO DE PAGAMENTO DE SALÁRIO</div>
-                <div>Referência: ${mes}</div>
-              </div>
-            </div>
-
-            <div class="section grid-row">
-              <div><span class="bold">Nome do Funcionário:</span> ${nome}</div>
-              <div><span class="bold">Função/Cargo:</span> ${cargo}</div>
-              <div><span class="bold">Identificação ID:</span> ${l.id.substring(0, 8)}</div>
-            </div>
-
-            <div class="grid grid-head">
-              <div>Descrição do Evento</div>
-              <div style="text-align: right;">Proventos (+)</div>
-              <div style="text-align: right;">Descontos (-)</div>
-            </div>
-
-            ${proventos.map(p => `
-              <div class="grid grid-row">
-                <div>${p.label}</div>
-                <div style="text-align: right;">${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(p.value)}</div>
-                <div style="text-align: right;">—</div>
-              </div>
-            `).join("")}
-
-            ${descontos.map(d => `
-              <div class="grid grid-row">
-                <div>${d.label}</div>
-                <div style="text-align: right;">—</div>
-                <div style="text-align: right;">${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(d.value)}</div>
-              </div>
-            `).join("")}
-
-            <div style="height: 40px;"></div>
-
-            <div class="totals">
-              <div>Totais Consolidados</div>
-              <div style="text-align: right;">${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalProventos)}</div>
-              <div style="text-align: right;">${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(totalDescontos)}</div>
-            </div>
-
-            <div class="totals" style="border-top: 2px solid #000; margin-top: 5px; padding-top: 5px; font-size: 14px;">
-              <div>VALOR LÍQUIDO RECEBIDO:</div>
-              <div style="grid-column: span 2; text-align: right;" class="bold">${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(liquido)}</div>
-            </div>
-
-            <div class="footer">
-              <div class="sign-area">Assinatura do Funcionário</div>
-              <div class="sign-area">Instituto Conectar</div>
-            </div>
-          </div>
-          <script>
-            window.onload = function() { window.print(); }
-          </script>
-        </body>
-      </html>
-    `;
-    
-    printWindow.document.write(html);
-    printWindow.document.close();
+  const handlePrintContracheque = async (l:any) => {
+    try {await downloadDocument(`/financeiro/${l.id}/holerite`,`holerite-${l.id}.pdf`);}catch {toast.error("Não foi possível baixar o holerite.");}
   };
 
   if (loading) {
-    return (
+  return (
       <div className="flex h-[400px] items-center justify-center">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-solid border-violet-600 border-t-transparent" />
       </div>

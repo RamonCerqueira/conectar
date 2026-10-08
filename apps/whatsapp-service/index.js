@@ -24,8 +24,7 @@ const client = new Client({
 client.on('qr', (qr) => {
   qrCodeValue = qr;
   clientStatus = 'AGUARDANDO_QR';
-  console.log('QR RECEIVED', qr);
-  qrcode.generate(qr, { small: true });
+  console.log('WhatsApp aguardando conexão pelo administrador.');
 });
 
 client.on('ready', () => {
@@ -35,8 +34,8 @@ client.on('ready', () => {
 });
 
 client.on('authenticated', () => {
-  clientStatus = 'PRONTO';
-  console.log('WhatsApp Web Authenticated!');
+  clientStatus = 'AUTENTICANDO';
+  console.log('WhatsApp autenticado; aguardando inicialização.');
 });
 
 client.on('auth_failure', (msg) => {
@@ -51,7 +50,7 @@ client.on('disconnected', (reason) => {
 
 // Inicialização segura
 client.initialize().catch(err => {
-  console.error('Falha ao inicializar o WhatsApp client. Rodando em modo simulação.', err.message);
+  console.error('Falha ao inicializar o WhatsApp client. Serviço indisponível até reconectar.', err.message);
 });
 
 // ─── Endpoints da API ──────────────────────────────────────────
@@ -68,17 +67,19 @@ app.get('/status', (req, res) => {
 // Disparo de mensagem
 app.post('/send', async (req, res) => {
   const { phone, message } = req.body;
-  if (!phone || !message) {
+  if (typeof phone !== 'string' || typeof message !== 'string' || !message.trim()) {
     return res.status(400).json({ error: 'Telefone e mensagem são obrigatórios.' });
   }
 
   // Sanitiza número: adiciona sufixo se necessário
   let formattedPhone = phone.replace(/\D/g, '');
+  if([10,11].includes(formattedPhone.length))formattedPhone='55'+formattedPhone;
+  if(!/^\d{12,15}$/.test(formattedPhone))return res.status(400).json({error:'Telefone inválido.'});
   if (!formattedPhone.endsWith('@c.us')) {
     formattedPhone = `${formattedPhone}@c.us`;
   }
 
-  console.log(`Disparando WhatsApp para ${formattedPhone}: "${message}"`);
+
 
   if (clientStatus === 'PRONTO') {
     try {
@@ -89,17 +90,10 @@ app.post('/send', async (req, res) => {
       return res.status(500).json({ error: 'Erro ao enviar mensagem no WhatsApp', details: err.message });
     }
   } else {
-    // Modo simulação ativa se o robô não estiver conectado
-    console.log('[MOCK WHATSAPP] Disparo simulado (robô offline)');
-    return res.json({
-      success: true,
-      simulado: true,
-      messageId: `mock-wa-${Math.random().toString(36).substring(7)}`,
-      status: 'Mensagem enviada com sucesso no canal simulado'
-    });
+    return res.status(503).json({success:false,error:'WhatsApp desconectado. Conecte o número oficial antes de enviar.'});
   }
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, '127.0.0.1', () => {
   console.log(`\n🟢 Microserviço WhatsApp rodando em http://localhost:${PORT}`);
 });

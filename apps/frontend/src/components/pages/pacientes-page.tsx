@@ -4,6 +4,11 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Users, Search, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  buildPacientePayload,
+  type PacienteIntakeData,
+} from "@/lib/paciente-payload";
+import { getApiErrorMessage } from "@/lib/api-errors";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
 import { PacienteCard } from "./pacientes/paciente-card";
@@ -11,21 +16,21 @@ import { PacienteDetailsDrawer } from "./pacientes/paciente-details-drawer";
 import { PacienteCreateModal } from "./pacientes/paciente-create-modal";
 import { Paciente } from "@/types";
 
-
-
 export function PacientesPage() {
   const [pacientes, setPacientes] = useState<Paciente[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("TODOS");
-  const [selectedPaciente, setSelectedPaciente] = useState<Paciente | null>(null);
+  const [selectedPaciente, setSelectedPaciente] = useState<Paciente | null>(
+    null,
+  );
   const [isNewModalOpen, setIsNewModalOpen] = useState(false);
 
   const loadPacientes = async () => {
     setLoading(true);
     try {
       const res = await api.get("/pacientes");
-      const data = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+      const data = Array.isArray(res.data) ? res.data : res.data?.data || [];
       const backendPacientes = data.map((p: any) => ({
         ...p,
         diagnosticos: p.diagnosticos || [],
@@ -51,83 +56,21 @@ export function PacientesPage() {
     loadPacientes();
   }, []);
 
-  const handleCreatePaciente = async (data: {
-    nome: string;
-    dataNascimento: string;
-    sexo: string;
-    cpf: string;
-    status: string;
-    escola: string;
-    serie: string;
-    turnoEscolar: string;
-    nomeProf: string;
-    coordenador: string;
-    responsavelNome: string;
-    responsavelTel: string;
-    responsavelEmail: string;
-    responsavelParentesco: string;
-    responsavelProfissao: string;
-    diagnosticoDesc: string;
-    diagnosticoCid: string;
-    medicamentos: string;
-    alergias: string;
-    observacoesMed: string;
-    sensibilidadeSensorial: string;
-    hiperfoco: string;
-    observacoes: string;
-    cep?: string;
-    logradouro?: string;
-    numero?: string;
-    complemento?: string;
-    bairro?: string;
-    cidade?: string;
-    estado?: string;
-    modeloCobranca?: string;
-    valorConsulta?: number;
-  }) => {
-    const payload = {
-      nome: data.nome,
-      dataNascimento: new Date(data.dataNascimento).toISOString(),
-      sexo: data.sexo,
-      cpf: data.cpf.replace(/\D/g, ""),
-      status: data.status,
-      escola: data.escola,
-      serie: data.serie,
-      turnoEscolar: data.turnoEscolar,
-      nomeProf: data.nomeProf,
-      coordenador: data.coordenador,
-      responsavelNome: data.responsavelNome,
-      responsavelTel: data.responsavelTel,
-      responsavelEmail: data.responsavelEmail,
-      responsavelParentesco: data.responsavelParentesco,
-      responsavelProfissao: data.responsavelProfissao,
-      diagnosticoDesc: data.diagnosticoDesc,
-      diagnosticoCid: data.diagnosticoCid,
-      medicamentos: data.medicamentos,
-      alergias: data.alergias,
-      observacoesMed: data.observacoesMed,
-      sensibilidadeSensorial: data.sensibilidadeSensorial,
-      hiperfoco: data.hiperfoco,
-      observacoes: data.observacoes,
-      cep: data.cep,
-      logradouro: data.logradouro,
-      numero: data.numero,
-      complemento: data.complemento,
-      bairro: data.bairro,
-      cidade: data.cidade,
-      estado: data.estado,
-      modeloCobranca: data.modeloCobranca,
-      valorConsulta: data.valorConsulta,
-    };
-
+  const handleCreatePaciente = async (
+    data: PacienteIntakeData,
+  ): Promise<boolean> => {
     try {
-      await api.post("/pacientes", payload);
+      await api.post("/pacientes", buildPacientePayload(data));
       toast.success("Paciente cadastrado com sucesso!");
       loadPacientes();
       setIsNewModalOpen(false);
+      return true;
     } catch (err) {
       console.error(err);
-      toast.error("Erro ao cadastrar paciente no servidor.");
+      toast.error(
+        getApiErrorMessage(err, "Erro ao cadastrar paciente no servidor."),
+      );
+      return false;
     }
   };
 
@@ -135,8 +78,12 @@ export function PacientesPage() {
     const matchesSearch =
       p.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
       p.escola?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.responsaveis.some((r) => r.nome.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      p.diagnosticos.some((d) => d.descricao.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      p.responsaveis.some((r) =>
+        r.nome.toLowerCase().includes(searchTerm.toLowerCase()),
+      ) ||
+      p.diagnosticos.some((d) =>
+        d.descricao.toLowerCase().includes(searchTerm.toLowerCase()),
+      ) ||
       (p.cpf && p.cpf.includes(searchTerm));
 
     const matchesStatus = statusFilter === "TODOS" || p.status === statusFilter;
@@ -149,10 +96,16 @@ export function PacientesPage() {
       {/* Header da Página */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight" style={{ color: "hsl(var(--foreground))" }}>
+          <h1
+            className="text-2xl font-bold tracking-tight"
+            style={{ color: "hsl(var(--foreground))" }}
+          >
             Pacientes
           </h1>
-          <p className="text-sm" style={{ color: "hsl(var(--muted-foreground))" }}>
+          <p
+            className="text-sm"
+            style={{ color: "hsl(var(--muted-foreground))" }}
+          >
             Gestão, prontuários, evoluções e planos terapêuticos das crianças.
           </p>
         </div>
@@ -171,7 +124,10 @@ export function PacientesPage() {
       {/* Filtros e Busca */}
       <div
         className="p-4 rounded-2xl border flex flex-col md:flex-row gap-4"
-        style={{ background: "hsl(var(--card))", borderColor: "hsl(var(--border))" }}
+        style={{
+          background: "hsl(var(--card))",
+          borderColor: "hsl(var(--border))",
+        }}
       >
         <div className="flex-1 relative">
           <Search className="absolute left-3.5 top-3 h-4 w-4 text-muted-foreground" />
@@ -198,7 +154,7 @@ export function PacientesPage() {
                 "px-4 py-2 rounded-xl text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer",
                 statusFilter === status
                   ? "gradient-primary text-white"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  : "bg-muted text-muted-foreground hover:bg-muted/80",
               )}
             >
               {status === "TODOS" ? "Todos" : status.replace("_", " ")}
@@ -210,7 +166,9 @@ export function PacientesPage() {
       {loading ? (
         <div className="flex flex-col items-center justify-center py-20 space-y-4">
           <div className="w-8 h-8 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-xs text-muted-foreground">Carregando crianças...</p>
+          <p className="text-xs text-muted-foreground">
+            Carregando crianças...
+          </p>
         </div>
       ) : (
         /* Grid de Pacientes */
@@ -226,9 +184,12 @@ export function PacientesPage() {
           {filteredPacientes.length === 0 && (
             <div className="col-span-full py-12 flex flex-col items-center justify-center text-center">
               <Users className="h-12 w-12 text-muted-foreground/50 mb-3" />
-              <h3 className="font-bold text-lg text-foreground">Nenhum paciente encontrado</h3>
+              <h3 className="font-bold text-lg text-foreground">
+                Nenhum paciente encontrado
+              </h3>
               <p className="text-sm text-muted-foreground max-w-sm">
-                Tente redefinir sua busca ou filtrar por outro status de atendimento.
+                Tente redefinir sua busca ou filtrar por outro status de
+                atendimento.
               </p>
             </div>
           )}

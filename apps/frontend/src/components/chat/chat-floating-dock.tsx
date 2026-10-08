@@ -18,7 +18,8 @@ import {
   Maximize2,
   Circle,
 } from "lucide-react";
-import { api } from "@/lib/api";
+import Link from "next/link";
+import { api, getAccessToken, WS_URL } from "@/lib/api";
 import { toast } from "sonner";
 import { io, Socket } from "socket.io-client";
 
@@ -56,8 +57,17 @@ export function ChatFloatingDock() {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [contatos, setContatos] = useState<Contato[]>([]);
-  const [contatoSelecionado, setContatoSelecionado] = useState<Contato | null>(null);
+  const [contatoSelecionado, setContatoSelecionado] = useState<Contato | null>(
+    null,
+  );
   const [mensagens, setMensagens] = useState<Mensagem[]>([]);
+  const [pacientesEncaminhamento, setPacientesEncaminhamento] = useState<
+    { id: string; nome: string }[]
+  >([]);
+  const [pacienteEncaminhamento, setPacienteEncaminhamento] = useState("");
+  const [enviando, setEnviando] = useState(false);
+  const contatoRef = useRef<Contato | null>(null);
+  contatoRef.current = contatoSelecionado;
   const [novaMensagem, setNovaMensagem] = useState("");
   const [busca, setBusca] = useState("");
   const [filtro, setFiltro] = useState<"TODOS" | "RECEPCAO" | "SALAS">("TODOS");
@@ -104,22 +114,37 @@ export function ChatFloatingDock() {
     carregarContatos();
 
     // Conectar WebSocket
-    const wsUrl = process.env.NEXT_PUBLIC_WS_URL || "http://localhost:5101";
+    const wsUrl = WS_URL;
     const socket = io(wsUrl, {
-      query: { usuarioId: usuarioIdLogado },
+      auth: { accessToken: getAccessToken() },
       transports: ["websocket", "polling"],
     });
 
     socketRef.current = socket;
+    let retriedAuth = false;
+    socket.on("connect_error", async () => {
+      if (retriedAuth) return;
+      retriedAuth = true;
+      try {
+        await api.get("/auth/me");
+        socket.auth = { accessToken: getAccessToken() };
+        socket.connect();
+      } catch {
+        return;
+      }
+    });
 
     socket.on("connect", () => {
+      retriedAuth = false;
       socket.emit("chat:join", { usuarioId: usuarioIdLogado });
     });
 
     // Recebimento de mensagens em tempo real
     socket.on("chat:recebida", (msg: Mensagem) => {
-      if (contatoSelecionado && msg.remetenteId === contatoSelecionado.id) {
-        setMensagens((prev) => [...prev, msg]);
+      if (contatoRef.current && msg.remetenteId === contatoRef.current.id) {
+        setMensagens((prev) =>
+          prev.some((m) => m.id === msg.id) ? prev : [...prev, msg],
+        );
         // Marcar como lida
         socket.emit("chat:marcar_lida", {
           usuarioLogadoId: usuarioIdLogado,
@@ -135,7 +160,7 @@ export function ChatFloatingDock() {
 
     // Atualização de mensagens enviadas
     socket.on("chat:enviada", (msg: Mensagem) => {
-      if (contatoSelecionado && msg.destinatarioId === contatoSelecionado.id) {
+      if (contatoRef.current && msg.destinatarioId === contatoRef.current.id) {
         setMensagens((prev) => {
           if (prev.some((m) => m.id === msg.id)) return prev;
           return [...prev, msg];
@@ -144,11 +169,17 @@ export function ChatFloatingDock() {
     });
 
     // Indicador de digitação
-    socket.on("chat:digitando", (payload: { remetenteId: string; digitando: boolean }) => {
-      if (contatoSelecionado && payload.remetenteId === contatoSelecionado.id) {
-        setDigitandoOutro(payload.digitando);
-      }
-    });
+    socket.on(
+      "chat:digitando",
+      (payload: { remetenteId: string; digitando: boolean }) => {
+        if (
+          contatoRef.current &&
+          payload.remetenteId === contatoRef.current.id
+        ) {
+          setDigitandoOutro(payload.digitando);
+        }
+      },
+    );
 
     // Presença dos usuários
     socket.on("chat:presenca", () => {
@@ -158,7 +189,7 @@ export function ChatFloatingDock() {
     return () => {
       socket.disconnect();
     };
-  }, [usuarioIdLogado, contatoSelecionado]);
+  }, [usuarioIdLogado]);
 
   // Carregar contatos
   const carregarContatos = async () => {
@@ -192,6 +223,24 @@ export function ChatFloatingDock() {
     };
 
     carregarHistorico();
+    let active = true;
+    api
+      .get("/pacientes", { params: { limit: 100 } })
+      .then((res) => {
+        if (active)
+          setPacientesEncaminhamento(
+            Array.isArray(res.data) ? res.data : res.data?.data || [],
+          );
+      })
+      .catch(() => {
+        if (active)
+          toast.error(
+            "Não foi possível carregar pacientes para encaminhamento.",
+          );
+      });
+    return () => {
+      active = false;
+    };
   }, [contatoSelecionado, usuarioIdLogado]);
 
   // Auto-scroll para última mensagem
@@ -202,7 +251,9 @@ export function ChatFloatingDock() {
   // Emitir som suave de notificação
   const tocarSinalNotificacao = () => {
     try {
-      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const ctx = new (
+        window.AudioContext || (window as any).webkitAudioContext
+      )();
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       osc.type = "sine";
@@ -221,7 +272,14 @@ export function ChatFloatingDock() {
   // Enviar mensagem
   const handleEnviarMensagem = async (texto?: string) => {
     const conteudoFinal = texto || novaMensagem;
-    if (!conteudoFinal.trim() || !contatoSelecionado || !usuarioIdLogado) return;
+    if (
+      enviando ||
+      !conteudoFinal.trim() ||
+      !contatoSelecionado ||
+      !usuarioIdLogado
+    )
+      return;
+    setEnviando(true);
 
     const temporariaId = "temp-" + Date.now();
     const mensagemOtimista: Mensagem = {
@@ -237,25 +295,22 @@ export function ChatFloatingDock() {
     if (!texto) setNovaMensagem("");
 
     try {
-      if (socketRef.current && socketRef.current.connected) {
-        socketRef.current.emit("chat:send", {
-          remetenteId: usuarioIdLogado,
-          destinatarioId: contatoSelecionado.id,
-          conteudo: conteudoFinal.trim(),
-        });
-      } else {
-        // Fallback REST
-        const res = await api.post("/chat/mensagens", {
-          destinatarioId: contatoSelecionado.id,
-          conteudo: conteudoFinal.trim(),
-        });
-        setMensagens((prev) =>
-          prev.map((m) => (m.id === temporariaId ? res.data : m))
-        );
-      }
+      // REST confirma a persistência; o servidor publica a mensagem pelo WebSocket.
+      const res = await api.post("/chat/mensagens", {
+        destinatarioId: contatoSelecionado.id,
+        conteudo: conteudoFinal.trim(),
+      });
+      setMensagens((prev) =>
+        prev.some((m) => m.id === res.data.id)
+          ? prev.filter((m) => m.id !== temporariaId)
+          : prev.map((m) => (m.id === temporariaId ? res.data : m)),
+      );
     } catch (err) {
       toast.error("Falha ao enviar mensagem.");
       setMensagens((prev) => prev.filter((m) => m.id !== temporariaId));
+      if (!texto) setNovaMensagem(conteudoFinal);
+    } finally {
+      setEnviando(false);
     }
   };
 
@@ -294,7 +349,9 @@ export function ChatFloatingDock() {
               id="btn-chat-flutuante"
             >
               <MessageSquare className="h-5 w-5" />
-              <span className="font-semibold text-xs tracking-wide">Chat Interno</span>
+              <span className="font-semibold text-xs tracking-wide">
+                Chat Interno
+              </span>
 
               {totalNaoLidas > 0 && (
                 <span className="absolute -top-1.5 -right-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-pink-500 text-[11px] font-extrabold text-white shadow-md border-2 border-white animate-bounce">
@@ -386,7 +443,10 @@ export function ChatFloatingDock() {
                   style={{ borderColor: "hsl(var(--border))" }}
                 >
                   {/* Busca de Contatos */}
-                  <div className="p-3 border-b space-y-2" style={{ borderColor: "hsl(var(--border))" }}>
+                  <div
+                    className="p-3 border-b space-y-2"
+                    style={{ borderColor: "hsl(var(--border))" }}
+                  >
                     <div className="relative">
                       <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-muted-foreground" />
                       <input
@@ -410,7 +470,11 @@ export function ChatFloatingDock() {
                               : "bg-muted text-muted-foreground hover:text-foreground"
                           }`}
                         >
-                          {f === "TODOS" ? "Todos" : f === "RECEPCAO" ? "Recepção" : "Salas"}
+                          {f === "TODOS"
+                            ? "Todos"
+                            : f === "RECEPCAO"
+                              ? "Recepção"
+                              : "Salas"}
                         </button>
                       ))}
                     </div>
@@ -428,7 +492,8 @@ export function ChatFloatingDock() {
                       </div>
                     ) : (
                       contatosFiltrados.map((contato) => {
-                        const isSelected = contatoSelecionado?.id === contato.id;
+                        const isSelected =
+                          contatoSelecionado?.id === contato.id;
                         return (
                           <button
                             key={contato.id}
@@ -445,7 +510,9 @@ export function ChatFloatingDock() {
                               </div>
                               <span
                                 className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-card ${
-                                  contato.online ? "bg-emerald-500" : "bg-gray-400"
+                                  contato.online
+                                    ? "bg-emerald-500"
+                                    : "bg-gray-400"
                                 }`}
                               />
                             </div>
@@ -469,7 +536,8 @@ export function ChatFloatingDock() {
                                   </span>
                                 ) : contato.salaNome ? (
                                   <span className="text-[10px] font-medium text-purple-400 flex items-center gap-1 truncate">
-                                    <Building2 className="h-3 w-3 shrink-0" /> {contato.salaNome}
+                                    <Building2 className="h-3 w-3 shrink-0" />{" "}
+                                    {contato.salaNome}
                                   </span>
                                 ) : (
                                   <span className="text-[10px] text-muted-foreground truncate">
@@ -505,10 +573,14 @@ export function ChatFloatingDock() {
                             <p className="text-[10px] text-muted-foreground flex items-center gap-1.5">
                               <span
                                 className={`w-1.5 h-1.5 rounded-full ${
-                                  contatoSelecionado.online ? "bg-emerald-500" : "bg-gray-400"
+                                  contatoSelecionado.online
+                                    ? "bg-emerald-500"
+                                    : "bg-gray-400"
                                 }`}
                               />
-                              {contatoSelecionado.online ? "Online agora" : "Ausente"}
+                              {contatoSelecionado.online
+                                ? "Online agora"
+                                : "Ausente"}
                               {contatoSelecionado.salaNome && (
                                 <span className="text-purple-400 font-semibold ml-1">
                                   • {contatoSelecionado.salaNome}
@@ -533,10 +605,12 @@ export function ChatFloatingDock() {
                           <div className="text-center py-12 space-y-2">
                             <Zap className="h-8 w-8 text-purple-400/50 mx-auto" />
                             <p className="text-xs font-medium text-muted-foreground">
-                              Inicie uma conversa direta 1:1 com {contatoSelecionado.nome}
+                              Inicie uma conversa direta 1:1 com{" "}
+                              {contatoSelecionado.nome}
                             </p>
                             <p className="text-[10px] text-muted-foreground/70">
-                              Use os botões de envio rápido abaixo para notificar a recepção ou sala instantaneamente.
+                              Use os botões de envio rápido abaixo para
+                              notificar a recepção ou sala instantaneamente.
                             </p>
                           </div>
                         ) : (
@@ -554,25 +628,43 @@ export function ChatFloatingDock() {
                                       : "bg-muted text-foreground rounded-bl-none border border-border"
                                   }`}
                                 >
-                                  <p className="whitespace-pre-wrap">{msg.conteudo}</p>
+                                  <p className="whitespace-pre-wrap">
+                                    {msg.conteudo}
+                                  </p>
+                                  {(() => {
+                                    const id = msg.conteudo.match(
+                                      /\/prontuarios\?pacienteId=([a-zA-Z0-9-]+)/,
+                                    )?.[1];
+                                    return id ? (
+                                      <Link
+                                        className="block underline font-semibold mt-2"
+                                        href={`/prontuarios?pacienteId=${encodeURIComponent(id)}`}
+                                      >
+                                        Abrir prontuário do paciente →
+                                      </Link>
+                                    ) : null;
+                                  })()}
                                   <div
                                     className={`flex items-center justify-end gap-1 mt-1 text-[9px] ${
-                                      isMine ? "text-white/70" : "text-muted-foreground"
+                                      isMine
+                                        ? "text-white/70"
+                                        : "text-muted-foreground"
                                     }`}
                                   >
                                     <span>
-                                      {new Date(msg.criadoEm).toLocaleTimeString([], {
+                                      {new Date(
+                                        msg.criadoEm,
+                                      ).toLocaleTimeString([], {
                                         hour: "2-digit",
                                         minute: "2-digit",
                                       })}
                                     </span>
-                                    {isMine && (
-                                      msg.lida ? (
+                                    {isMine &&
+                                      (msg.lida ? (
                                         <CheckCheck className="h-3 w-3 text-cyan-200" />
                                       ) : (
                                         <Check className="h-3 w-3" />
-                                      )
-                                    )}
+                                      ))}
                                   </div>
                                 </div>
                               </div>
@@ -582,7 +674,8 @@ export function ChatFloatingDock() {
 
                         {digitandoOutro && (
                           <div className="flex items-center gap-1.5 text-xs text-purple-400 italic">
-                            <span className="animate-pulse">●</span> {contatoSelecionado.nome} está digitando...
+                            <span className="animate-pulse">●</span>{" "}
+                            {contatoSelecionado.nome} está digitando...
                           </div>
                         )}
 
@@ -594,6 +687,41 @@ export function ChatFloatingDock() {
                         className="px-3 py-2 border-t flex items-center gap-1.5 overflow-x-auto bg-muted/10 no-scrollbar shrink-0"
                         style={{ borderColor: "hsl(var(--border))" }}
                       >
+                        {contatoSelecionado?.isProfissional && (
+                          <div className="flex gap-2 w-full mb-2">
+                            <select
+                              aria-label="Paciente para encaminhamento"
+                              value={pacienteEncaminhamento}
+                              onChange={(e) =>
+                                setPacienteEncaminhamento(e.target.value)
+                              }
+                              className="min-w-0 flex-1 border rounded-lg p-2 bg-card text-xs"
+                            >
+                              <option value="">Selecione um paciente</option>
+                              {pacientesEncaminhamento.map((p) => (
+                                <option key={p.id} value={p.id}>
+                                  {p.nome}
+                                </option>
+                              ))}
+                            </select>
+                            <button
+                              type="button"
+                              disabled={!pacienteEncaminhamento || enviando}
+                              className="px-2 rounded-lg bg-purple-600 text-white text-xs disabled:opacity-50"
+                              onClick={() => {
+                                const p = pacientesEncaminhamento.find(
+                                  (p) => p.id === pacienteEncaminhamento,
+                                );
+                                if (p)
+                                  handleEnviarMensagem(
+                                    `Paciente ${p.nome} aguardando atendimento. Prontuário: /prontuarios?pacienteId=${p.id}`,
+                                  );
+                              }}
+                            >
+                              Encaminhar
+                            </button>
+                          </div>
+                        )}
                         {frasesRapidas.map((frase, idx) => (
                           <button
                             key={idx}
@@ -645,7 +773,8 @@ export function ChatFloatingDock() {
                           Selecione um contato ao lado
                         </h4>
                         <p className="text-xs text-muted-foreground max-w-xs mt-1">
-                          Conecte-se diretamente com a Recepção, salas de atendimento e profissionais da clínica.
+                          Conecte-se diretamente com a Recepção, salas de
+                          atendimento e profissionais da clínica.
                         </p>
                       </div>
                     </div>

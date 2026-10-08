@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Nunito } from "next/font/google";
 import { AnimatePresence } from "framer-motion";
-import { api } from "@/lib/api";
+import { api, setAccessToken } from "@/lib/api";
 import { toast } from "sonner";
 import {
   PortalHeader,
@@ -43,6 +43,7 @@ export function PortalDashboardPage({
   // Estados de Sessão e Carregamento
   const [pacienteId, setPacienteId] = useState<string | null>(null);
   const [parentName, setParentName] = useState<string>("Família");
+  const [loadError, setLoadError] = useState("");
   const [loading, setLoading] = useState<boolean>(true);
   const [showSplash, setShowSplash] = useState<boolean>(true);
 
@@ -68,7 +69,7 @@ export function PortalDashboardPage({
   const [profissionais, setProfissionais] = useState<any[]>([]);
 
   // WhatsApp Recepção
-  const whatsNumero = "5571999550803";
+  const whatsNumero = (process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "").replace(/\D/g, "");
 
   // Carregar sessão e configurar status bar nativa
   useEffect(() => {
@@ -88,8 +89,7 @@ export function PortalDashboardPage({
         setPacienteId(storedPId);
         loadData(storedPId);
       } else {
-        setPacienteId("pac-lucas");
-        loadData("pac-lucas");
+        router.replace("/portal/login");
       }
     }
   }, []);
@@ -97,31 +97,18 @@ export function PortalDashboardPage({
   const loadData = async (pId: string) => {
     try {
       setLoading(true);
+      setLoadError("");
       const [pacRes, agRes, evoRes, finRes, exRes, arqRes, ptsRes] = await Promise.all([
-        api.get(`/pacientes/${pId}`).catch(() => ({ data: null })),
-        api.get(`/pacientes/${pId}/agendamentos`).catch(() => ({ data: [] })),
-        api.get(`/prontuarios/paciente/${pId}`).catch(() => ({ data: [] })),
-        api.get(`/pacientes/${pId}/financeiro`).catch(() => ({ data: [] })),
-        api.get(`/exercicios/paciente/${pId}`).catch(() => ({ data: [] })),
-        api.get(`/arquivos/paciente/${pId}`).catch(() => ({ data: [] })),
-        api.get(`/plano-terapeutico/paciente/${pId}`).catch(() => ({ data: [] })),
+        api.get(`/pacientes/${pId}`),
+        api.get(`/pacientes/${pId}/agendamentos`),
+        api.get(`/prontuarios/paciente/${pId}`),
+        api.get(`/pacientes/${pId}/financeiro`),
+        api.get(`/exercicios/paciente/${pId}`),
+        api.get(`/arquivos/paciente/${pId}`),
+        api.get(`/plano-terapeutico/paciente/${pId}`),
       ]);
 
-      if (pacRes.data) {
-        setPacienteData(pacRes.data);
-      } else {
-        setPacienteData({
-          id: "pac-lucas",
-          nome: "Maria Júlia",
-          dataNascimento: new Date("2019-03-15"),
-          status: "ATIVO",
-          escola: "Colégio Integração Infantil",
-          serie: "1º ano do Fundamental I",
-          alergias: ["Amendoim", "Picada de inseto"],
-          medicamentos: ["Nenhum de uso contínuo"],
-          diagnosticoPrincipal: "TEA Nível 1 de Suporte • TDAH",
-        });
-      }
+      setPacienteData(pacRes.data);
 
       setAgenda(agRes.data || []);
       setEvolucoes(evoRes.data || []);
@@ -130,25 +117,28 @@ export function PortalDashboardPage({
       setArquivos(arqRes.data || []);
       setMetas(ptsRes.data?.[0]?.metas || []);
     } catch (error) {
-      console.error("Erro ao carregar dados do portal:", error);
+      setLoadError("Não foi possível carregar o portal. Tente novamente.");
     } finally {
       setLoading(false);
     }
   };
 
   const handleLogout = () => {
+    api.post("/auth/logout").catch(() => {});
+    setAccessToken(null);
     localStorage.removeItem("parentName");
     localStorage.removeItem("pacienteId");
     router.push("/portal/login");
   };
 
   const openWhatsApp = (msg = "Olá, gostaria de falar com a recepção do Instituto Conectar.") => {
-    const nome = pacienteData?.nome || "Maria Júlia";
+    if (!whatsNumero) { window.open("https://institutoconectar.net.br/#contato", "_blank", "noopener,noreferrer"); return; }
+    const nome = pacienteData?.nome || "sua criança";
     const texto = `${msg} (Responsável: ${parentName}, Paciente: ${nome})`;
     window.open(`https://wa.me/${whatsNumero}?text=${encodeURIComponent(texto)}`, "_blank");
   };
 
-  const nextAppointment = agenda.length > 0 ? agenda[0] : null;
+  const nextAppointment = agenda.filter(item => new Date(item.data).getTime() >= Date.now() && item.status !== "CANCELADO").sort((a,b) => new Date(a.data).getTime() - new Date(b.data).getTime())[0] || null;
 
   // Abrir modal de novo agendamento
   const handleOpenScheduling = async () => {
@@ -157,12 +147,8 @@ export function PortalDashboardPage({
       const res = await api.get("/profissionais");
       setProfissionais(res.data || []);
     } catch {
-      setProfissionais([
-        { id: "1", especialidade: "Psicologia TCC", usuario: { nome: "Dra. Leliane Rocha" } },
-        { id: "2", especialidade: "Fonoaudiologia", usuario: { nome: "Dra. Rosana Alves" } },
-        { id: "3", especialidade: "Psicopedagogia", usuario: { nome: "Dra. Beatriz Lima" } },
-        { id: "4", especialidade: "Terapia Ocupacional", usuario: { nome: "Dr. Thiago Martins" } },
-      ]);
+      setProfissionais([]);
+      toast.error("Não foi possível carregar os profissionais. Tente novamente.");
     }
   };
 
@@ -197,14 +183,14 @@ export function PortalDashboardPage({
 
   const handleCompleteExercise = async (ex: any) => {
     try {
-      await api.patch(`/exercicios/${ex.id}`, {
+      await api.put(`/exercicios/${ex.id}`, {
         realizado: true,
         observacaoResponsavel: "Atividade realizada com sucesso em casa.",
       });
       toast.success("Parabéns! Atividade marcada como realizada 🌟");
       if (pacienteId) loadData(pacienteId);
     } catch {
-      toast.success("Atividade concluída com sucesso!");
+      toast.error("Não foi possível salvar a atividade. Tente novamente.");
     }
   };
 
@@ -213,8 +199,13 @@ export function PortalDashboardPage({
     setActiveModal("pix");
   };
 
-  const childName = pacienteData?.nome || "Maria Júlia";
-  const childAge = pacienteData?.dataNascimento ? "7 anos" : "7 anos";
+  const childName = pacienteData?.nome || "sua criança";
+  const birth = pacienteData?.dataNascimento ? new Date(pacienteData.dataNascimento) : null;
+  const today = new Date();
+  const years = birth ? today.getFullYear() - birth.getFullYear() - (today.getMonth() < birth.getMonth() || (today.getMonth() === birth.getMonth() && today.getDate() < birth.getDate()) ? 1 : 0) : null;
+  const childAge = years !== null ? `${years} ${years === 1 ? "ano" : "anos"}` : "Idade não informada";
+  if (loadError) return <main className="min-h-screen flex flex-col items-center justify-center gap-4 p-6 text-center"><p role="alert">{loadError}</p><button onClick={() => pacienteId && loadData(pacienteId)} className="px-5 py-3 rounded-xl bg-purple-600 text-white">Tentar novamente</button><button onClick={handleLogout}>Voltar ao login</button></main>;
+
 
   return (
     <>
@@ -322,6 +313,8 @@ export function PortalDashboardPage({
             <PortalFamilyScreen
               pacienteData={pacienteData}
               parentName={parentName}
+              agenda={agenda}
+              evolucoes={evolucoes}
               onOpenWhatsApp={openWhatsApp}
             />
           )}
@@ -341,6 +334,7 @@ export function PortalDashboardPage({
           {activeNavTab === "conteudos" && (
             <PortalContentScreen
               exercicios={exercicios}
+              arquivos={arquivos}
               onCompleteExercise={handleCompleteExercise}
             />
           )}
