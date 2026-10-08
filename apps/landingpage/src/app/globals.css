@@ -942,3 +942,44 @@ html {
 .mascot-affection span:nth-child(3) { left:70%; animation-delay:.24s; }
 @keyframes mascot-love { 0% { opacity:0; transform:translateY(0) scale(.5); } 20% { opacity:1; } 100% { opacity:0; transform:translateY(-65px) scale(1.2); } }
 @media (prefers-reduced-motion:reduce) { .landing-mascot-button:hover, .landing-mascot-button:active { transform:none; } .mascot-affection span { animation:none; } }
+
+/* The brand characters move independently; the wordmark stays readable. */
+.brand-interactive-logo { position:relative; display:block; aspect-ratio:3624 / 1030; flex-shrink:0; isolation:isolate; }
+.brand-header { width:270px; }
+.brand-footer { width:240px; max-width:100%; }
+.brand-interactive-logo img { object-fit:contain; }
+.brand-wordmark { clip-path:inset(0 0 0 31%); }
+.brand-character-group { position:absolute; inset:0; transform-origin:15% 50%; clip-path:inset(0 69% 0 0); }
+.brand-greeting { animation:brand-wave 1.15s ease-in-out both; }
+.brand-affection { position:absolute; inset:0; pointer-events:none; color:#8e7bbe; }
+.brand-affection span { position:absolute; top:22%; left:12%; animation:brand-spark 1.25s ease-out both; font-size:15px; }
+.brand-affection span:nth-child(2) { left:24%; top:52%; color:#ef785f; animation-delay:.1s; }
+.brand-affection span:nth-child(3) { left:3%; top:60%; color:#3d9b7e; animation-delay:.2s; }
+@keyframes brand-wave { 0%,100% { transform:rotate(0) scale(1); } 25% { transform:rotate(-5deg) scale(1.04); } 55% { transform:rotate(4deg) scale(1.04); } 80% { transform:rotate(-2deg); } }
+@keyframes brand-spark { 0% { opacity:0; transform:translateY(0) scale(.6); } 25% { opacity:1; } 100% { opacity:0; transform:translateY(-30px) scale(1.15); } }
+.interactive-scene .scene-image { transform:scale(1.025) translate3d(var(--scene-x,0px),var(--scene-y,0px),0); transition:transform .45s ease-out; }
+.scene-light { position:absolute; inset:0; background:radial-gradient(ellipse at 70% 25%, #fff5dc25, transparent 65%); opacity:0; transition:opacity .5s ease; pointer-events:none; }
+.interactive-scene:hover .scene-light { opacity:1; }
+.reference-landing .interactive-scene .hero-message { font-family:Caveat,cursive; font-size:34px; border:0; text-align:left; transform:rotate(var(--note-rotate,0deg)); transition:transform .3s ease,box-shadow .3s ease; }
+.interactive-scene .hero-message:hover { box-shadow:0 10px 30px -14px #72549c80; }
+.interactive-scene .hero-message:active { transform:scale(.97); }
+.scene-affection { position:absolute; inset:0; pointer-events:none; }
+.scene-affection span { position:absolute; left:22%; bottom:26%; font-size:26px; animation:scene-love 1.5s ease-out both; }
+.scene-affection span:nth-child(2) { left:60%; bottom:35%; animation-delay:.12s; }
+.scene-affection span:nth-child(3) { left:78%; bottom:18%; animation-delay:.24s; }
+@keyframes scene-love { 0% { opacity:0; transform:translateY(12px) scale(.7) rotate(-8deg); } 25% { opacity:1; } 100% { opacity:0; transform:translateY(-75px) scale(1.15) rotate(8deg); } }
+.scene-greeting { position:absolute; bottom:20px; right:20px; max-width:calc(100% - 40px); padding:8px 14px; border-radius:20px; background:#fcf5edee; color:#644686; font-size:14px; box-shadow:0 5px 18px -9px #64468660; pointer-events:none; }
+.scene-greeting:empty { display:none; }
+.founder-gallery .founder-portrait-image { object-position:center 38%; animation:portrait-arrive .35s ease both; }
+@keyframes portrait-arrive { from { opacity:.5; } to { opacity:1; } }
+.portrait-controls { position:absolute; bottom:14px; left:50%; transform:translateX(-50%); display:flex; border-radius:30px; background:#fcf5edf0; padding:0 3px; box-shadow:0 6px 22px -12px #64468680; }
+.portrait-controls button { width:44px; height:44px; border:0; background:transparent; display:grid; place-items:center; border-radius:50%; }
+.portrait-controls button span { width:8px; height:8px; border-radius:50%; background:#bdaacb; transition:transform .2s ease,background .2s ease; }
+.portrait-controls button[aria-pressed="true"] span { background:#72549c; transform:scale(1.4); }
+.portrait-controls button:hover span { transform:scale(1.3); }
+.footer-email { display:flex; align-items:flex-start; gap:9px; }
+.footer-email svg { flex-shrink:0; margin-top:2px; }
+.footer-email span { overflow-wrap:anywhere; min-width:0; }
+@media (max-width:1100px) { .brand-header { width:240px; } }
+@media (max-width:760px) { .brand-header { width:230px; } .reference-landing .interactive-scene .hero-message { font-size:28px; } }
+@media (prefers-reduced-motion:reduce) { .brand-greeting,.brand-affection span,.scene-affection span,.founder-portrait-image { animation:none!important; } .brand-affection,.scene-affection { display:none; } .interactive-scene .scene-image,.reference-landing .interactive-scene .hero-message,.interactive-scene .hero-message:active { transform:none; } }

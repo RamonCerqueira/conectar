@@ -3,6 +3,9 @@
 import { useEffect, useRef } from "react";
 import Image from "next/image";
 import LandingMascot from "./LandingMascot";
+import InteractiveBrandLogo from "./InteractiveBrandLogo";
+import HeroVisual from "./HeroVisual";
+import FounderPortrait from "./FounderPortrait";
 import {
   ArrowRight,
   Brain,
@@ -15,6 +18,7 @@ import {
   School,
   Sprout,
   MapPin,
+  Mail,
   Smartphone,
   UserRound,
 } from "lucide-react";
@@ -121,16 +125,7 @@ export default function ReferenceLanding({ onChat }: { onChat: () => void }) {
         Pular para o conteúdo
       </a>
       <header className="site-header shell">
-        <a href="#inicio" aria-label="Instituto Conectar — início">
-          <Image
-            className="brand-logo"
-            src="/brand/conectar.png"
-            alt="Instituto Conectar"
-            width={320}
-            height={110}
-            priority
-          />
-        </a>
+        <InteractiveBrandLogo />
         <nav aria-label="Navegação principal">
           <a href="#inicio">Início</a>
           <a href="#sobre">Quem somos</a>
@@ -166,21 +161,7 @@ export default function ReferenceLanding({ onChat }: { onChat: () => void }) {
               {contact("Fale conosco", "button button-outline")}
             </div>
           </div>
-          <div className="hero-visual">
-            <Image
-              src="/media/recepcao.webp"
-              alt="Projeto da recepção do Instituto Conectar, um ambiente acolhedor com os personagens da marca"
-              fill
-              priority
-              sizes="(max-width:760px) 100vw, 58vw"
-            />
-            <div className="hero-message">
-              Conectar pessoas,
-              <br />
-              histórias e<br />
-              potencialidades.
-            </div>
-          </div>
+          <HeroVisual />
         </section>
         <section id="ajuda" className="help-section shell">
           <h2>Como podemos ajudar seu filho?</h2>
@@ -278,14 +259,7 @@ export default function ReferenceLanding({ onChat }: { onChat: () => void }) {
           ))}
         </section>
         <section className="founder-grid shell">
-          <div className="founder-photo">
-            <Image
-              src="/leliane.jpg"
-              alt="Foto provisória para a apresentação da fundadora"
-              fill
-              sizes="(max-width:760px) 90vw, 30vw"
-            />
-          </div>
+          <FounderPortrait />
           <article id="equipe" className="founder-copy">
             <h2>
               <span>O Conectar</span> nasceu
@@ -390,9 +364,7 @@ export default function ReferenceLanding({ onChat }: { onChat: () => void }) {
       <footer className="site-footer" aria-label="Informações do Instituto Conectar">
         <div className="shell footer-main">
           <div className="footer-brand">
-            <a href="#inicio" aria-label="Instituto Conectar — início">
-              <Image src="/brand/conectar.png" alt="Instituto Conectar" width={240} height={82} />
-            </a>
+            <InteractiveBrandLogo footer />
             <p className="footer-tagline">Desenvolvimento · aprendizagem · bem-estar</p>
             <p>Conectamos crianças, famílias, escola e profissionais para acolher cada história e desenvolver potencialidades.</p>
             {contact("Converse com nossa equipe", "footer-whatsapp")}
@@ -410,6 +382,7 @@ export default function ReferenceLanding({ onChat }: { onChat: () => void }) {
             <h2>Estamos aqui para acolher</h2>
             <p className="footer-phone"><MessageCircle size={19} aria-hidden="true" /> (XX) XXXXX-XXXX</p>
             <p className="contact-updating">Número de atendimento em atualização.</p>
+            <a className="footer-email" href="mailto:atendimento@institutoconectar.net.br"><Mail size={19} aria-hidden="true" /><span>atendimento@institutoconectar.net.br</span></a>
             <address>{address}</address>
             <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`} target="_blank" rel="noopener noreferrer" className="footer-map">
               <MapPin size={18} aria-hidden="true" /> Ver no mapa e como chegar
