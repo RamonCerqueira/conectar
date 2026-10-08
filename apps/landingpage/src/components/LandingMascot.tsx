@@ -28,7 +28,7 @@ export default function LandingMascot() {
             </defs>
             {/* Bracinho esquerdo dando tchau */}
             <motion.path
-              animate={{ rotate: [0, 14, -14, 0] }}
+              animate={reducedMotion ? { rotate: 0 } : { rotate: [0, 14, -14, 0] }}
               transition={{ repeat: reducedMotion ? 0 : Infinity, duration: 1.8, ease: "easeInOut" }}
               style={{ transformOrigin: "38px 58px" }}
               d="M28 62 C15 50 10 38 12 28 C14 20 22 20 25 28 C28 35 34 50 38 58"
@@ -72,7 +72,7 @@ export default function LandingMascot() {
             <path d="M90 42 Q96 39 102 43" stroke="#29232F" strokeWidth="2.2" strokeLinecap="round" fill="none" />
             {/* Bochechinhas rosadas que pulsam */}
             <motion.circle
-              animate={{ scale: [1, 1.15, 1] }}
+              animate={reducedMotion ? { scale: 1 } : { scale: [1, 1.15, 1] }}
               transition={{ repeat: reducedMotion ? 0 : Infinity, duration: 2 }}
               cx="52"
               cy="62"
@@ -81,7 +81,7 @@ export default function LandingMascot() {
               opacity="0.9"
             />
             <motion.circle
-              animate={{ scale: [1, 1.15, 1] }}
+              animate={reducedMotion ? { scale: 1 } : { scale: [1, 1.15, 1] }}
               transition={{ repeat: reducedMotion ? 0 : Infinity, duration: 2 }}
               cx="108"
               cy="62"

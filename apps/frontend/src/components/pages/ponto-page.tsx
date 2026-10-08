@@ -65,6 +65,7 @@ export function PontoPage() {
   const [userRole, setUserRole] = useState("");
   const [activeTab, setActiveTab] = useState<"meu" | "admin-todos" | "admin-solicitacoes" | "admin-horarios" | "admin-transporte">("meu");
   const [loading, setLoading] = useState(true);
+  const [clockReady, setClockReady] = useState(false);
   const [currentTime, setCurrentTime] = useState(new Date());
 
   // Personal Time Clock State
@@ -111,6 +112,8 @@ export function PontoPage() {
 
   // Real-time Clock effect
   useEffect(() => {
+    setClockReady(true);
+    setCurrentTime(new Date());
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
@@ -574,10 +577,10 @@ export function PontoPage() {
           >
             {/* Clock Widget */}
             <div className="space-y-1">
-              <p className="text-3xl font-extrabold text-foreground font-mono">{currentTime.toLocaleTimeString("pt-BR")}</p>
+              <p className="text-3xl font-extrabold text-foreground font-mono">{clockReady ? currentTime.toLocaleTimeString("pt-BR") : "--:--:--"}</p>
               <p className="text-xs text-muted-foreground font-semibold flex items-center gap-1.5 justify-center">
                 <Calendar className="h-3.5 w-3.5" />
-                {currentTime.toLocaleDateString("pt-BR", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                {clockReady ? currentTime.toLocaleDateString("pt-BR", { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : ""}
               </p>
             </div>
 

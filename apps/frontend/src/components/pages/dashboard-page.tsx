@@ -248,7 +248,8 @@ const itemVariants = {
 };
 
 export function DashboardPage() {
-  const today = format(new Date(), "EEEE, dd 'de' MMMM 'de' yyyy", { locale: ptBR });
+  const [today, setToday] = useState("");
+  useEffect(() => { setToday(new Date().toLocaleDateString("pt-BR", { timeZone: "America/Sao_Paulo", weekday: "long", day: "2-digit", month: "long", year: "numeric" })); }, []);
 
   const [stats, setStats] = useState<StatCardType[]>(
     initialStatsCards.map(c => ({ ...c, value: c.id.includes("receita") || c.id.includes("pagamentos") ? "R$ 0,00" : "0" }))
