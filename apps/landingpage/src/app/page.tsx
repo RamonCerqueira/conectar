@@ -8,7 +8,7 @@ import { X } from "lucide-react";
 import ReferenceLanding from "@/components/ReferenceLanding";
 
 
-const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5101/api";
+const apiBase = (process.env.NEXT_PUBLIC_API_URL || (process.env.NODE_ENV === "production" ? "https://api.institutoconectar.net.br/api" : "http://localhost:5101/api")).replace(/\/+$/, "");
 
 export default function Home() {
   const reducedMotion = useReducedMotion();
