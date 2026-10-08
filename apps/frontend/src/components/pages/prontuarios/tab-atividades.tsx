@@ -1,4 +1,5 @@
 "use client";
+import { openMaterial } from "@/lib/private-download";
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -391,24 +392,7 @@ export function TabAtividades({
                 {previewMedia.tipo === "VIDEO" && (
                   <div className="space-y-2">
                     <h6 className="font-bold text-muted-foreground uppercase text-[10px]">Pré-visualização do Reprodutor de Vídeo</h6>
-                    <div className="aspect-video rounded-xl bg-black relative flex flex-col justify-between p-3 overflow-hidden border border-neutral-800">
-                      <div className="absolute inset-0 flex items-center justify-center bg-purple-950/20">
-                        <Play className="h-12 w-12 text-white animate-pulse bg-purple-600/70 p-3 rounded-full cursor-pointer" />
-                      </div>
-                      <div className="w-full flex justify-between items-center text-white text-[10px] z-10 bg-black/50 p-2 rounded-lg">
-                        <span className="font-bold">Player de Vídeo Prescrito</span>
-                        <span className="font-semibold text-neutral-300">{previewMedia.duracao || "03:45"}</span>
-                      </div>
-                      <div className="w-full space-y-1 z-10">
-                        <div className="w-full h-1.5 bg-neutral-700 rounded-full overflow-hidden">
-                          <div className="w-1/4 h-full bg-purple-500" />
-                        </div>
-                        <div className="flex justify-between items-center text-[8px] text-neutral-400">
-                          <span>01:12</span>
-                          <span>{previewMedia.duracao || "03:45"}</span>
-                        </div>
-                      </div>
-                    </div>
+                    <button className="rounded-xl p-4 bg-purple-600 text-white" onClick={()=>openMaterial(previewMedia.url,previewMedia.titulo).catch(()=>toast.error("Não foi possível abrir o vídeo."))}>Abrir vídeo</button>
                   </div>
                 )}
 
@@ -423,7 +407,7 @@ export function TabAtividades({
                       </div>
                       <button
                         type="button"
-                        onClick={() => toast.info("Simulação de download de laudo iniciada.")}
+                        onClick={() => openMaterial(previewMedia.url, previewMedia.titulo).catch(()=>toast.error("Não foi possível baixar o documento."))}
                         className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-[10px] border-0 cursor-pointer transition-all"
                       >
                         <FileDown className="h-4 w-4" /> Baixar Documento

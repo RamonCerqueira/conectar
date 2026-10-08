@@ -14,7 +14,7 @@ export class FinanceiroController {
   @Get('meus-contracheques')
   @ApiOperation({ summary: 'Listar meus holerites/contracheques recebidos' })
   findMyContracheques(@CurrentUser() user: any) {
-    return this.service.findMyContracheques(user.nome);
+    return this.service.findMyContracheques(user.id);
   }
 
   // Caixa endpoints

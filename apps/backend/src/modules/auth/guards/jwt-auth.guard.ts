@@ -21,6 +21,13 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     const req = context.switchToHttp().getRequest();
     if (req.user?.perfil !== 'PAIS') {
       const path = (req.path as string).replace(/^\/api/, '').replace(/\/$/, '');
+      if (path.startsWith('/financeiro') && !['ADMINISTRADOR','DIRETOR','FINANCEIRO'].includes(req.user.perfil)) {
+        if (req.method === 'GET' && (path === '/financeiro/meus-contracheques' || /^\/financeiro\/[^/]+\/holerite$/.test(path))) return true;
+        throw new ForbiddenException('Acesso financeiro restrito.');
+      }
+      if (path.startsWith('/comunicacao') && !['ADMINISTRADOR','DIRETOR','COORDENADOR','RECEPCAO'].includes(req.user.perfil)) throw new ForbiddenException();
+      if (path.startsWith('/arquivos') && path !== '/arquivos/download' && !['ADMINISTRADOR','DIRETOR','COORDENADOR','RECEPCAO','PSICOLOGO','PSICOPEDAGOGO','NEUROPSICÓLOGO','FONOAUDIOLOGO','TERAPEUTA_OCUPACIONAL','PEDAGOGO','SUPERVISOR'].includes(req.user.perfil)) throw new ForbiddenException();
+      if (path === '/usuarios' && req.method === 'GET' && req.user.perfil === 'FINANCEIRO') return true;
       if (path.startsWith('/usuarios') && !['ADMINISTRADOR', 'DIRETOR'].includes(req.user.perfil)) {
         const own = path === `/usuarios/${req.user.id}`;
         const ownPassword = path === `/usuarios/${req.user.id}/senha`;
@@ -36,7 +43,8 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     const path = (req.path as string).replace(/^\/api/, '').replace(/\/$/, '');
     if (path === '/auth/logout') return true;
     if (req.method === 'GET') {
-      if (path === '/profissionais') return true;
+      if (path === '/profissionais' || path === '/arquivos/download') return true;
+      if (/^\/financeiro\/[^/]+\/(pix|recibo)$/.test(path)) return true;
       const patientRoute = path.match(/^\/pacientes\/([^/]+)(?:\/(agendamentos|financeiro|evolucao))?$/);
       const clinicalRoute = path.match(/^\/(prontuarios|exercicios|arquivos|plano-terapeutico)\/paciente\/([^/]+)$/);
       const requested = patientRoute?.[1] || clinicalRoute?.[2];

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
@@ -19,9 +19,28 @@ export class FinanceiroService {
     });
   }
 
-  async create(data: any) { return this.prisma.lancamento.create({ data }); }
+  async create(body: any) {
+    const {adiantamentoIds=[],...data}=body;
+    if(!Number.isFinite(Number(data.valor)) || Number(data.valor)<=0)throw new BadRequestException('O valor deve ser positivo.');
+    if(data.colaboradorId && (data.tipo!=='DESPESA' || !/^\d{4}-\d{2}$/.test(data.referencia || '')))throw new BadRequestException('Holerite exige despesa e mês de referência.');
+    if(!Array.isArray(adiantamentoIds) || adiantamentoIds.some(id=>typeof id!=='string') || new Set(adiantamentoIds).size!==adiantamentoIds.length)throw new BadRequestException('Adiantamentos inválidos.');
+    if(data.status==='PAGO' && !data.pagamento)data.pagamento=new Date();
+    return this.prisma.$transaction(async tx=>{
+      if(adiantamentoIds.length){
+        const entries=await tx.adiantamento.findMany({where:{id:{in:adiantamentoIds},usuarioId:data.colaboradorId,mesReferencia:data.referencia,status:'PENDENTE'}});
+        if(!data.colaboradorId || entries.length!==adiantamentoIds.length)throw new BadRequestException('Adiantamento já descontado ou pertencente a outro colaborador.');
+        const updated=await tx.adiantamento.updateMany({where:{id:{in:adiantamentoIds},status:'PENDENTE'},data:{status:'DESCONTADO'}});
+        if(updated.count!==adiantamentoIds.length)throw new BadRequestException('Adiantamentos já processados. Atualize a folha.');
+      }
+      return tx.lancamento.create({data});
+    });
+  }
 
-  async update(id: string, data: any) { return this.prisma.lancamento.update({ where: { id }, data }); }
+  async update(id: string, data: any) {
+    if(data.colaboradorId){const entry=await this.prisma.lancamento.findUnique({where:{id},select:{tipo:true,referencia:true}});if(entry?.tipo!=='DESPESA' || !(data.referencia || entry.referencia))throw new BadRequestException('Vincule apenas uma despesa com mês de referência.');}
+    if(data.status==='PAGO' && !data.pagamento)data.pagamento=new Date();
+    return this.prisma.lancamento.update({ where: { id }, data });
+  }
 
   async getResumoMes(mes: string) {
     const [ano, m] = mes.split('-').map(Number);
@@ -46,9 +65,8 @@ export class FinanceiroService {
     });
   }
 
-  async findMyContracheques(_userName: string) {
-    // Legacy entries have no employee foreign key. A name match cannot establish ownership.
-    return [];
+  async findMyContracheques(userId: string) {
+    return this.prisma.lancamento.findMany({where:{colaboradorId:userId,tipo:'DESPESA'},orderBy:{criadoEm:'desc'}});
   }
 
   // ─── FECHAMENTO DE CAIXA ──────────────────────────────────────────────────
@@ -310,10 +328,10 @@ export class FinanceiroService {
 
       // Fallback to baseline if no lancamentos exist for this month
       if (receitas === 0) {
-        receitas = monthlyContractRevenue || 12000; // sensible mock fallback
+        receitas = monthlyContractRevenue; // sensible mock fallback
       }
       if (despesas === 0) {
-        despesas = monthlyStaffCost || 8500; // sensible mock fallback
+        despesas = monthlyStaffCost; // sensible mock fallback
       }
 
       result.push({

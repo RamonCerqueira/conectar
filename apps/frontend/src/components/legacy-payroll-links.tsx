@@ -1,0 +1,11 @@
+"use client";
+import { useEffect, useState } from 'react';
+import { api } from '@/lib/api';
+import { toast } from 'sonner';
+export function LegacyPayrollLinks(){
+ const [rows,setRows]=useState<any[]>([]),[users,setUsers]=useState<any[]>([]),[chosen,setChosen]=useState<Record<string,string>>({}),[month,setMonth]=useState<Record<string,string>>({}),[busy,setBusy]=useState('');
+ const load=()=>api.get('/financeiro',{params:{tipo:'DESPESA'}}).then(r=>setRows(r.data.filter((l:any)=>!l.colaboradorId && /\[Folha Salarial\]|\[Vale Transporte\]/.test(l.descricao))));
+ useEffect(()=>{load().catch(()=>{});api.get('/usuarios').then(r=>setUsers(r.data)).catch(()=>{});},[]);
+ if(!rows.length)return null;
+ return <section className="border-t pt-4 space-y-3"><h3 className="font-bold">Vincular holerites antigos</h3><p className="text-sm text-muted-foreground">Confirme o colaborador de cada lançamento. A identificação pelo nome não é aplicada automaticamente.</p>{rows.map(row=><div key={row.id} className="border rounded-xl p-4 space-y-3"><p className="text-sm font-medium">{row.descricao}</p><label className="block text-sm">Colaborador<select value={chosen[row.id] || ''} onChange={e=>setChosen({...chosen,[row.id]:e.target.value})} className="w-full border rounded-lg p-2 mt-1"><option value="">Selecione a conta correta</option>{users.map(u=><option key={u.id} value={u.id}>{u.nome} ({u.email})</option>)}</select></label><label className="block text-sm">Mês de referência<input type="month" value={month[row.id] || row.referencia || ''} onChange={e=>setMonth({...month,[row.id]:e.target.value})} className="border rounded-lg p-2 block mt-1"/></label><button disabled={!!busy || !chosen[row.id] || !(month[row.id] || row.referencia)} onClick={async()=>{setBusy(row.id);try{await api.put(`/financeiro/${row.id}`,{colaboradorId:chosen[row.id],referencia:month[row.id] || row.referencia});await load();toast.success('Holerite vinculado à conta do colaborador.');}catch{toast.error('Não foi possível vincular o lançamento.');}finally{setBusy('')}}} className="rounded-lg bg-purple-600 text-white px-4 py-2 disabled:opacity-50">{busy===row.id?'Vinculando…':'Confirmar vínculo'}</button></div>)}</section>;
+}

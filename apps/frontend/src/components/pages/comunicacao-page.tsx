@@ -27,23 +27,23 @@ import { api } from "@/lib/api";
 import { toast } from "sonner";
 
 const templates = [
-  { 
-    id: "t-1", 
-    titulo: "Confirmação de Agendamento", 
-    canal: "WHATSAPP", 
-    texto: "Olá! Confirmamos o agendamento de {{paciente}} para o dia/hora {{dataHora}}." 
+  {
+    id: "t-1",
+    titulo: "Confirmação de Agendamento",
+    canal: "WHATSAPP",
+    texto: "Olá! Confirmamos o agendamento de {{paciente}} para o dia/hora {{dataHora}}."
   },
-  { 
-    id: "t-2", 
-    titulo: "Lembrete de Cobrança", 
-    canal: "WHATSAPP", 
-    texto: "Olá! Lembramos que a mensalidade de R$ {{valor}} vence em {{vencimento}}. Chave PIX: financeiro@conectar.com.br" 
+  {
+    id: "t-2",
+    titulo: "Lembrete de Cobrança",
+    canal: "WHATSAPP",
+    texto: "Olá! Lembramos que a mensalidade de R$ {{valor}} vence em {{vencimento}}. Confira os dados de pagamento no Portal dos Pais ou com a recepção."
   },
-  { 
-    id: "t-3", 
-    titulo: "Termo Pendente LGPD", 
-    canal: "EMAIL", 
-    texto: "Prezados responsáveis, o Termo de Consentimento LGPD está pronto para assinatura digital no portal Conectar." 
+  {
+    id: "t-3",
+    titulo: "Termo Pendente LGPD",
+    canal: "EMAIL",
+    texto: "Prezados responsáveis, o Termo de Consentimento LGPD está pronto para assinatura digital no portal Conectar."
   }
 ];
 
@@ -85,7 +85,7 @@ export function ComunicacaoPage() {
       const res = await api.get("/comunicacao/whatsapp/fila");
       const formatted = (res.data || []).map((l: any) => ({
         id: l.id,
-        canal: "WHATSAPP",
+        canal: l.canal || "WHATSAPP",
         destino: l.destinatario,
         texto: l.mensagem,
         status: l.status,
@@ -151,9 +151,8 @@ export function ComunicacaoPage() {
       setDestino("");
       setTexto("");
       loadLogs();
-    } catch (error) {
-      console.error(error);
-      toast.error("Erro ao enviar mensagem pelo servidor.");
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Não foi possível enviar a mensagem.");
     }
   };
 

@@ -1,4 +1,5 @@
 "use client";
+import { PaymentCode } from "@/components/payment-code";
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -248,8 +249,8 @@ interface PortalPixModalProps {
 }
 
 export function PortalPixModal({ isOpen, onClose, currentInvoice }: PortalPixModalProps) {
-  if (!isOpen) return null;
-  return <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40"><section role="dialog" aria-modal="true" aria-label="Orientações de pagamento" className="bg-white rounded-3xl p-6 max-w-sm space-y-4 text-center"><h2 className="font-bold text-lg">Pagamento com a recepção</h2><p>{currentInvoice ? formatCurrency(currentInvoice.valor) : "Consulte o valor com a equipe."}</p><p className="text-sm text-gray-600">O pagamento por PIX no portal ainda está em configuração. Solicite os dados oficiais à recepção antes de pagar.</p><button onClick={onClose} className="px-5 py-3 rounded-xl bg-purple-600 text-white">Entendi</button></section></div>;
+ if(!isOpen || !currentInvoice)return null;
+ return <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40"><section role="dialog" aria-modal="true" aria-label="Pagamento PIX" className="bg-white rounded-3xl p-6 max-w-sm w-full max-h-[90vh] overflow-auto space-y-4"><div className="flex justify-between"><h2 className="font-bold text-lg">Pagamento PIX</h2><button aria-label="Fechar pagamento" onClick={onClose}>Fechar</button></div><PaymentCode id={currentInvoice.id}/></section></div>;
 }
 
 interface PortalSchedulingModalProps {

@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { cn, formatDate } from "@/lib/utils";
 import { api, BASE_API_URL } from "@/lib/api";
+import { openMaterial } from "@/lib/private-download";
 import { toast } from "sonner";
 
 export function ArquivosPage() {
@@ -134,12 +135,8 @@ export function ArquivosPage() {
     }
   };
 
-  const handleDownload = (arq: any) => {
-    const apiBase = BASE_API_URL;
-    const downloadUrl = arq.caminho.startsWith("http")
-      ? arq.caminho
-      : `${apiBase.replace(/\/api$/, "")}${arq.caminho}`;
-    window.open(downloadUrl, "_blank");
+  const handleDownload = async (arq: any) => {
+    try { await openMaterial(arq.caminho, arq.nomeOriginal || arq.nome); } catch { toast.error("Não foi possível baixar o arquivo. Verifique seu acesso."); }
   };
 
   const getFileIcon = (tipoArquivo: string) => {

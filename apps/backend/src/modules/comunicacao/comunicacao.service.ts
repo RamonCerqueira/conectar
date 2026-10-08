@@ -1,4 +1,5 @@
-import { Injectable, Logger } from '@nestjs/common';
+import * as nodemailer from 'nodemailer';
+import { Injectable, Logger, ServiceUnavailableException, BadRequestException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../prisma/prisma.service';
 
@@ -12,95 +13,40 @@ export class ComunicacaoService {
     return this.config.get('WHATSAPP_SERVICE_URL') || 'http://localhost:8002';
   }
 
+  private smtp() {
+    const host=this.config.get<string>('SMTP_HOST'),from=this.config.get<string>('SMTP_FROM'),user=this.config.get<string>('SMTP_USER'),pass=this.config.get<string>('SMTP_PASS');
+    if(!host || !from || !user || !pass)throw new ServiceUnavailableException('E-mail não configurado. Configure SMTP_HOST, SMTP_USER, SMTP_PASS e SMTP_FROM no servidor.');
+    const port=Number(this.config.get('SMTP_PORT') || 587);
+    return {from,transport:nodemailer.createTransport({host,port,secure:port===465,requireTLS:port!==465,auth:{user,pass},connectionTimeout:10000,socketTimeout:15000})};
+  }
+  async integrationStatus(includeQr=false) {
+    let whatsapp:any={status:'INDISPONIVEL'};
+    try { const r=await fetch(`${this.whatsappServiceUrl}/status`,{signal:AbortSignal.timeout(5000)});if(r.ok){const d=await r.json();whatsapp={status:d.status,...(includeQr && d.qrCode?{qrCode:d.qrCode}: {})};} }catch{}
+    return {email:{configurado:!!(this.config.get('SMTP_HOST') && this.config.get('SMTP_FROM') && this.config.get('SMTP_USER') && this.config.get('SMTP_PASS'))},whatsapp};
+  }
+  async verifyEmail() {const {transport}=this.smtp();try {await transport.verify();return {success:true};}catch{throw new ServiceUnavailableException('Não foi possível autenticar no servidor SMTP.');}finally{transport.close();}}
   async sendEmail(to: string, subject: string, body: string) {
-    this.logger.log(`Sending email to ${to} with subject "${subject}"`);
-    return { success: true, messageId: 'mock-id-' + Math.random().toString(36).substring(7) };
+    if(typeof to!=='string' || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to) || typeof subject!=='string' || !subject.trim() || subject.length>200 || typeof body!=='string' || !body.trim() || body.length>10000)throw new BadRequestException('Destinatário, assunto e mensagem inválidos.');
+    const {from,transport}=this.smtp();const item=await this.prisma.mensagemFila.create({data:{destinatario:to,mensagem:body,status:'PENDENTE',canal:'EMAIL'}});
+    try {const result=await transport.sendMail({from,to,subject,text:body});if(!result.accepted.length)throw Error();await this.prisma.mensagemFila.update({where:{id:item.id},data:{status:'ENVIADO'}});return {success:true,messageId:result.messageId};}
+    catch {await this.prisma.mensagemFila.update({where:{id:item.id},data:{status:'FALHA'}});throw new ServiceUnavailableException('E-mail não aceito pelo provedor. Tente novamente após verificar a integração.');}finally{transport.close();}
   }
-
   async sendWhatsApp(phone: string, text: string) {
-    this.logger.log(`Sending WhatsApp to ${phone}: "${text}"`);
+    if(typeof phone!=='string' || !/^\+?\d{10,15}$/.test(phone.replace(/[ ()-]/g,'')) || typeof text!=='string' || !text.trim() || text.length>10000)throw new BadRequestException('Telefone com DDI e mensagem são obrigatórios.');
+    const item=await this.prisma.mensagemFila.create({data:{destinatario:phone,mensagem:text,status:'PENDENTE',canal:'WHATSAPP'}});
     try {
-      const response = await fetch(`${this.whatsappServiceUrl}/send`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, message: text }),
-      });
-
-      if (!response.ok) {
-        await this.prisma.mensagemFila.create({
-          data: {
-            destinatario: phone,
-            mensagem: text,
-            status: 'FALHA'
-          }
-        });
-        throw new Error(`Failed to send WhatsApp: ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      
-      await this.prisma.mensagemFila.create({
-        data: {
-          destinatario: phone,
-          mensagem: text,
-          status: 'ENVIADO'
-        }
-      });
-
-      return data;
-    } catch (error) {
-      this.logger.error(`Error sending WhatsApp via microservice: ${error.message}`);
-      
-      await this.prisma.mensagemFila.create({
-        data: {
-          destinatario: phone,
-          mensagem: text,
-          status: 'ENVIADO'
-        }
-      });
-
-      return {
-        success: true,
-        simulado: true,
-        messageId: 'mock-wa-' + Math.random().toString(36).substring(7),
-        status: 'Mensagem enviada com sucesso no canal simulado'
-      };
-    }
+      const response=await fetch(`${this.whatsappServiceUrl}/send`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone,message:text}),signal:AbortSignal.timeout(20000)});
+      if(!response.ok)throw Error();const data=await response.json();if(!data.success || data.simulado || !data.messageId)throw Error();
+      await this.prisma.mensagemFila.update({where:{id:item.id},data:{status:'ENVIADO'}});return data;
+    }catch {await this.prisma.mensagemFila.update({where:{id:item.id},data:{status:'FALHA'}});throw new ServiceUnavailableException('WhatsApp não enviado. Confira a conexão do número oficial.');}
   }
-
   async sendAgendamentoConfirmacao(pacienteNome: string, responsavelPhone: string, dataHora: string) {
-    const text = `Olá! Confirmamos o agendamento de ${pacienteNome} para o dia/hora ${dataHora}. Caso precise desmarcar, avise com 24h de antecedência.`;
-    return this.sendWhatsApp(responsavelPhone, text);
+    return this.sendWhatsApp(responsavelPhone,`Olá! Confirmamos o agendamento de ${pacienteNome} para ${dataHora}. Caso precise desmarcar, avise com 24h de antecedência.`);
   }
-
   async sendLembreteCobranca(responsavelNome: string, responsavelPhone: string, valor: string, vencimento: string) {
-    const text = `Olá ${responsavelNome}! Lembramos que a mensalidade de R$ ${valor} vence em ${vencimento}. Chave PIX: financeiro@conectar.com.br`;
-    return this.sendWhatsApp(responsavelPhone, text);
+    return this.sendWhatsApp(responsavelPhone,`Olá ${responsavelNome}! Lembramos que a mensalidade de R$ ${valor} vence em ${vencimento}. Confira os dados de pagamento no Portal dos Pais ou com a recepção.`);
   }
-
-  async getWhatsAppQueue() {
-    const list = await this.prisma.mensagemFila.findMany({
-      orderBy: { criadoEm: 'desc' },
-      take: 50
-    });
-
-    if (list.length === 0) {
-      const initialLogs = [
-        { destinatario: '(11) 99999-1111', mensagem: 'Olá Ramon Cerqueira! Confirmamos o agendamento de Pedro para o dia 28/06 às 14:00.', status: 'ENVIADO' },
-        { destinatario: '(11) 99999-2222', mensagem: 'Olá Maria Silva! Lembramos que a mensalidade de R$ 1.200,00 vence em 10/07. Chave PIX: financeiro@conectar.com.br', status: 'ENVIADO' },
-        { destinatario: '(11) 99999-3333', mensagem: 'Olá José Souza! Termo de Consentimento LGPD está pronto para assinatura no portal.', status: 'PENDENTE' },
-        { destinatario: '(11) 99999-4444', mensagem: 'Olá Ana Costa! Aviso de atraso de parcela vencida em 10/06. Favor entrar em contato.', status: 'FALHA' }
-      ];
-      for (const log of initialLogs) {
-        await this.prisma.mensagemFila.create({ data: log });
-      }
-      return this.prisma.mensagemFila.findMany({
-        orderBy: { criadoEm: 'desc' }
-      });
-    }
-
-    return list;
-  }
+  async getWhatsAppQueue() {return this.prisma.mensagemFila.findMany({orderBy:{criadoEm:'desc'},take:50});}
 
   // ─── CHATBOT & LEADS TRIAGEM METHODS ──────────────────────────────────────
   

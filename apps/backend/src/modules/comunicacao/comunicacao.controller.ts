@@ -1,4 +1,6 @@
-import { Controller, Post, Get, Body, Delete, Param, Put, UseGuards } from '@nestjs/common';
+import * as QRCode from 'qrcode';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { Controller, Post, Get, Body, Delete, Param, Put, UseGuards, ForbiddenException } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { Public } from '../auth/decorators/public.decorator';
 import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
@@ -23,6 +25,12 @@ export class ComunicacaoController {
     return { success: true };
   }
 
+  @Get('integracoes/status')
+  getIntegrations(@CurrentUser() user:any) {return this.comunicacaoService.integrationStatus(['ADMINISTRADOR','DIRETOR'].includes(user.perfil));}
+  @Get('integracoes/qr')
+  async whatsappQr(@CurrentUser() user:any) {if(!['ADMINISTRADOR','DIRETOR'].includes(user.perfil))throw new ForbiddenException();const status=await this.comunicacaoService.integrationStatus(true);return {qrCode:status.whatsapp.qrCode ? await QRCode.toDataURL(status.whatsapp.qrCode) : null};}
+  @Post('integracoes/verificar-email')
+  verifyEmail(@CurrentUser() user:any) {if(!['ADMINISTRADOR','DIRETOR'].includes(user.perfil))throw new ForbiddenException();return this.comunicacaoService.verifyEmail();}
   @Get('whatsapp/fila')
   @ApiOperation({ summary: 'Listar histórico/fila de mensagens enviadas do WhatsApp' })
   getWhatsAppQueue() {
