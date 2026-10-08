@@ -986,7 +986,7 @@ export function FinanceiroPage() {
                           )}
                           {l.status === "PAGO" && (
                             <div className="flex justify-end gap-1.5">
-                              {(l.descricao.includes("[Folha Salarial]") || l.descricao.includes("[Vale Transporte]")) && (
+                              {l.colaboradorId && (
                                 <button
                                   onClick={() => handlePrintContracheque(l)}
                                   className="py-1.5 px-2.5 rounded-lg border border-purple-500/20 text-purple-400 font-bold hover:bg-purple-500/10 transition-all cursor-pointer text-[10px] uppercase tracking-wider flex items-center gap-1"
@@ -995,6 +995,7 @@ export function FinanceiroPage() {
                                   <span>Contracheque</span>
                                 </button>
                               )}
+                              {l.tipo === "RECEITA" && (
                               <button
                                 onClick={() => handlePrintComprovante(l)}
                                 className="py-1.5 px-2.5 rounded-lg border border-zinc-500/20 text-zinc-400 font-bold hover:bg-zinc-500/10 transition-all cursor-pointer text-[10px] uppercase tracking-wider flex items-center gap-1"
@@ -1002,6 +1003,7 @@ export function FinanceiroPage() {
                                 <Download className="h-3.5 w-3.5" />
                                 <span>Recibo</span>
                               </button>
+                              )}
                             </div>
                           )}
                         </td>
@@ -1217,9 +1219,8 @@ export function FinanceiroPage() {
                           <td className="p-4 text-right">
                             <button
                               onClick={() => {
-                                const text = `Olá! Gostaríamos de lembrar que a cobrança de "${l.descricao}" no valor de ${formatCurrency(l.valor)} venceu em ${formatDate(l.vencimento)} e consta pendente no Instituto Conectar. Chave PIX CNPJ: 12.345.678/0001-99. Obrigado!`;
-                                navigator.clipboard.writeText(text);
-                                toast.success("Mensagem de cobrança copiada para a área de transferência!");
+                                const text = `Olá! Gostaríamos de lembrar que a cobrança de "${l.descricao}" no valor de ${formatCurrency(l.valor)} venceu em ${formatDate(l.vencimento)} e consta pendente no Instituto Conectar. Confira os dados oficiais de pagamento no Portal dos Pais ou com a recepção. Obrigado!`;
+                                navigator.clipboard.writeText(text).then(()=>toast.success("Mensagem de cobrança copiada para a área de transferência!")).catch(()=>toast.error("Não foi possível copiar o aviso."));
                               }}
                               className="inline-flex items-center gap-1.5 py-1.5 px-3 rounded-lg border border-purple-500/20 text-purple-400 font-bold hover:bg-purple-500/10 text-[10px] uppercase tracking-wider cursor-pointer"
                             >
